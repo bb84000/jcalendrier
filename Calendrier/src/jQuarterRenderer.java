@@ -19,7 +19,9 @@ public class jQuarterRenderer extends DefaultTableCellRenderer {
     private int month;
     private int dow;
     
-    
+    public void setYear (int y){
+    	year = y;
+    }
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
     {Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
