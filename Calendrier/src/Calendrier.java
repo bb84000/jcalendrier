@@ -85,7 +85,7 @@ public class Calendrier {
 	private JPanel pane_center_h2;
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel1;
-	
+	private jQuarterRenderer Quarter;
 
 	/**
 	 * Launch the application.
@@ -234,7 +234,8 @@ public class Calendrier {
 		gbc_pane_q1.gridy = 0;
 		pane_h1.add(pane_q1, gbc_pane_q1);
 		
-				
+				Quarter = new jQuarterRenderer();
+				Quarter.setYear(Year);
 				table_q1 = new JTable();
 				table_q1.setRowMargin(0);
 				table_q1.setPreferredScrollableViewportSize(new Dimension(307, 612));
@@ -243,8 +244,8 @@ public class Calendrier {
 				table_q1.setMaximumSize(new Dimension(307, 612));
 				table_q1.setMinimumSize(new Dimension(307, 612));
 				table_q1.setPreferredSize(new Dimension(307, 612));
-				table_q1.setName(syear+"-1");
-				table_q1.setDefaultRenderer(Object.class, new jQuarterRenderer());
+				table_q1.setName("1");
+				table_q1.setDefaultRenderer(Object.class, Quarter);
 				table_q1.setRowHeight(19);
 				table_q1.setRowMargin(1);
 				table_q1.setRowSelectionAllowed(false);
@@ -316,8 +317,8 @@ public class Calendrier {
 				table_q2.setMaximumSize(new Dimension(307, 612));
 				table_q2.setPreferredSize(new Dimension(307, 612));
 				table_q2.setFont(new Font("Tahoma", Font.PLAIN, 10));
-				table_q2.setName(syear+"-2");
-				table_q2.setDefaultRenderer(Object.class, new jQuarterRenderer());
+				table_q2.setName("2");
+				table_q2.setDefaultRenderer(Object.class, Quarter);
 				table_q2.setRowHeight(19);
 				table_q2.setRowMargin(1);
 				table_q2.setPreferredScrollableViewportSize(new Dimension(307, 612));
@@ -425,8 +426,8 @@ public class Calendrier {
 		table_q3.setMaximumSize(new Dimension(307, 612));
 		table_q3.setMinimumSize(new Dimension(307, 612));
 		table_q3.setPreferredSize(new Dimension(307, 612));
-		table_q3.setName(syear+"-3");
-		table_q3.setDefaultRenderer(Object.class, new jQuarterRenderer());
+		table_q3.setName("3");
+		table_q3.setDefaultRenderer(Object.class, Quarter);
 		table_q3.setRowHeight(19);
 		table_q3.setRowMargin(1);
 		table_q3.setRowSelectionAllowed(false);
@@ -496,8 +497,8 @@ public class Calendrier {
 		table_q4.setPreferredSize(new Dimension(307, 612));
 		table_q4.setRowMargin(0);
 		table_q4.setFont(new Font("Tahoma", Font.PLAIN, 10));
-		table_q4.setName(syear+"-4");
-		table_q4.setDefaultRenderer(Object.class, new jQuarterRenderer());
+		table_q4.setName("4");
+		table_q4.setDefaultRenderer(Object.class, Quarter);
 		table_q4.setRowHeight(19);
 		table_q4.setRowMargin(1);
 		table_q4.setPreferredScrollableViewportSize(new Dimension(307, 612));
@@ -608,15 +609,17 @@ public class Calendrier {
 		  }
 	      public void warn() {
 			if (!Init ) {
-			 	String syear =YearField.getText();
+			 	
+				String syear =YearField.getText();
 				if (syear.length() > 0) {
-				  	table_q1.setName(syear+"-1");
-					table_q2.setName(syear+"-2");
-					table_q3.setName(syear+"-3");
-					table_q4.setName(syear+"-4");
-					frmCalendrier.setTitle("Calendrier - "+syear);
 					Year= Integer.parseInt(syear);
-			        frmCalendrier.repaint();
+					Quarter.setYear(Year);
+				  	//table_q1.setName(syear+"-1");
+					//table_q2.setName(syear+"-2");
+					//table_q3.setName(syear+"-3");
+					//table_q4.setName(syear+"-4");
+					frmCalendrier.setTitle("Calendrier - "+syear);
+					frmCalendrier.repaint();
 			    }
 			  }
 		   }
@@ -663,14 +666,14 @@ public class Calendrier {
               Init= true;
 		      if (tabpane.getSelectedIndex() == curindex) {
 			  Year = Year+btn; 			 
-			  
+			  Quarter.setYear(Year);
 			  String syear ="";
 			  syear += Year;
 			  YearField.setText(syear);
-			  table_q1.setName(syear+"-1");
-			  table_q2.setName(syear+"-2");
-			  table_q3.setName(syear+"-3");
-			  table_q4.setName(syear+"-4");
+			 //table_q1.setName(syear+"-1");
+			  //table_q2.setName(syear+"-2");
+			  //table_q3.setName(syear+"-3");
+			  //table_q4.setName(syear+"-4");
 			  frmCalendrier.setTitle("Calendrier - "+syear);
 			  frmCalendrier.repaint();
 			  tabpane.setSelectedIndex(previndex);

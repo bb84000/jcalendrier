@@ -25,12 +25,12 @@ public class jQuarterRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
     {Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        int pos = table.getName().indexOf("-");
-        String syear =  table.getName().substring(0, pos); 
-        year = Integer.parseInt(syear);   
+        //int pos = table.getName().indexOf("-");
+        //String syear =  table.getName().substring(0, pos); 
+        //year = Integer.parseInt(syear);   
     	//quarter = Integer.parseInt(table.getName().substring(5))-1;
         //year = Integer.parseInt(table.getName().substring(0, 4));   
-    	quarter = Integer.parseInt(table.getName().substring(pos+1))-1;
+    	quarter = Integer.parseInt(table.getName())-1;
         month = column+1+quarter*3;
     	DateTime dt;
 		JLabel label = (JLabel) component;
@@ -53,7 +53,7 @@ public class jQuarterRenderer extends DefaultTableCellRenderer {
 		        	saint = saints.saints [row][month-1];
 		        	caption += " "+saint;
 		        	// Couleur dimanches
-		        if (dow == 1) {  
+		        if (dow == 7) {  
 		        	clr = new Color(0, 255, 255);
                     //component.setBackground(clr);
                     label.setBackground(clr);
