@@ -235,6 +235,12 @@ public class Calendrier {
 		pane_h1.add(pane_q1, gbc_pane_q1);
 		
 				Quarter = new jQuarterRenderer();
+				try {
+					Quarter.Init();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				Quarter.setYear(Year);
 				table_q1 = new JTable();
 				table_q1.setRowMargin(0);

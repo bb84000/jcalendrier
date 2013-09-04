@@ -11,6 +11,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class jQuarterRenderer extends DefaultTableCellRenderer {
     private int year;
     private int quarter;
@@ -18,6 +21,26 @@ public class jQuarterRenderer extends DefaultTableCellRenderer {
     String iniday= "L";
     private int month;
     private int dow;
+    private CSVRead csvsaints;
+      
+    
+    public void Init () throws Exception {
+        // chargement des saints à partir de la liste externe 
+    	csvsaints = new CSVRead();
+		if (!csvsaints.readCSV("saints.csv")) {
+			   csvsaints.Liste= null; 
+		}
+    }
+    
+	private String getSaint(int m, int d){
+		//Si la liste externe n'est pas chargée, on prend la liste interne
+		if (csvsaints.Liste==null) {
+			return saints.saints [d][m];
+		}
+		else {
+		   return csvsaints.Liste.get(d)[m];
+		}
+	}
     
     public void setYear (int y){
     	year = y;
@@ -25,11 +48,6 @@ public class jQuarterRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
     {Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        //int pos = table.getName().indexOf("-");
-        //String syear =  table.getName().substring(0, pos); 
-        //year = Integer.parseInt(syear);   
-    	//quarter = Integer.parseInt(table.getName().substring(5))-1;
-        //year = Integer.parseInt(table.getName().substring(0, 4));   
     	quarter = Integer.parseInt(table.getName())-1;
         month = column+1+quarter*3;
     	DateTime dt;
@@ -50,7 +68,7 @@ public class jQuarterRenderer extends DefaultTableCellRenderer {
 				caption +=" "+iniday;
 		        String saint = "";
 		        if (month == column+1+quarter*3) {
-		        	saint = saints.saints [row][month-1];
+		        	saint = getSaint(month-1, row); //saints.saints [row][month-1];
 		        	caption += " "+saint;
 		        	// Couleur dimanches
 		        if (dow == 7) {  
