@@ -116,8 +116,6 @@ public class Calendrier {
 	private void initialize() {
 		Init=true;
 		// Année en cours
-		//Calendar cld = Calendar.getInstance();
-    	//Year = cld.get(Calendar.YEAR);
 		DateTime dt = new DateTime();
 		Year = dt.getYear();
 		
