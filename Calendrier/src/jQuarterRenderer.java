@@ -22,31 +22,19 @@ public class jQuarterRenderer extends DefaultTableCellRenderer {
     String iniday= "L";
     private int month;
     private int dow;
-    private CSVRead csvsaints;
-    private uPhaseMoon Moon;
+    private uPhaseMoon Moon = new uPhaseMoon();
     public String[][] MoonDays = new String[56][2]; 
+    public saints Saints = new saints();
+   
+    // initialization
+    jQuarterRenderer () throws Exception {
+    	// chargement des listes diverses si nécessaire 
+		
+    }
     
-    public void Init () throws Exception {
-        // chargement des saints à partir de la liste externe 
-    	csvsaints = new CSVRead();
-		if (!csvsaints.readCSV("saints.csv")) {
-			   csvsaints.Liste= null; 
-		}
-		Moon = new uPhaseMoon();
-	}
-    
-	public String getSaint(int m, int d){
-		//Si la liste externe n'est pas chargée, on prend la liste interne
-		if (csvsaints.Liste==null) {
-			return saints.saints [d][m];
-		}
-		else {
-		   return csvsaints.Liste.get(d)[m];
-		}
-	}
-    
-	
-	
+    // Choisit l'année; Crée en même temps la table des lunaisons
+	// Todo ajouter les phases solaires
+	//Todo ajouter les vacances scolaires
 	public void setYear (int y){
     	year = y;
         Moon.Get_MoonDays(MoonDays, y);
@@ -75,7 +63,7 @@ public class jQuarterRenderer extends DefaultTableCellRenderer {
 				caption +=" "+iniday;
 		        String saint = "";
 		        if (month == column+1+quarter*3) {
-		        	saint = getSaint(month-1, row); //saints.saints [row][month-1];
+		        	saint = Saints.saints [row][month-1];
 		        	caption += " "+saint;
 		        	// Couleur dimanches
 		        if (dow == 7) {  

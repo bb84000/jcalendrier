@@ -155,6 +155,14 @@ public class Calendrier {
 			}
 		} 
 		
+		// Classe contenant le rendu des tables et autres éléments nécessaires 
+		
+		try {
+			Quarter = new jQuarterRenderer();
+		} catch (Exception e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
 		// Création de la forme
 
@@ -232,9 +240,9 @@ public class Calendrier {
 		gbc_pane_q1.gridy = 0;
 		pane_h1.add(pane_q1, gbc_pane_q1);
 		
-				Quarter = new jQuarterRenderer();
+				
 				try {
-					Quarter.Init();
+					//Quarter.Init();
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -656,7 +664,7 @@ public class Calendrier {
 				
 
 			}
-		
+		//System.out.print(Quarter.M);	
 	Init = false;	
 	}
 	

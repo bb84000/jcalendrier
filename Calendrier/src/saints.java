@@ -3,7 +3,8 @@
 public class saints {
 	
     
-	
+	private CSVRead csvsaints = new CSVRead();
+
 	public static final String[][] saints = {
 			{"Jour de l'An","Ste Ella","St Aubin","St Hugues","St Brieuc","St Justin","St Thierry","St Alphonse","St Gilles","Ste Thérèse E.J.","Toussaint","Ste Florence"},
             {"St Basile","Présentation","St Charles le B.","Ste Sandrine","St Boris","Ste Blandine","St Martinien","St Julien-Eym.","Ste Ingrid","St Léger","Défunts","Ste Viviane"},
@@ -38,5 +39,18 @@ public class saints {
             {"Ste Marcelle","","St Benjamin","","Visitation","","St Ignace de L.","St Aristide","","St Quentin","","St Sylvestre"}
 	};
 	
-
+	saints () throws Exception {
+	   // chargement des saints à partir de la liste externe si elle existe
+		if (!csvsaints.readCSV("saints.csv")) {
+			   csvsaints.Liste= null; 
+		}
+		else
+		{
+			for (int i=0; i<=30; i+=1) {
+				for (int j=0; j<=11; j+=1) {
+					saints[i][j] = csvsaints.Liste.get(i)[j];
+				}
+			}	
+		}
+	}
 }
