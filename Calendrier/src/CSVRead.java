@@ -1,9 +1,10 @@
-/* Routine de lecture d'un fichier CSV délimité par des virgules
- * Remplit un ArrayList :colonne,ligne; 
+/*
+ * CSVRead : intially developped as part of Calendrier project
+ * Create an arraylist of arrays representing the csv file content : [line] [column]
+ * bb - sdtp - september 2013
  * 
  */
 import java.io.*;
-import java.util.Arrays;
 import java.util.ArrayList;
 
 public class CSVRead{
@@ -13,6 +14,7 @@ public class CSVRead{
 
     
 	public boolean readCSV  (String filename) throws Exception  {  
+		boolean result= true;
 		File file = new File(filename);
 		if (file.exists()) {
 			Liste = new ArrayList<String[]>();
@@ -34,12 +36,11 @@ public class CSVRead{
 		   }
 		   // Close the file once all data has been read.
 		   CSVFile.close();
-		   return true;
 	   }
 	   else {
-		   return false;	
+		   result= false;
 	   }
- 	
+ 	 return result;
 }
 } // CSVRead
 

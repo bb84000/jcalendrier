@@ -1,62 +1,36 @@
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-
-import java.awt.Graphics;
-import java.awt.Toolkit;
-import java.awt.Dimension;
-
-import javax.swing.JPanel;
-import javax.swing.JOptionPane;
-
 import java.awt.BorderLayout;
-
-import javax.swing.border.BevelBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.Image;
-import java.awt.Component;
-import java.awt.Point;
-
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.JScrollBar;
-import javax.swing.ImageIcon;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-
-import java.awt.ScrollPane;
-import java.awt.Panel;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
-import java.util.Calendar;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
-import javax.swing.border.LineBorder;
-import javax.swing.JTextField;
-import javax.swing.event.*;
-
-import java.awt.Color; 
-
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Rectangle;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 import org.joda.time.DateTime;
-
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 public class Calendrier {
 
@@ -76,7 +50,6 @@ public class Calendrier {
     private JTable table_q2;
     private JTable table_q3;
     private JTable table_q4;
-    private Image MainIcon;
 	private int Year;
 	private Boolean Init;
 	private String  workingDirectory; 
@@ -85,7 +58,7 @@ public class Calendrier {
 	private JPanel pane_center_h2;
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel1;
-	private jQuarterRenderer Quarter;
+	private DayCalRenderer Quarter;
 
 	/**
 	 * Launch the application.
@@ -121,7 +94,7 @@ public class Calendrier {
 		
 		
 		//Icone de l'application
-		MainIcon = Toolkit.getDefaultToolkit().getImage(getClass().getResource("calendrier.png"));
+		Image MainIcon = Toolkit.getDefaultToolkit().getImage(Calendrier.class.getResource("/resources/calendrier.png"));
 		
 		// Répertoire de travail
 		String OS = (System.getProperty("os.name")).toUpperCase();
@@ -158,7 +131,7 @@ public class Calendrier {
 		// Classe contenant le rendu des tables et autres éléments nécessaires 
 		
 		try {
-			Quarter = new jQuarterRenderer();
+			Quarter = new DayCalRenderer();
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -169,7 +142,9 @@ public class Calendrier {
 		frmCalendrier = new JFrame() 
         // Maximum size bug
 		{ 		 
-	            @Override
+			private static final long serialVersionUID = 1L;
+
+				@Override
 	            public void paint(Graphics g) {
 	                Dimension d = getSize();
 	                Dimension m = getMaximumSize();
@@ -196,7 +171,7 @@ public class Calendrier {
 		frmCalendrier.setPreferredSize(new Dimension(1182, 728));
 		
 		//frmCalendrier.setSize(new Dimension(1186, 730));
-		frmCalendrier.setIconImage(Toolkit.getDefaultToolkit().getImage(Calendrier.class.getResource("/resources/calendrier.png")));
+		frmCalendrier.setIconImage(MainIcon);
 		frmCalendrier.setBounds(100, 100, 450, 300);
 		frmCalendrier.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmCalendrier.setSize(1180, 719);

@@ -1,11 +1,18 @@
-
+/*
+ * saints : part of Calendrier project
+ * List of saints for the french calendar
+ * This class can import an external list in CSV format if available in the current path to replace internal one
+ * bb - sdtp - september 2013
+ * 
+ */
 
 public class saints {
 	
     
 	private CSVRead csvsaints = new CSVRead();
 
-	public static final String[][] saints = {
+	// Default saints array and template
+	public String[][] saints = {
 			{"Jour de l'An","Ste Ella","St Aubin","St Hugues","St Brieuc","St Justin","St Thierry","St Alphonse","St Gilles","Ste Thérèse E.J.","Toussaint","Ste Florence"},
             {"St Basile","Présentation","St Charles le B.","Ste Sandrine","St Boris","Ste Blandine","St Martinien","St Julien-Eym.","Ste Ingrid","St Léger","Défunts","Ste Viviane"},
             {"Ste Geneviève","St Blaise","St Guénolé","St Richard","St Jacques/Philippe","St Kévin","St Thomas","Ste Lydie","St Grégoire","St Gérard","St Hubert","St Xavier"},
@@ -39,18 +46,28 @@ public class saints {
             {"Ste Marcelle","","St Benjamin","","Visitation","","St Ignace de L.","St Aristide","","St Quentin","","St Sylvestre"}
 	};
 	
-	saints () throws Exception {
-	   // chargement des saints à partir de la liste externe si elle existe
+	// Constructor : Try to load an external CSV list ("saints.csv")
+	
+	saints () throws Exception  {
+	    
 		if (!csvsaints.readCSV("saints.csv")) {
-			   csvsaints.Liste= null; 
+			csvsaints.Liste= null; 
 		}
-		else
-		{
-			for (int i=0; i<=30; i+=1) {
-				for (int j=0; j<=11; j+=1) {
-					saints[i][j] = csvsaints.Liste.get(i)[j];
-				}
-			}	
-		}
-	}
+		else {
+			// only existing lines and columns are imported
+			// Blank fields are ignored, so you can make a list with only the names to change
+			try {
+				for (int i=0; i<31; i+=1) {
+					for (int j=0; j<12; j+=1) {
+					   String s = csvsaints.Liste.get(i)[j];
+					   if (s.length() > 0) saints[i][j] = s; 
+				    }
+			    }
+			}
+			catch (Exception e){
+			// do nothing, it is only to treat errors in the list
+			}
+		}	
+	} // end constructor saints
+
 }
