@@ -58,8 +58,8 @@ public class Calendrier {
 	private JPanel pane_center_h2;
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel1;
+	//private DayCalRenderer Quarter;
 	private DayCalRenderer Quarter;
-
 	/**
 	 * Launch the application.
 	 */
@@ -131,6 +131,7 @@ public class Calendrier {
 		// Classe contenant le rendu des tables et autres éléments nécessaires 
 		
 		try {
+			//Quarter = new DayCalRenderer();
 			Quarter = new DayCalRenderer();
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block

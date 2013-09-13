@@ -1,21 +1,37 @@
-import java.awt.Color;
-import java.awt.Component;
+/*
+ * Table cell renderer and functions to populate the calendar
+ * Use an extended label with a custom paint method to have the mmoon icons
+ * on the right of the cell.  
+ */
+
+
+import java.awt.*;
 import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.*;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 
-public class DayCalRenderer extends DefaultTableCellRenderer {
 
+class DayCalRenderer
+	extends		JLabel
+	implements	TableCellRenderer
+{
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
+	private ImageIcon Image = null;
+	private Color bkcolor = new Color(255,255,255);
+	
+
+	private saints Saints = new saints();
+	
 	private int year;
     private int quarter;
     String days= "DLMMJVSD";
@@ -24,10 +40,14 @@ public class DayCalRenderer extends DefaultTableCellRenderer {
     //private int dow;
     private PhaseMoon Moon = new PhaseMoon();
     private String[][] MoonDays = new String[56][2]; 
-    public saints Saints = new saints();
-    private boolean okMoon;
-    public ArrayList<CalDay> YearDays= new ArrayList<CalDay>();;
     
+    //
+   
+    private boolean okMoon;
+    // Arraylist containing all year days with their properties
+    public ArrayList<CalDay> YearDays= new ArrayList<CalDay>();
+    
+ // Day structure and properties
     public class CalDay {
     	public DateTime date;
     	public String sdate;
@@ -41,18 +61,13 @@ public class DayCalRenderer extends DefaultTableCellRenderer {
 			this.timelune= timelune;
 			this.typelune= typelune;
 		}
-
-    	
-    }
+     }
     
-    
-    
-    // initialization
-    DayCalRenderer () throws Exception {
-    	// todo 
+	public DayCalRenderer  ()
+	{
 		
-    }
-    
+	}
+	
     // Set the displayed year
     // Todo ajouter les phases solaires
 	//Todo ajouter les vacances scolaires
@@ -92,75 +107,103 @@ public class DayCalRenderer extends DefaultTableCellRenderer {
 				}
            	}
         }
-       // for (int i=0; i<365; i+=1) {
-       // 	System.out.println(YearDays.get(i).saint+"  "+YearDays.get(i).typelune ); 
-       // }
 	}
 	
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
-    {Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-    	
-    quarter = Integer.parseInt(table.getName())-1;
+	@Override
+	public Component getTableCellRendererComponent( JTable table,
+				Object value, boolean isSelected, boolean hasFocus,
+				int row, int column )
+	{
+		// Retrieve table font 
+	    Color sunday_col = new Color(0, 255, 255);
+		setFont(table.getFont());
+		quarter = Integer.parseInt(table.getName())-1;
         month = column+1+quarter*3;
     	DateTime dt;
-		JLabel label = (JLabel) component ;
-		Color clr = new Color(255, 255, 255);
-		label.setBackground(clr);
-    	Color clf = new Color(64,64,64);
+		setBackground(table.getBackground());
+    	String caption="";
+  	    setForeground(table.getForeground());
+  	    try {
+			dt = new DateTime(year, month, row+1, 12, 0 );
+			int dow = dt.getDayOfWeek();
+			int dy = dt.getDayOfYear();
+			iniday= days.substring(dow,dow+1 );
+		    caption += row+1;
+			caption +=" "+iniday;
+	        String saint = "";
+	       // if (month == column+1+quarter*3) 
+	        //{
+	        //	saint = Saints.saints [row][month-1];
+	        saint=  YearDays.get(dy-1).saint;
+	        caption += " "+saint;
+	        	// Couleur dimanches
+	        if (dow == 7) {  
+	        	
+              //component.setBackground(clr);
+              setBackground(sunday_col);
+            }
+          // Lune ?
+	        // Todo replace with moon icon
+	        if (okMoon) {
+	        	String lune = YearDays.get(dy-1).typelune;
+	        	if (lune.length() > 0) {
+	        		ImageIcon icon = new ImageIcon(this.getClass().getResource("/resources/"+lune+".png"));
+	        		setHorizontalTextPosition(SwingConstants.LEFT);
+	        		setIcon(icon);
+	        		
+	        	} else setIcon(null);
+	        }
+	       //Bold border around the current day ;
+	        DateTime now;
+	        now = new DateTime();
+	        if ((now.getYear()==dt.getYear()) && (now.getDayOfYear()==dt.getDayOfYear()))// && (now.getDayOfMonth()ayOfMonth()==dt.dayOfMonth())) 
+              	{
+              		Border line = BorderFactory.createLineBorder(table.getForeground(), 2);
+              		setBorder(line);
+      	    
+              	}
+	        else setBorder(null);
+	        setText( caption );
+ 	    } catch (Exception e) {
+			// N?e fait rien, le jopur n'existe pas
+			setText ("");
+  	  }
+  	    return this;
+	}
 
-  	    label.setForeground(clf);
-    	//component.setBackground(clr);
-    	String caption = "";
-       
-			try {
-				dt = new DateTime(year, month, row+1, 12, 0 );
-				int dow = dt.getDayOfWeek();
-				int dy = dt.getDayOfYear();
-				iniday= days.substring(dow,dow+1 );
-			    caption += row+1;
-				caption +=" "+iniday;
-		        String saint = "";
-		       // if (month == column+1+quarter*3) 
-		        //{
-		        //	saint = Saints.saints [row][month-1];
-		        saint=  YearDays.get(dy-1).saint;
-		        caption += " "+saint;
-		        	// Couleur dimanches
-		        if (dow == 7) {  
-		        	clr = new Color(0, 255, 255);
-                    //component.setBackground(clr);
-                    label.setBackground(clr);
-                  }
-                // Lune ?
-		        
-		        if (okMoon) {
-		        	String lune = YearDays.get(dy-1).typelune;
-		        	if (lune.length() > 0) {
-		        		if (caption.length() >16) {
-		        		    			caption= caption.substring(0, 15);
-		        		    		}
-		        		    		caption += " ("+lune+")";
-		        	}
-		        }
-		       //Bold border around the current day ;
-               DateTime now;
-               now = new DateTime();
-               if ((now.getYear()==dt.getYear()) && (now.getDayOfYear()==dt.getDayOfYear()))// && (now.getDayOfMonth()ayOfMonth()==dt.dayOfMonth())) 
-                    {
-                    Border line = BorderFactory.createLineBorder(clf, 2);
-            	    label.setBorder(line);
-            	    
-              }
-          label.setText(caption);
-		   // }
-			} catch (Exception e) {
-				// N?e fait rien, le jopur n'existe pas
-				//e.printStackTrace();
-			}
 	
-    
-    return component;
-    }
-}
+	public void paint( Graphics g )
+	{
+		// This is a hack to paint the background.  Normally a JLabel can
+		// paint its own background, but due to an apparent bug or
+		// limitation in the TreeCellRenderer, the paint method is
+		// required to handle this.
+		g.setColor(this.bkcolor);	
+		// Draw a rectangle in the background of the cell
+		g.fillRect( 0, 0, getWidth() - 1, getHeight() - 1 );
+		
+		super.paint( g );
+		// Paint icon on right side of label
+		try {
+			if (this.Image != null){   
+				int x = getWidth()- Image.getIconWidth() -1;
+				int y = (getHeight()-this.Image.getIconHeight()) / 2;			
+			this.Image.paintIcon(this, g, x, y);}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+		
+	}
 
+	// replace original setIcon
+	public void setIcon(ImageIcon image){
+		this.Image= image;
+	}
+	
+	public void setBackground(Color clr) {
+		this.bkcolor= clr;
+	}
+	  
+}

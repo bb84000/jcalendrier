@@ -48,25 +48,30 @@ public class saints {
 	
 	// Constructor : Try to load an external CSV list ("saints.csv")
 	
-	saints () throws Exception  {
+	saints () {//throws Exception  {
 	    
-		if (!csvsaints.readCSV("saints.csv")) {
-			csvsaints.Liste= null; 
-		}
-		else {
-			// only existing lines and columns are imported
-			// Blank fields are ignored, so you can make a list with only the names to change
-			try {
-				for (int i=0; i<31; i+=1) {
-					for (int j=0; j<12; j+=1) {
-					   String s = csvsaints.Liste.get(i)[j];
-					   if (s.length() > 0) saints[i][j] = s; 
+		try {
+			if (!csvsaints.readCSV("saints.csv")) {
+				csvsaints.Liste= null; 
+			}
+			else {
+				// only existing lines and columns are imported
+				// Blank fields are ignored, so you can make a list with only the names to change
+				try {
+					for (int i=0; i<31; i+=1) {
+						for (int j=0; j<12; j+=1) {
+						   String s = csvsaints.Liste.get(i)[j];
+						   if (s.length() > 0) saints[i][j] = s; 
+					    }
 				    }
-			    }
+				}
+				catch (Exception e){
+				// do nothing, it is only to treat errors in the list
+				}
 			}
-			catch (Exception e){
-			// do nothing, it is only to treat errors in the list
-			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}	
 	} // end constructor saints
 
