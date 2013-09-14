@@ -70,8 +70,7 @@ public class saints {
 				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			csvsaints.Liste= null;
 		}	
 	} // end constructor saints
 
