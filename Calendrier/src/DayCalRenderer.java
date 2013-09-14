@@ -49,9 +49,9 @@ class DayCalRenderer
 		}
 	}
 	
-	private Color colA = new Color(255,204,0);
-	private Color colB = new Color(255,0,0);
-	private Color colC = new Color(0,153,0);
+	public Color colA = new Color(255,204,0);
+	public Color colB = new Color(255,0,0);
+	public Color colC = new Color(0,153,0);
 		
 	// cell dimensions
 	private int width = 0;
@@ -65,8 +65,12 @@ class DayCalRenderer
     private int month;
     //private int dow;
     private PhaseMoon Moon; 
+    public boolean ShowMoon;
     private String[][] MoonDays; 
     private CSVRead VacScol;
+    public boolean ShowVacA;
+    public boolean ShowVacB; 
+    public boolean ShowVacC; 
     //
    
     private boolean okMoon;
@@ -138,7 +142,7 @@ class DayCalRenderer
         okMoon= Moon.Get_MoonDays(MoonDays, y); 
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy-HH:mm");
         DateTime tmpMoonD = new DateTime();;
-        if (okMoon){ 
+        if (okMoon ){ 
            	for (int i=0; i<56; i+=1) {
 				try {
 					tmpMoonD = formatter.parseDateTime(MoonDays[i][0]);
@@ -223,7 +227,7 @@ class DayCalRenderer
 	        
 
 	        // Moon phases
-	        if (okMoon) {
+	        if (okMoon && ShowMoon) {
 	        	String lune = YearDays.get(dy-1).typelune;
 	        	if (lune.length() > 0) {
 	        		ImageIcon icon = new ImageIcon(this.getClass().getResource("/resources/"+lune+".png"));
@@ -238,17 +242,17 @@ class DayCalRenderer
 	        String s = YearDays.get(dy-1).zonevacscol;
 	        Lines =new ArrayList<LineDraw>();
 	        LineDraw Line;
-	        if (s.contains("A") )
+	        if (s.contains("A") && ShowVacA)
 	        {
 	        	Line= new LineDraw(width-9, 0, width-9, height-2, colA, 2);
 	        	Lines.add(Line);
 	        }
-	        if (s.contains("B") )
+	        if (s.contains("B") && ShowVacB )
 	        {
 	        	Line= new LineDraw(width-6, 0, width-6, height-2, colB, 2);
 	        	Lines.add(Line);
 	        }
-	         if (s.contains("C") )
+	         if (s.contains("C") && ShowVacC)
 	        {
 	        	Line= new LineDraw(width-3, 0, width-3, height-2, colC, 2);
 	        	Lines.add(Line);

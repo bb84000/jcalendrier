@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -32,6 +33,13 @@ import javax.swing.table.JTableHeader;
 
 import org.joda.time.DateTime;
 
+import javax.swing.JCheckBox;
+
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.awt.FlowLayout;
+
+
 public class Calendrier {
 
 	private JFrame frmCalendrier;
@@ -60,6 +68,11 @@ public class Calendrier {
 	private JLabel lblNewLabel1;
 	//private DayCalRenderer Quarter;
 	private DayCalRenderer Quarter;
+	private JCheckBox cbMoon;
+	private JCheckBox cbVacA;
+	private JCheckBox cbVacB;
+	private JCheckBox cbVacC;
+	private JLabel lblNewLabel_1;
 	/**
 	 * Launch the application.
 	 */
@@ -133,6 +146,9 @@ public class Calendrier {
 		try {
 			//Quarter = new DayCalRenderer();
 			Quarter = new DayCalRenderer();
+			Quarter.colA = new Color(255,204,0);
+			Quarter.colB = new Color(255,0,0);
+			Quarter.colC = new Color(0,153,0);
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -181,6 +197,8 @@ public class Calendrier {
 		syear += Year;
 		frmCalendrier.setTitle("Calendrier - "+syear);
 		pane_bottom = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) pane_bottom.getLayout();
+		flowLayout.setHgap(15);
 		pane_bottom.setMaximumSize(new Dimension(1182, 32767));
 		pane_bottom.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		pane_bottom.setPreferredSize(new Dimension(10, 40));
@@ -581,6 +599,28 @@ public class Calendrier {
 			yearbtnpressed(-1);
 		}
 		});
+		
+		cbMoon = new JCheckBox("Phases de la lune");
+		cbMoon.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		cbMoon.setSize(new Dimension(0, 24));
+		cbMoon.setMaximumSize(new Dimension(0, 24));
+		cbMoon.setMinimumSize(new Dimension(120, 24));
+		cbMoon.setPreferredSize(new Dimension(120, 24));
+		
+		cbMoon.setIcon(new ImageIcon(this.getClass().getResource("/resources/cbmu.png")));
+		
+		cbMoon.setSelectedIcon(new ImageIcon(this.getClass().getResource("/resources/cbmc.png")));
+		cbMoon.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				Quarter.ShowMoon= cbMoon.isSelected();
+				frmCalendrier.repaint();
+			}
+		});
+		
+		pane_bottom.add(cbMoon);
+		
+		lblNewLabel_1 = new JLabel("                                                                                         ");
+		pane_bottom.add(lblNewLabel_1);
 		pane_bottom.add(btnPrevious);
 
 		// Champ de l'année
@@ -607,7 +647,7 @@ public class Calendrier {
 					//table_q3.setName(syear+"-3");
 					//table_q4.setName(syear+"-4");
 					frmCalendrier.setTitle("Calendrier - "+syear);
-					frmCalendrier.repaint();
+					Quarter.repaint();
 			    }
 			  }
 		   }
@@ -630,6 +670,56 @@ public class Calendrier {
 		}
 		});
 		pane_bottom.add(btnNext);
+		
+		cbVacA = new JCheckBox("Vacances Zone A");
+		ImageIcon unchecked = new ImageIcon(this.getClass().getResource("/resources/cbmu.png"));
+		cbVacA.setIcon(unchecked);
+		CheckBoxIcon checkedA = new CheckBoxIcon();
+		checkedA.colEdgeu = new Color(122,138,153);
+		checkedA.colFillu = Quarter.colA;
+		cbVacA.setSelectedIcon(checkedA);
+		cbVacA.setToolTipText("Caen, Clermont-Ferrand, Grenoble, Lyon, Montpellier, Nancy-Metz, Nantes, Rennes, Toulouse");
+		cbVacA.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		cbVacA.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Quarter.ShowVacA= cbVacA.isSelected();
+				frmCalendrier.repaint();
+			}
+		});
+		pane_bottom.add(cbVacA);
+		
+		cbVacB = new JCheckBox("Vacances Zone B");
+		cbVacB.setIcon(unchecked);
+		CheckBoxIcon checkedB = new CheckBoxIcon();
+		checkedB.colEdgeu = new Color(122,138,153);
+		checkedB.colFillu = Quarter.colB;
+		cbVacB.setSelectedIcon(checkedB);
+		cbVacB.setToolTipText("Aix-Marseille, Amiens, Besan\u00E7on, Dijon, Lille, Limoges, Nice, Orl\u00E9ans-Tours, Poitiers, Reims, Rouen, Strasbourg");
+		cbVacB.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		cbVacB.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Quarter.ShowVacB= cbVacB.isSelected();
+				frmCalendrier.repaint();
+			}
+		});
+		pane_bottom.add(cbVacB);
+		
+		cbVacC = new JCheckBox("Vacances Zone C");
+		cbVacC.setIcon(unchecked);
+		CheckBoxIcon checkedC = new CheckBoxIcon();
+		checkedC.colEdgeu = new Color(122,138,153);
+		checkedC.colFillu = Quarter.colC;
+		cbVacC.setSelectedIcon(checkedC);
+		cbVacC.setToolTipText("Bordeaux, Cr\u00E9teil, Paris, Versailles");
+		cbVacC.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		cbVacC.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Quarter.ShowVacC= cbVacC.isSelected();
+				frmCalendrier.repaint();
+			}
+		});
+		
+		pane_bottom.add(cbVacC);
 	
 	
 		// Met le calendrier au semestre courant
