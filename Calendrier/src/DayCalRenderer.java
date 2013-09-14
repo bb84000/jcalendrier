@@ -28,16 +28,31 @@ class DayCalRenderer
 	private ImageIcon Image = null;
 	// background color 
 	private Color bkcolor = new Color(255,255,255);
-	// line draw parameters
-	private int xb;
-	private int yb;
-	private int xe;
-	private int ye;
+	// lines draw parameters
+	private ArrayList<LineDraw> Lines;
+	
+	// dLIne structure
+	private class LineDraw {
+		public int xb;
+		public int yb;
+		public int xe;
+		public int ye;
+		public Color col;
+		public int thick; 
+		public LineDraw (int lxb, int lyb, int lxe, int lye, Color lcol, int lthick) {
+			xb= lxb;
+			yb= lyb;
+			xe= lxe;
+			ye= lye;
+			col= lcol;
+			thick= lthick;
+		}
+	}
+	
 	private Color colA = new Color(255,204,0);
 	private Color colB = new Color(255,0,0);
 	private Color colC = new Color(0,153,0);
 		
-	private String ch;
 	// cell dimensions
 	private int width = 0;
 	private int height = 0;
@@ -67,14 +82,14 @@ class DayCalRenderer
     	public String typelune;
     	public String typevacscol;
     	public String zonevacscol; 
-    	public CalDay(DateTime date, String sdate, String saint, DateTime timelune, String typelune, String typevacscol, String zonevacscol) {
-    		this.date= date;
-    		this.sdate= sdate;
-			this.saint= saint;
-			this.timelune= timelune;
-			this.typelune= typelune;
-			this.typevacscol= typevacscol;
-			this.zonevacscol = zonevacscol;
+    	public CalDay(DateTime ddate, String dsdate, String dsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, String dzonevacscol) {
+    	    date= ddate;
+    		sdate= dsdate;
+			saint= dsaint;
+			timelune= dtimelune;
+			typelune= dtypelune;
+			typevacscol= dtypevacscol;
+			zonevacscol = dzonevacscol;
 		}
      }
     
@@ -221,14 +236,23 @@ class DayCalRenderer
 	        // scolar holidays 
 	        //System.out.println(YearDays.get(dy-1).sdate+"-"+YearDays.get(dy-1).zonevacscol);
 	        String s = YearDays.get(dy-1).zonevacscol;
-	       
-	       // if (s.contains("A") )
+	        Lines =new ArrayList<LineDraw>();
+	        LineDraw Line;
+	        if (s.contains("A") )
 	        {
-	        	drawLine(width-3, 0, width-3, height-2, s); //yellow
-	        	
-	        	//drawLineA(width-6, 0, width-6, height-2, new Color(255,0,0), 2, "A"); //yellow
+	        	Line= new LineDraw(width-9, 0, width-9, height-2, colA, 2);
+	        	Lines.add(Line);
 	        }
-	        
+	        if (s.contains("B") )
+	        {
+	        	Line= new LineDraw(width-6, 0, width-6, height-2, colB, 2);
+	        	Lines.add(Line);
+	        }
+	         if (s.contains("C") )
+	        {
+	        	Line= new LineDraw(width-3, 0, width-3, height-2, colC, 2);
+	        	Lines.add(Line);
+	        }
 	        //Bold border around the current day ;
 	        DateTime now;
 	        now = new DateTime();
@@ -262,37 +286,24 @@ class DayCalRenderer
 		g.fillRect( 0, 0, width - 1, height - 1 );
 		
 		super.paint( g );
-		Color curCol = g.getColor();
+		
 		
 		// Draw holidays lines
-		if (ch.contains("A"))
-			{
-				g.setColor(colA);
-				for (int i= 0; i<2;i+=1) {
-					g.drawLine(xb-6+i, yb, xe-6+i, ye);
+		
+		if (Lines.size() > 0) {
+			Color curCol = g.getColor();
+			for (int i=0; i < Lines.size(); i+= 1) {
+			g.setColor(Lines.get(i).col);
+				for (int j= 0; j<Lines.get(i).thick ;j+=1) {
+					g.drawLine(Lines.get(i).xb+j, Lines.get(i).yb, Lines.get(i).xe+j, Lines.get(i).ye);
 				}		
+			}
+				
+				
 				g.setColor(curCol);
-					
-			} 
-		if (ch.contains("B")){
-			
-			g.setColor(colB);
-				for (int i= 0; i<2;i+=1) {
-					g.drawLine(xb-3+i, yb, xe-3+i, ye);
-				}		
-				g.setColor(curCol);
-					
-			} 
-		if (ch.contains("C")){
-			
-			g.setColor(colC);
-				for (int i= 0; i<2;i+=1) {
-					g.drawLine(xb+i, yb, xe+i, ye);
-				}		
-				g.setColor(curCol);
-					
-			} 
-
+		
+		}
+		
 		// Paint icon on right side of label
 		try {
 			if (Image != null){   
@@ -317,12 +328,8 @@ class DayCalRenderer
 		bkcolor= clr;
 	}
 	 
-	public void drawLine (int xxb, int yyb, int xxe, int yye, String cch) {
-		xb= xxb;
-		yb= yyb;
-		xe= xxe;
-		ye= yye;
-		ch = cch;
+	public void drawLines () {
+
 		
 	}
 }
