@@ -11,6 +11,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 
 import javax.swing.ImageIcon;
@@ -39,6 +41,14 @@ import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import java.awt.FlowLayout;
 
+import javax.swing.JPopupMenu;
+
+import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JMenuItem;
+
 
 public class Calendrier {
 
@@ -60,19 +70,34 @@ public class Calendrier {
     private JTable table_q4;
 	private int Year;
 	private Boolean Init;
-	private String  workingDirectory; 
+	
+	// Config variables	
+	private dlgConfig Config = new dlgConfig();
+	
+	
+
 	private JTextField YearField;
 	private JPanel pane_center_h1;
 	private JPanel pane_center_h2;
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel1;
 	//private DayCalRenderer Quarter;
-	private DayCalRenderer Quarter;
+	private DayCalRenderer Quarter = new DayCalRenderer();
 	private JCheckBox cbMoon;
 	private JCheckBox cbVacA;
 	private JCheckBox cbVacB;
 	private JCheckBox cbVacC;
+	CheckBoxIcon checkedA = new CheckBoxIcon();
+	CheckBoxIcon checkedB = new CheckBoxIcon();
+	CheckBoxIcon checkedC = new CheckBoxIcon();
+	
+
+	
+	
+	
 	private JLabel lblNewLabel_1;
+	private JPopupMenu pMnuGen;
+	private JMenuItem pMnuConfig;
 	/**
 	 * Launch the application.
 	 */
@@ -93,19 +118,28 @@ public class Calendrier {
 	 * Create the application.
 	 */
 	public Calendrier() {
+		// Année en cours
+		
 		initialize();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	
+	private void applyConfig(){
+		Quarter.colA = Config.colvacA;
+		checkedA.colFillu = Config.colvacA;
+		Quarter.colB = Config.colvacB;
+		checkedB.colFillu = Config.colvacB;
+		Quarter.colC = Config.colvacC;
+		checkedC.colFillu = Config.colvacC;
+	}
+	
 	private void initialize() {
 		Init=true;
-		// Année en cours
 		DateTime dt = new DateTime();
 		Year = dt.getYear();
-		
-		
 		//Icone de l'application
 		Image MainIcon = Toolkit.getDefaultToolkit().getImage(Calendrier.class.getResource("/resources/calendrier.png"));
 		
@@ -115,26 +149,26 @@ public class Calendrier {
 		if (OS.contains("WIN"))
 		{
 		    //it is simply the location of the "AppData" folder
-		    workingDirectory = System.getenv("AppData");
+			Config.workingDirectory = System.getenv("AppData");
 		}
 		else if (OS.contains("MAC"))
 		{	
 		    //if we are on a Mac, we are not done, we look for "Application Support"
-		    workingDirectory = System.getProperty("user.home")+"/Library/Application Support";
+			Config.workingDirectory = System.getProperty("user.home")+"/Library/Application Support";
 		}
 	    //Otherwise, we assume Linux 
 		else
 		{
 		    //it is the user's home directory
-		    workingDirectory = System.getProperty("user.home");
+			Config.workingDirectory = System.getProperty("user.home");
 		}    
-	    workingDirectory += "/calendrier";	
+		Config.workingDirectory += "/calendrier";	
 	    	
-		File folderExisting = new File(workingDirectory);  
+		File folderExisting = new File(Config.workingDirectory);  
 		// Le dossier n'existe pas, on le crée
 		if (!folderExisting.exists())
 		{  
-			boolean success = (new File(workingDirectory)).mkdirs();
+			boolean success = (new File(Config.workingDirectory)).mkdirs();
 			if (!success) 
 			{
 			    JOptionPane.showMessageDialog(null, "Impossible de créer le dossier de l'application");
@@ -143,16 +177,7 @@ public class Calendrier {
 		
 		// Classe contenant le rendu des tables et autres éléments nécessaires 
 		
-		try {
-			//Quarter = new DayCalRenderer();
-			Quarter = new DayCalRenderer();
-			Quarter.colA = new Color(255,204,0);
-			Quarter.colB = new Color(255,0,0);
-			Quarter.colC = new Color(0,153,0);
-		} catch (Exception e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
+		applyConfig();
 		
 		// Création de la forme
 
@@ -597,6 +622,7 @@ public class Calendrier {
 		btnPrevious.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 			yearbtnpressed(-1);
+			
 		}
 		});
 		
@@ -616,6 +642,8 @@ public class Calendrier {
 				frmCalendrier.repaint();
 			}
 		});
+		
+		
 		
 		pane_bottom.add(cbMoon);
 		
@@ -674,9 +702,9 @@ public class Calendrier {
 		cbVacA = new JCheckBox("Vacances Zone A");
 		ImageIcon unchecked = new ImageIcon(this.getClass().getResource("/resources/cbmu.png"));
 		cbVacA.setIcon(unchecked);
-		CheckBoxIcon checkedA = new CheckBoxIcon();
+		//CheckBoxIcon checkedA = new CheckBoxIcon();
 		checkedA.colEdgeu = new Color(122,138,153);
-		checkedA.colFillu = Quarter.colA;
+		//checkedA.colFillu = Config.colvacA;
 		cbVacA.setSelectedIcon(checkedA);
 		cbVacA.setToolTipText("Caen, Clermont-Ferrand, Grenoble, Lyon, Montpellier, Nancy-Metz, Nantes, Rennes, Toulouse");
 		cbVacA.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -690,9 +718,9 @@ public class Calendrier {
 		
 		cbVacB = new JCheckBox("Vacances Zone B");
 		cbVacB.setIcon(unchecked);
-		CheckBoxIcon checkedB = new CheckBoxIcon();
+		//CheckBoxIcon checkedB = new CheckBoxIcon();
 		checkedB.colEdgeu = new Color(122,138,153);
-		checkedB.colFillu = Quarter.colB;
+		//checkedB.colFillu = Config.colvacB;
 		cbVacB.setSelectedIcon(checkedB);
 		cbVacB.setToolTipText("Aix-Marseille, Amiens, Besan\u00E7on, Dijon, Lille, Limoges, Nice, Orl\u00E9ans-Tours, Poitiers, Reims, Rouen, Strasbourg");
 		cbVacB.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -706,9 +734,9 @@ public class Calendrier {
 		
 		cbVacC = new JCheckBox("Vacances Zone C");
 		cbVacC.setIcon(unchecked);
-		CheckBoxIcon checkedC = new CheckBoxIcon();
+		//CheckBoxIcon checkedC = new CheckBoxIcon();
 		checkedC.colEdgeu = new Color(122,138,153);
-		checkedC.colFillu = Quarter.colC;
+		//checkedC.colFillu = Config.colvacC;
 		cbVacC.setSelectedIcon(checkedC);
 		cbVacC.setToolTipText("Bordeaux, Cr\u00E9teil, Paris, Versailles");
 		cbVacC.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -730,6 +758,38 @@ public class Calendrier {
 				
 
 			}
+		
+		// Launch configuration dialog;
+		pMnuGen = new JPopupMenu();
+		pMnuGen.setLabel("Config");
+		addPopup(pane_bottom, pMnuGen);
+		
+		
+		pMnuConfig = new JMenuItem("Config");
+		pMnuConfig.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Config.setVisible(true);
+				//System.out.println(Config.showDlg(true));
+				
+				
+				
+			}
+		});
+		
+		
+		
+		// Configuration dialog closed with OK
+		Config.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+			  // Re initialize vars and repaint;
+				applyConfig();
+				frmCalendrier.repaint();
+				System.out.println("OK");
+			}
+		});
+		
+		pMnuGen.add(pMnuConfig);
 		//System.out.print(Quarter.M);	
 	Init = false;	
 	}
@@ -759,5 +819,22 @@ public class Calendrier {
 		  } else {
 			  tabpane.setSelectedIndex(curindex);
 		  }
+	}
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
 	}
 }
