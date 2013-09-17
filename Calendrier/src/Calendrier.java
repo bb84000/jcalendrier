@@ -1,7 +1,9 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -13,14 +15,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -34,22 +45,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import org.joda.time.DateTime;
-
-import javax.swing.JCheckBox;
-
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
-import java.awt.FlowLayout;
-
-import javax.swing.JPopupMenu;
-
-import java.awt.Component;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JMenuItem;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 
 public class Calendrier {
@@ -73,17 +68,19 @@ public class Calendrier {
 	private int Year;
 	private Boolean Init;
 	
-	// Config variables	
+	// Config variables	are in dlgConfig class
 	private dlgConfig Config = new dlgConfig();
 	
-	
+	private JLabel lblNewLabel_1;
+	private JPopupMenu pMnuGen;
+	private JMenuItem pMnuConfig;
 
 	private JTextField YearField;
 	private JPanel pane_center_h1;
 	private JPanel pane_center_h2;
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel1;
-	//private DayCalRenderer Quarter;
+	
 	private DayCalRenderer Quarter = new DayCalRenderer();
 	private JCheckBox cbMoon = new JCheckBox("Phases de la lune");
 	private JCheckBox cbVacA = new JCheckBox("Vacances Zone A");
@@ -92,14 +89,12 @@ public class Calendrier {
 	CheckBoxIcon checkedA = new CheckBoxIcon();
 	CheckBoxIcon checkedB = new CheckBoxIcon();
 	CheckBoxIcon checkedC = new CheckBoxIcon();
+	// Needed to restore location after modal dialog
+	Point CurLoc = new Point();
+	
+	
 	
 
-	
-	
-	
-	private JLabel lblNewLabel_1;
-	private JPopupMenu pMnuGen;
-	private JMenuItem pMnuConfig;
 	/**
 	 * Launch the application.
 	 */
@@ -131,6 +126,11 @@ public class Calendrier {
 	
 	private void applyConfig(){
 		
+		if (Config.savePos) {
+			frmCalendrier.setSize(Config.sizeW, Config.sizeH);
+			frmCalendrier.setLocation(Config.locatX, Config.locatY); 
+		}
+		else frmCalendrier.setLocationRelativeTo(null);
 		Quarter.colA = Config.colvacA;
 		checkedA.colFillu = Config.colvacA;
 		Quarter.colB = Config.colvacB;
@@ -153,50 +153,50 @@ public class Calendrier {
 		
 	}
 	
+	// Some initialization routines
 	private void initialize() {
 		Init=true;
 		Config.config_file= "config.json";
-		//Config.loadConfig("config.json");
+		
+		// Working directory
+		String OS = (System.getProperty("os.name")).toUpperCase();
+		if (OS.contains("WIN")) Config.workingDirectory = System.getenv("AppData");											// Win location of the "AppData" folder
+		else if (OS.contains("MAC")) Config.workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
+		else Config.workingDirectory = System.getProperty("user.home");    													//Otherwise, we assume Linux 
+		Config.workingDirectory += "/calendrier";	
+		// check where is the config file
+		File f = new File(Config.config_file);
+		if (f.exists()) Config.loadConfig();
+		else {
+			f = new File (Config.workingDirectory+"/"+Config.config_file);
+		    if (f.exists()) {
+		    	Config.config_file= Config.workingDirectory+"/"+Config.config_file;
+		    	Config.loadConfig();
+		    }
+		    else {
+		    	//config file not found. Ask user if it wants standard or portable operation
+		    	 String BtnCaptions[]={ "Standard", "Portable"};
+		    	 String msg = new String("Choix du mode de fonctionnement\n");
+		    	 msg += "Standard : Les données de configuration sont stoclées dans le répertoire utilisateur.\n";
+		    	 msg += "Portable : les données de configuration sont stockées dans le répertoire courant.";
+		    	 int ret = JOptionPane.showOptionDialog(null, msg, "Calendrier", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, BtnCaptions, "");
+		    	 if (ret==0) {								// store in user folder otherwise store in current folder
+		    		 File folderExisting = new File(Config.workingDirectory); 
+		    		 if (!folderExisting.exists()) {  
+		    			 boolean success = (new File(Config.workingDirectory)).mkdirs();
+		    			 if (success) Config.config_file= Config.workingDirectory+"/"+Config.config_file;
+		    			 else JOptionPane.showMessageDialog(null, "Impossible de créer le dossier de l'application");
+		    		 }
+		    		 else Config.config_file= Config.workingDirectory+"/"+Config.config_file;
+		    	 }
+		   	 } 
+		
+		}		
+
 		DateTime dt = new DateTime();
 		Year = dt.getYear();
 		//Icone de l'application
 		Image MainIcon = Toolkit.getDefaultToolkit().getImage(Calendrier.class.getResource("/resources/calendrier.png"));
-		
-		// Répertoire de travail
-		String OS = (System.getProperty("os.name")).toUpperCase();
-		// C'est Windows ?
-		if (OS.contains("WIN"))
-		{
-		    //it is simply the location of the "AppData" folder
-			Config.workingDirectory = System.getenv("AppData");
-		}
-		else if (OS.contains("MAC"))
-		{	
-		    //if we are on a Mac, we are not done, we look for "Application Support"
-			Config.workingDirectory = System.getProperty("user.home")+"/Library/Application Support";
-		}
-	    //Otherwise, we assume Linux 
-		else
-		{
-		    //it is the user's home directory
-			Config.workingDirectory = System.getProperty("user.home");
-		}    
-		Config.workingDirectory += "/calendrier";	
-	    	
-		File folderExisting = new File(Config.workingDirectory);  
-		// Le dossier n'existe pas, on le crée
-		if (!folderExisting.exists())
-		{  
-			boolean success = (new File(Config.workingDirectory)).mkdirs();
-			if (!success) 
-			{
-			    JOptionPane.showMessageDialog(null, "Impossible de créer le dossier de l'application");
-			}
-		} 
-		
-		// Classe contenant le rendu des tables et autres éléments nécessaires 
-		
-		applyConfig();
 		
 		// Création de la forme
 
@@ -222,27 +222,31 @@ public class Calendrier {
 	                super.paint(g);
 	            }
 	        };
+	        
+	    // Save user config data on close    
 		frmCalendrier.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
+				Point p = new Point(frmCalendrier.getLocation());
+				Config.locatX = p.x;
+				Config.locatY = p.y;
+				Dimension d = new Dimension(frmCalendrier.getSize());
+				Config.sizeW = d.width;
+				Config.sizeH = d.height;
 				Config.saveConfig();
 			}
 		});
+		
 		frmCalendrier.setSize(new Dimension(1182, 728));
 		frmCalendrier.setMaximumSize(new Dimension(1180, 728));
-		
-		
-		
-		
 		frmCalendrier.getContentPane().setMaximumSize(new Dimension(1182, 2147483647));
-		frmCalendrier.setPreferredSize(new Dimension(1182, 728));
-		
-		//frmCalendrier.setSize(new Dimension(1186, 730));
 		frmCalendrier.setIconImage(MainIcon);
 		frmCalendrier.setBounds(100, 100, 450, 300);
 		frmCalendrier.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmCalendrier.setSize(1180, 719);
-		frmCalendrier.setLocationRelativeTo(null);
+		
+		// Apply configuration parameters
+		applyConfig();
 		String syear ="";
 		syear += Year;
 		frmCalendrier.setTitle("Calendrier - "+syear);
@@ -262,7 +266,7 @@ public class Calendrier {
 		tabpane = new JTabbedPane(JTabbedPane.TOP);
 		scrollPane.setColumnHeaderView(tabpane);
 		
-		// 1er semestre
+		// 1st half pane
 		pane_h1 = new JPanel();
 		tabpane.addTab("1er semestre", null, pane_h1, null);
 		GridBagLayout gbl_pane_h1 = new GridBagLayout();
@@ -272,7 +276,7 @@ public class Calendrier {
 		gbl_pane_h1.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
 		pane_h1.setLayout(gbl_pane_h1);
 		
-		// 1er trimestre 
+		// 1st quarter table
 		pane_q1 = new JPanel();
 		pane_q1.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		pane_q1.setPreferredSize(new Dimension(307, 613));
@@ -285,12 +289,6 @@ public class Calendrier {
 		pane_h1.add(pane_q1, gbc_pane_q1);
 		
 				
-				try {
-					//Quarter.Init();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
 				Quarter.setYear(Year);
 				table_q1 = new JTable();
 				table_q1.setRowMargin(0);
@@ -344,7 +342,7 @@ public class Calendrier {
 					}
 				));
 				table_q1.getColumnModel().getColumn(1).setResizable(false);
-				// Ajoute le header car pas de scrollpanel autour
+				// Add the header
 				JTableHeader header_q1 = table_q1.getTableHeader();
 				pane_q1.setLayout(new BorderLayout());
 				pane_q1.add(header_q1, BorderLayout.NORTH);
@@ -352,7 +350,7 @@ public class Calendrier {
 				
 				
 				
-        // 2e trimestre
+				// 2nd quarter
 				pane_q2 = new JPanel();
 				pane_q2.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 				pane_q2.setMinimumSize(new Dimension(307, 613));
@@ -360,7 +358,6 @@ public class Calendrier {
 				pane_q2.setPreferredSize(new Dimension(307, 613));
 				GridBagConstraints gbc_pane_q2 = new GridBagConstraints();
 				gbc_pane_q2.anchor = GridBagConstraints.NORTHWEST;
-				//gbc_pane_q2.fill = GridBagConstraints.HORIZONTAL;
 				gbc_pane_q2.gridx = 2;
 				gbc_pane_q2.gridy = 0;
 				pane_h1.add(pane_q2, gbc_pane_q2);
@@ -454,7 +451,7 @@ public class Calendrier {
 				gbc_lblNewLabel.gridy = 0;
 				pane_center_h1.add(lblNewLabel, gbc_lblNewLabel);
 	   
-		// 2eme semestre
+		// 2nd half
 		pane_h2 = new JPanel();
 		tabpane.addTab("2\u00E8me semestre", null, pane_h2, null);
 		GridBagLayout gbl_pane_h2 = new GridBagLayout();
@@ -635,32 +632,18 @@ public class Calendrier {
 				pane_center_h2.add(lblNewLabel1, gbc_lblNewLabel1);
 		// Active le scroll sur le tappane
 		scrollPane.setViewportView(tabpane);
-		
-		
 
-		// Bouton Semestre précédent
-		Image arrowl = Toolkit.getDefaultToolkit().getImage(getClass().getResource("resources/arrowl.png"));
-		JButton btnPrevious = new JButton("");
-		//btnPrevious.setBounds(461, 7, 33, 25);
-		btnPrevious.setPreferredSize(new Dimension(33, 25));
-		btnPrevious.setIcon(new ImageIcon(arrowl));
-		btnPrevious.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-			yearbtnpressed(-1);
-			
-		}
-		});
 		
-		//cbMoon = new JCheckBox("Phases de la lune");
+				
+		// Moon phases checkboc		
 		cbMoon.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		cbMoon.setSize(new Dimension(0, 24));
 		cbMoon.setMaximumSize(new Dimension(0, 24));
 		cbMoon.setMinimumSize(new Dimension(120, 24));
 		cbMoon.setPreferredSize(new Dimension(120, 24));
-		
 		cbMoon.setIcon(new ImageIcon(this.getClass().getResource("/resources/cbmu.png")));
-		
 		cbMoon.setSelectedIcon(new ImageIcon(this.getClass().getResource("/resources/cbmc.png")));
+		// check box event
 		cbMoon.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent arg0) {
 				Config.dispMoon= cbMoon.isSelected();
@@ -668,16 +651,15 @@ public class Calendrier {
 				frmCalendrier.repaint();
 			}
 		});
-		
-		
-		
 		pane_bottom.add(cbMoon);
 		
+		//
 		lblNewLabel_1 = new JLabel("                                                                                         ");
 		pane_bottom.add(lblNewLabel_1);
-		pane_bottom.add(btnPrevious);
+		
 
-		// Champ de l'année
+
+		// Year field
 		YearField = new JTextField();
 		YearField.getDocument().addDocumentListener(new DocumentListener() {
 		  public void changedUpdate(DocumentEvent e) {
@@ -696,10 +678,6 @@ public class Calendrier {
 				if (syear.length() > 0) {
 					Year= Integer.parseInt(syear);
 					Quarter.setYear(Year);
-				  	//table_q1.setName(syear+"-1");
-					//table_q2.setName(syear+"-2");
-					//table_q3.setName(syear+"-3");
-					//table_q4.setName(syear+"-4");
 					frmCalendrier.setTitle("Calendrier - "+syear);
 					Quarter.repaint();
 			    }
@@ -707,6 +685,19 @@ public class Calendrier {
 		   }
 		 }
 		);
+		
+		// Previous half button
+		Image arrowl = Toolkit.getDefaultToolkit().getImage(getClass().getResource("resources/arrowl.png"));
+		JButton btnPrevious = new JButton("");
+		btnPrevious.setPreferredSize(new Dimension(33, 25));
+		btnPrevious.setIcon(new ImageIcon(arrowl));
+		btnPrevious.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			yearbtnpressed(-1);
+			
+		}
+		});
+		pane_bottom.add(btnPrevious);
 		YearField.setHorizontalAlignment(SwingConstants.CENTER);
 		YearField.setColumns(4);
 
@@ -725,6 +716,7 @@ public class Calendrier {
 		});
 		pane_bottom.add(btnNext);
 		
+		// Holidays checkboxes
 		ImageIcon unchecked = new ImageIcon(this.getClass().getResource("/resources/cbmu.png"));
 		cbVacA.setIcon(unchecked);
 		checkedA.colEdgeu = new Color(122,138,153);
@@ -785,19 +777,16 @@ public class Calendrier {
 		addPopup(pane_bottom, pMnuGen);
 		
 		
+		// Launch config pôpup menu
 		pMnuConfig = new JMenuItem("Config");
 		pMnuConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				// Needs to memorize current location
+				CurLoc = frmCalendrier.getLocation();
 				Config.setVisible(true);
-				//System.out.println(Config.showDlg(true));
-				
-				
-				
 			}
 		});
-		
-		
-		
+			
 		// Configuration dialog closed with OK
 		Config.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -805,7 +794,7 @@ public class Calendrier {
 			  // Re initialize vars and repaint;
 				applyConfig();
 				frmCalendrier.repaint();
-				System.out.println("OK");
+				frmCalendrier.setLocation(CurLoc);
 			}
 		});
 		
@@ -828,10 +817,6 @@ public class Calendrier {
 			  String syear ="";
 			  syear += Year;
 			  YearField.setText(syear);
-			 //table_q1.setName(syear+"-1");
-			  //table_q2.setName(syear+"-2");
-			  //table_q3.setName(syear+"-3");
-			  //table_q4.setName(syear+"-4");
 			  frmCalendrier.setTitle("Calendrier - "+syear);
 			  frmCalendrier.repaint();
 			  tabpane.setSelectedIndex(previndex);
@@ -840,6 +825,7 @@ public class Calendrier {
 			  tabpane.setSelectedIndex(curindex);
 		  }
 	}
+	// Popup menu to set configuration
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {

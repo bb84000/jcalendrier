@@ -38,6 +38,10 @@ public class dlgConfig extends JDialog {
 
 	// Configuration variables
 	public String  workingDirectory; 
+	public int locatX =100;
+	public int locatY = 100;
+	public int sizeW = 1180;
+	public int sizeH = 720;
 	public Color colvacA= new Color(255,204,0);
 	public Color colvacB= new Color(255,0,0); 
 	public Color colvacC= new Color(0,153,0);
@@ -79,7 +83,7 @@ public class dlgConfig extends JDialog {
 	}
 	
 	/**
-	 * Create the dialog.
+	 *
 	 */
 	
 	
@@ -90,14 +94,7 @@ public class dlgConfig extends JDialog {
 	public int mresult;
 	public dlgConfig() {
 
-		// load config file
-		try {
-			loadConfig();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
-		
+
 		setBounds(100, 100, 450, 300);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{434, 0};
@@ -219,36 +216,47 @@ public class dlgConfig extends JDialog {
 						savePos = (event==Event.VALUE_TRUE);					
 						//cbPos.setSelected(savePos);
 					}
+					else if (jr.getString().equals("locatX")) {
+						event = jr.next();
+						if (event==Event.VALUE_NUMBER) locatX = jr.getInt();					
+					}
+					else if (jr.getString().equals("locatY")) {
+						event = jr.next();
+						if (event==Event.VALUE_NUMBER) locatY = jr.getInt();				
+					}
+					else if (jr.getString().equals("sizeW")) {
+						event = jr.next();
+						if (event==Event.VALUE_NUMBER) sizeW = jr.getInt();				
+					}
+					else if (jr.getString().equals("sizeH")) {
+						event = jr.next();
+						if (event==Event.VALUE_NUMBER) sizeH = jr.getInt();				
+					}
 					else if (jr.getString().equals("saveMoon")) {
 						event = jr.next();
 						saveMoon = (event==Event.VALUE_TRUE);					
-						//cbMoon.setSelected(saveMoon);
 					}
 					
 					else if (jr.getString().equals("dispMoon")) {
 						event = jr.next();
 						dispMoon = (event==Event.VALUE_TRUE);					
-						//cbMoon.setSelected(saveMoon);
 					}
 					else if (jr.getString().equals("saveVacScol")) {
 						event = jr.next();
 						saveVacScol = (event==Event.VALUE_TRUE);					
-						//cbVacScol.setSelected(saveVacScol);
 					}
 					else if (jr.getString().equals("dispVacA")) {
 						event = jr.next();
 						dispVacA = (event==Event.VALUE_TRUE);					
-						//cbVacScol.setSelected(saveVacScol);
 					}
 					else if (jr.getString().equals("dispVacB")) {
 						event = jr.next();
 						dispVacB = (event==Event.VALUE_TRUE);					
-						//cbVacScol.setSelected(saveVacScol);
 					}
 					else if (jr.getString().equals("dispVacC")) {
 						event = jr.next();
 						dispVacC = (event==Event.VALUE_TRUE);					
-						//cbVacScol.setSelected(saveVacScol);
+
 					}
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -287,14 +295,26 @@ public class dlgConfig extends JDialog {
 			PrintWriter pw = new PrintWriter(config_file);
 			//writer  f = new File("config.json");
 			JsonGenerator jg = factory.createGenerator(pw );
-			jg.writeStartObject()                    
-			.write("savePos", savePos)				// Window state and position
-			.write("saveMoon", saveMoon)			// Moon phases save
-			.write("dispMoon", dispMoon)			// Moon phases display
-			.write("saveVacScol", saveVacScol)		// Scolar holidays save
-			.write("dispVacA", dispVacA)			// Zone A display
-			.write("dispVacB", dispVacB)
-			.write("dispVacC", dispVacC)
+			jg.writeStartObject() 
+				.writeStartObject("display") 						// Window state and position
+						.writeStartObject("Window") 
+							.write("savePos", savePos)
+							.write("locatX", locatX)
+							.write("locatY", locatY)
+							.write ("sizeW", sizeW)
+							.write ("sizeH", sizeH)
+						.writeEnd()	
+						.writeStartObject("Moon") 
+						.write("saveMoon", saveMoon)				// Moon phases save
+							.write("dispMoon", dispMoon)			// Moon phases display
+						.writeEnd()
+						.writeStartObject("ScolarHolidays") 
+							.write("saveVacScol", saveVacScol)		// Scolar holidays save
+							.write("dispVacA", dispVacA)			// Zone A display
+							.write("dispVacB", dispVacB)
+							.write("dispVacC", dispVacC)
+						.writeEnd()
+			.writeEnd()
 			/*.writeStartObject("address")         //    "address":{
 			.write("type", 1)                //        "type":1,
 			.write("street", "1 A Street")   //        "street":"1 A Street",
