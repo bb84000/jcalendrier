@@ -2,7 +2,15 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="src/libs/joda-time-2.3.jar"/>
-	<classpathentry kind="lib" path="src/libs/javax.json-1.0.2.jar"/>
+	<classpathentry kind="lib" path="src/libs/joda-time-2.3.jar" sourcepath="C:/Users/Bernard/workspace/sources/joda-time-2.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Bernard/workspace/sources/joda-time-2.3-sources.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/libs/javax.json-1.0.2.jar" sourcepath="C:/Users/Bernard/workspace/sources/javax.json-1.0.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Bernard/Archives/Développement/java/javax.json-1.0.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

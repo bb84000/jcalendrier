@@ -21,15 +21,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -43,7 +40,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-
 import org.joda.time.DateTime;
 
 
@@ -156,43 +152,13 @@ public class Calendrier {
 	// Some initialization routines
 	private void initialize() {
 		Init=true;
-		Config.config_file= "config.json";
 		
-		// Working directory
-		String OS = (System.getProperty("os.name")).toUpperCase();
-		if (OS.contains("WIN")) Config.workingDirectory = System.getenv("AppData");											// Win location of the "AppData" folder
-		else if (OS.contains("MAC")) Config.workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
-		else Config.workingDirectory = System.getProperty("user.home");    													//Otherwise, we assume Linux 
-		Config.workingDirectory += "/calendrier";	
-		// check where is the config file
-		File f = new File(Config.config_file);
-		if (f.exists()) Config.loadConfig();
-		else {
-			f = new File (Config.workingDirectory+"/"+Config.config_file);
-		    if (f.exists()) {
-		    	Config.config_file= Config.workingDirectory+"/"+Config.config_file;
-		    	Config.loadConfig();
-		    }
-		    else {
-		    	//config file not found. Ask user if it wants standard or portable operation
-		    	 String BtnCaptions[]={ "Standard", "Portable"};
-		    	 String msg = new String("Choix du mode de fonctionnement\n");
-		    	 msg += "Standard : Les données de configuration sont stoclées dans le répertoire utilisateur.\n";
-		    	 msg += "Portable : les données de configuration sont stockées dans le répertoire courant.";
-		    	 int ret = JOptionPane.showOptionDialog(null, msg, "Calendrier", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, BtnCaptions, "");
-		    	 if (ret==0) {								// store in user folder otherwise store in current folder
-		    		 File folderExisting = new File(Config.workingDirectory); 
-		    		 if (!folderExisting.exists()) {  
-		    			 boolean success = (new File(Config.workingDirectory)).mkdirs();
-		    			 if (success) Config.config_file= Config.workingDirectory+"/"+Config.config_file;
-		    			 else JOptionPane.showMessageDialog(null, "Impossible de créer le dossier de l'application");
-		    		 }
-		    		 else Config.config_file= Config.workingDirectory+"/"+Config.config_file;
-		    	 }
-		   	 } 
-		
-		}		
-
+		paques p = new paques();
+		p.getPaques(2013);
+		// Set config file name and load config if exists
+		// if not exists ask user to choose standard or portable
+		Config.set_config_file("config.json");
+		Config.loadConfig();
 		DateTime dt = new DateTime();
 		Year = dt.getYear();
 		//Icone de l'application
@@ -287,10 +253,19 @@ public class Calendrier {
 		gbc_pane_q1.gridx = 0;
 		gbc_pane_q1.gridy = 0;
 		pane_h1.add(pane_q1, gbc_pane_q1);
-		
-				
+	
 				Quarter.setYear(Year);
-				table_q1 = new JTable();
+				// Disable cell edition to ha ve a read only table
+				table_q1 = new JTable(){
+			        private static final long serialVersionUID = 1L;
+			        public boolean isCellEditable(int row, int column) {                
+			                return false;               
+			        };
+			    };
+
+				table_q1.setColumnSelectionAllowed(true);
+				table_q1.setCellSelectionEnabled(true);
+
 				table_q1.setRowMargin(0);
 				table_q1.setPreferredScrollableViewportSize(new Dimension(307, 612));
 				table_q1.setSize(new Dimension(307, 612));
@@ -363,7 +338,13 @@ public class Calendrier {
 				pane_h1.add(pane_q2, gbc_pane_q2);
 				
 				
-				table_q2 = new JTable();
+				table_q2 = new JTable()
+				{
+			        private static final long serialVersionUID = 1L;
+			        public boolean isCellEditable(int row, int column) {                
+			                return false;               
+			        };
+			    };
 				table_q2.setRowMargin(0);
 				table_q2.setRowSelectionAllowed(false);
 				table_q2.setMinimumSize(new Dimension(307, 612));
@@ -473,7 +454,13 @@ public class Calendrier {
 		gbc_pane_q3.gridy = 0;
 		pane_h2.add(pane_q3, gbc_pane_q3);
 		
-		table_q3 = new JTable();
+		table_q3 = new JTable()
+		{
+	        private static final long serialVersionUID = 1L;
+	        public boolean isCellEditable(int row, int column) {                
+	                return false;               
+	        };
+	    };
 		table_q3.setPreferredScrollableViewportSize(new Dimension(307, 612));
 		table_q3.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		table_q3.setMaximumSize(new Dimension(307, 612));
@@ -544,7 +531,13 @@ public class Calendrier {
 		
 		// 4eme trimestre	
 		
-		table_q4 = new JTable();
+		table_q4 = new JTable()
+		{
+	        private static final long serialVersionUID = 1L;
+	        public boolean isCellEditable(int row, int column) {                
+	                return false;               
+	        };
+	    };
 		table_q4.setMinimumSize(new Dimension(307, 612));
 		table_q4.setMaximumSize(new Dimension(307, 612));
 		table_q4.setPreferredSize(new Dimension(307, 612));

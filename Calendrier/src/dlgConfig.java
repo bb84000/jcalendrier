@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import java.awt.Color;
@@ -20,6 +21,7 @@ import javax.swing.JCheckBox;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -53,7 +55,7 @@ public class dlgConfig extends JDialog {
 	public boolean dispVacB = false;
 	public boolean dispVacC = false;
 	//public dlgConfig dialog;
-	public String config_file = "config.json";
+	private String config_file = "config.json";
 	
 	private static final long serialVersionUID = 1L;
 
@@ -68,6 +70,7 @@ public class dlgConfig extends JDialog {
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setModalityType(ModalityType.APPLICATION_MODAL);
 			dialog.setVisible(true);
+			//dialog.
 	//		return true;
 		} catch (Exception e) {
 			//e.printStackTrace();
@@ -198,7 +201,41 @@ public class dlgConfig extends JDialog {
 		}
 	}
 	
-
+	// Find and/or create the configuration directory
+	public void set_config_file(String s) {
+		config_file = s;
+		// Working directory
+		String OS = (System.getProperty("os.name")).toUpperCase();
+		if (OS.contains("WIN")) workingDirectory = System.getenv("AppData");											// Win location of the "AppData" folder
+		else if (OS.contains("MAC")) workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
+			else workingDirectory = System.getProperty("user.home");    													//Otherwise, we assume Linux 
+			workingDirectory += "/calendrier";	
+			// check where is the config file
+			File f = new File(config_file);
+			if (!f.exists()) {
+			f = new File (workingDirectory+"/"+config_file);
+			if (f.exists()) config_file= workingDirectory+"/"+config_file;
+			 else {
+			   	//config file not found. Ask user if it wants standard or portable operation
+			   	 String BtnCaptions[]={ "Standard", "Portable"};
+			   	 String msg = new String("Choix du mode de fonctionnement\n");
+			   	 msg += "Standard : Les données de configuration sont stoclées dans le répertoire utilisateur.\n";
+			   	 msg += "Portable : les données de configuration sont stockées dans le répertoire courant.";
+			   	 int ret = JOptionPane.showOptionDialog(null, msg, "Calendrier", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, BtnCaptions, "");
+				 if (ret==0) {								// store in user folder otherwise store in current folder
+				 	 File folderExisting = new File(workingDirectory); 
+				     if (!folderExisting.exists()) {  
+				    	 boolean success = (new File(workingDirectory)).mkdirs();
+				    	 if (success) config_file= workingDirectory+"/"+config_file;
+				    	 else JOptionPane.showMessageDialog(null, "Impossible de créer le dossier de l'application");
+				   	 }
+				   	 else config_file= workingDirectory+"/"+config_file;
+				 }
+			 } 
+				
+		}
+	}
+	
 	public  boolean loadConfig(){
 		
 		
@@ -262,28 +299,11 @@ public class dlgConfig extends JDialog {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();System.out.println(jr.toString());
 				}
-				
-				//if(event == Event.KEY_NAME && "savePos".equals(jr.getString())) {
-				//	System.out.println(event.equals(true));
-				//	event = jr.next();
-				//	break;
-				//System.out.println(jr.getString());
-				//} 
-				// Output contents of "address" object
-				
-				
-				
-				
-				
 			}	
 			return true;
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
 			return false;
 		}   
-		
-		
 	}
 	
 	public boolean saveConfig() {

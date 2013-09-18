@@ -71,7 +71,9 @@ class DayCalRenderer
     public boolean ShowVacA;
     public boolean ShowVacB; 
     public boolean ShowVacC; 
-    //
+    private DateTime paq;
+    private DateTime asc;
+    private DateTime pen;
    
     private boolean okMoon;
     // Arraylist containing all year days with their properties
@@ -128,7 +130,10 @@ class DayCalRenderer
         DateTime CurDay = new DateTime(year,1,1,0,0,1);
         if (Moon.is_leapYear(year)) DaysCount = 366;
         YearDays.clear(); 
-        
+        paques p = new paques();
+        paq = p.getPaques(year);
+        asc = paq.plusDays(39);
+        pen = paq.plusDays(49);
         // fill the days list with saints
         for (int i=0; i < DaysCount; i+=1){
         	CalDay tmpDay = new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","");
@@ -212,18 +217,24 @@ class DayCalRenderer
 		    caption += row+1;
 			caption +=" "+iniday;
 	        String saint = "";
-	       // if (month == column+1+quarter*3) 
-	        //{
-	        //	saint = Saints.saints [row][month-1];
-	        saint=  YearDays.get(dy-1).saint;
-	        caption += " "+saint;
-	        
+	        if ((paq.getYear()==dt.getYear()) && (paq.getDayOfYear()==dt.getDayOfYear())) caption += " Pâques";
+	        else if ((asc.getYear()==dt.getYear()) && (asc.getDayOfYear()==dt.getDayOfYear())) {
+	        	caption += " Ascension";
+	        	setBackground(sunday_col);
+	        }
+	        else if ((pen.getYear()==dt.getYear()) && (pen.getDayOfYear()==dt.getDayOfYear())) caption += " Pentecôte";
+	        else {
+	        	saint=  YearDays.get(dy-1).saint;
+	        	caption += " "+saint;
+	        }
 	        // Couleur dimanches
 	        if (dow == 7) {  
 	        	
               //component.setBackground(clr);
               setBackground(sunday_col);
             }
+	        
+	        
 	        
 
 	        // Moon phases
@@ -240,6 +251,7 @@ class DayCalRenderer
 	        // scolar holidays 
 	        //System.out.println(YearDays.get(dy-1).sdate+"-"+YearDays.get(dy-1).zonevacscol);
 	        String s = YearDays.get(dy-1).zonevacscol;
+	        //Lines.clear();
 	        Lines =new ArrayList<LineDraw>();
 	        LineDraw Line;
 	        if (s.contains("A") && ShowVacA)
@@ -257,7 +269,9 @@ class DayCalRenderer
 	        	Line= new LineDraw(width-3, 0, width-3, height-2, colC, 2);
 	        	Lines.add(Line);
 	        }
-	        //Bold border around the current day ;
+	        
+	        
+	         //Bold border around the current day ;
 	        DateTime now;
 	        now = new DateTime();
 	        if ((now.getYear()==dt.getYear()) && (now.getDayOfYear()==dt.getDayOfYear()))// && (now.getDayOfMonth()ayOfMonth()==dt.dayOfMonth())) 
@@ -269,8 +283,10 @@ class DayCalRenderer
 	        else setBorder(null);
 	        setText( caption );
  	    } catch (Exception e) {
-			// N?e fait rien, le jopur n'existe pas
-			setText ("");
+			// N?e fait rien, le jour n'existe pas
+			// Efface caption et lignes
+ 	    	setText ("");
+	        Lines.clear();
   	  }
   	    return this;
 	}
