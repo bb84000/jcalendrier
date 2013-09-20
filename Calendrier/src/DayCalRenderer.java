@@ -64,8 +64,7 @@ class DayCalRenderer
     String iniday= "L";
     private int month;
     //private int dow;
-    private PhaseMoon Moon; 
-    public boolean ShowMoon;
+     public boolean ShowMoon;
     private String[][] MoonDays; 
     private CSVRead VacScol;
     public boolean ShowVacA;
@@ -104,7 +103,7 @@ class DayCalRenderer
     public DayCalRenderer  ()
 	{
 		Saints = new saints();
-		Moon = new PhaseMoon();
+		//Moon = new PhaseMoon();
 		MoonDays = new String[56][2];
 		// Scolar holidays
 		VacScol = new CSVRead();
@@ -125,13 +124,14 @@ class DayCalRenderer
 	public void setYear (int y){
     	year = y;
         int DaysCount = 365;
-    	
+        astro Astr = new astro();   	
         // Create an arraylist of all year days, begin 1st january
         DateTime CurDay = new DateTime(year,1,1,0,0,1);
-        if (Moon.is_leapYear(year)) DaysCount = 366;
+        if (Astr.isLeapYear(year)) DaysCount = 366;
         YearDays.clear(); 
-        paques p = new paques();
-        paq = p.getPaques(year);
+
+        
+        paq = Astr.getPaques(year);
         asc = paq.plusDays(39);
         pen = paq.plusDays(49);
         // fill the days list with saints
@@ -144,7 +144,7 @@ class DayCalRenderer
         	CurDay = CurDay.plusDays(1);	
         }
       	// add moonphases to days list
-        okMoon= Moon.Get_MoonDays(MoonDays, y); 
+        okMoon= Astr.GetMoonDays(MoonDays, y); 
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy-HH:mm");
         DateTime tmpMoonD = new DateTime();;
         if (okMoon ){ 

@@ -152,9 +152,6 @@ public class Calendrier {
 	// Some initialization routines
 	private void initialize() {
 		Init=true;
-		
-		paques p = new paques();
-		p.getPaques(2013);
 		// Set config file name and load config if exists
 		// if not exists ask user to choose standard or portable
 		Config.set_config_file("config.json");

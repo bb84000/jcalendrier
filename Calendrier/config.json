@@ -1,0 +1,22 @@
+
+{
+    "display":{
+        "Window":{
+            "savePos":true,
+            "locatX":200,
+            "locatY":93,
+            "sizeW":1180,
+            "sizeH":720
+        },
+        "Moon":{
+            "saveMoon":true,
+            "dispMoon":true
+        },
+        "ScolarHolidays":{
+            "saveVacScol":true,
+            "dispVacA":false,
+            "dispVacB":true,
+            "dispVacC":false
+        }
+    }
+}
