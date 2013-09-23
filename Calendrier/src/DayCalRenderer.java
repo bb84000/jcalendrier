@@ -67,13 +67,16 @@ class DayCalRenderer
      public boolean ShowMoon;
     private String[][] MoonDays; 
     private CSVRead VacScol;
+    private CSVRead Feries;
     public boolean ShowVacA;
     public boolean ShowVacB; 
     public boolean ShowVacC; 
     private DateTime paq;
-    private DateTime asc;
-    private DateTime pen;
-   
+    private DateTime dep;
+    private DateTime mer;
+    private DateTime seas;
+    
+    
     private boolean okMoon;
     // Arraylist containing all year days with their properties
     public ArrayList<CalDay> YearDays= new ArrayList<CalDay>();
@@ -87,7 +90,10 @@ class DayCalRenderer
     	public String typelune;
     	public String typevacscol;
     	public String zonevacscol; 
-    	public CalDay(DateTime ddate, String dsdate, String dsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, String dzonevacscol) {
+    	public String ferie;
+    	public String season;
+    	public DateTime seasondate;
+    	public CalDay(DateTime ddate, String dsdate, String dsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, String dzonevacscol, String dferie ) {
     	    date= ddate;
     		sdate= dsdate;
 			saint= dsaint;
@@ -95,6 +101,7 @@ class DayCalRenderer
 			typelune= dtypelune;
 			typevacscol= dtypevacscol;
 			zonevacscol = dzonevacscol;
+			ferie = dferie;
 		}
      }
     
@@ -114,7 +121,15 @@ class DayCalRenderer
 		} catch (Exception e) {
 			VacScol.Liste= null; 
 		}
-		
+		// Ferie days
+		Feries = new CSVRead();
+		try {
+			if (!Feries.readCSV("ferie.csv")) {
+				Feries.Liste= null; 
+			}
+		} catch (Exception e) {
+			Feries.Liste= null; 
+		}
 		// Sunset and sunrise
 		// Other holidays
 	}
@@ -131,19 +146,29 @@ class DayCalRenderer
         YearDays.clear(); 
 
         
-        paq = Astr.getPaques(year);
-        asc = paq.plusDays(39);
-        pen = paq.plusDays(49);
+        try {
+			paq = Astr.getPaques(year);
+			//asc = paq.plusDays(39);
+			//pen = paq.plusDays(49);
+			dep = Astr.GetDeportes(year);
+			mer = Astr.GetFetmeres(year);
+			
+			
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			//e1.printStackTrace();
+		}
         // fill the days list with saints
         for (int i=0; i < DaysCount; i+=1){
-        	CalDay tmpDay = new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","");
+        	CalDay tmpDay = new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","","");
         	String s = Saints.saints[CurDay.getDayOfMonth()-1][CurDay.getMonthOfYear()-1];
         	tmpDay.saint = s;
         	YearDays.add(tmpDay);
         	// increment day
         	CurDay = CurDay.plusDays(1);	
         }
-      	// add moonphases to days list
+      	
+        // add moonphases to days list
         okMoon= Astr.GetMoonDays(MoonDays, y); 
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy-HH:mm");
         DateTime tmpMoonD = new DateTime();;
@@ -161,6 +186,47 @@ class DayCalRenderer
 				}
            	}
         }
+        
+        // Add feries to days list
+        if (!(Feries.Liste == null)){
+    	   DateTimeFormatter format = DateTimeFormat.forPattern("dd/MM/yyyy");
+    	   for (int i=0; i<Feries.Liste.size();i+=1) {
+    		   String typday = Feries.Liste.get(i)[0];
+    		   String s1 = Feries.Liste.get(i)[1];
+    		   String s2 = Feries.Liste.get(i)[2];
+    		  
+    		   try {
+				DateTime datemin = format.parseDateTime(s2);
+    			if (datemin.getYear() <= year) {
+				if (typday.equals("FIXE")){
+					if (datemin.getYear() <= year) {
+					   CurDay= new DateTime(year, datemin.getMonthOfYear(), datemin.getDayOfMonth(),0,0); 
+					   YearDays.get(CurDay.getDayOfYear()-1).ferie= s1;
+					 }
+				}
+				else {
+					if (typday.equals("DIPAQ"))	YearDays.get(paq.getDayOfYear()-1).ferie= s1;
+					else if (typday.equals("LUPAQ")) YearDays.get(paq.getDayOfYear()).ferie= s1;
+					else if (typday.equals("JEASC")) YearDays.get(paq.getDayOfYear()+38).ferie= s1;
+					else if (typday.equals("DIPEN")) YearDays.get(paq.getDayOfYear()+48).ferie= s1;
+					else if (typday.equals("LUPEN")) YearDays.get(paq.getDayOfYear()+48).ferie= s1;
+					else if (typday.equals("SOUDEP")) {
+						if (!(dep.getDayOfYear() == paq.getDayOfYear())) YearDays.get(dep.getDayOfYear()-1).ferie= s1;
+					}
+					else if (typday.equals("FETMER")) {
+						//if (!(mer.getDayOfYear() == paq.getDayOfYear()+49)) YearDays.get(mer.getDayOfYear()-1).ferie= s1;
+						//else 
+						YearDays.get(mer.getDayOfYear()-1).ferie= s1;
+						}
+					}
+    			}
+			} catch (Exception e) {
+				// invalid date
+				//e.printStackTrace();
+			}
+    	   }
+        }
+        
         // Add scolar holidays to days list
         if (!(VacScol.Liste==null)) {
         	DateTimeFormatter format = DateTimeFormat.forPattern("dd/MM/yyyy");
@@ -188,6 +254,13 @@ class DayCalRenderer
         		
         	}
         
+        }
+        // Add seasons
+        String [] season = {"Printemps","Eté","Automne","Hiver"};
+        for (int i = 0; i < 4; i+= 1) {
+        seas = Astr.GetSaisonDate(year, i);
+        YearDays.get(seas.getDayOfYear()-1).season = season [i];
+        YearDays.get(seas.getDayOfYear()-1).seasondate = seas;
         }
         
 	}
@@ -217,25 +290,25 @@ class DayCalRenderer
 		    caption += row+1;
 			caption +=" "+iniday;
 	        String saint = "";
-	        if ((paq.getYear()==dt.getYear()) && (paq.getDayOfYear()==dt.getDayOfYear())) caption += " Pâques";
-	        else if ((asc.getYear()==dt.getYear()) && (asc.getDayOfYear()==dt.getDayOfYear())) {
-	        	caption += " Ascension";
-	        	setBackground(sunday_col);
-	        }
-	        else if ((pen.getYear()==dt.getYear()) && (pen.getDayOfYear()==dt.getDayOfYear())) caption += " Pentecôte";
-	        else {
-	        	saint=  YearDays.get(dy-1).saint;
+	        saint=  YearDays.get(dy-1).saint;
+	        // Saints et/ou fériés
+	        if (YearDays.get(dy-1).ferie.length() == 0) {
 	        	caption += " "+saint;
 	        }
+	        else {
+	        	String snt= YearDays.get(dy-1).ferie;
+	        	//System.out.println (saint.charAt(1));
+	        	if (!(snt.charAt(0) == '.')) caption += " "+snt;
+	        	else caption += " "+saint;
+	        	setBackground(sunday_col);
+	        }
+	        
 	        // Couleur dimanches
 	        if (dow == 7) {  
 	        	
               //component.setBackground(clr);
               setBackground(sunday_col);
             }
-	        
-	        
-	        
 
 	        // Moon phases
 	        if (okMoon && ShowMoon) {
@@ -244,7 +317,6 @@ class DayCalRenderer
 	        		ImageIcon icon = new ImageIcon(this.getClass().getResource("/resources/"+lune+".png"));
 	        		setHorizontalTextPosition(SwingConstants.LEFT);
 	        		setIcon(icon);
-	        		
 	        	} 
 	        }
 	        

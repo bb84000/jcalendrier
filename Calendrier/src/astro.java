@@ -1,5 +1,6 @@
 /*
  * Astro class
+ * 
  * TimeDate getPaques(int year)
  * 	Get Paques date (joda format)
  * 	Based on Butcher algorithm
@@ -45,7 +46,7 @@ public class astro {
 			int h = (n + (11 * e) + (22 * L)) / 451 ;		// Correction
 			int m = (e + L - (7 * h) + 114) / 31 ;			// Paques Month
 			int j= (e + L - (7 * h) + 114) % 31 ;			// Paques day	
-			DateTime dt = new DateTime(2013,m,j,0,0 );
+			DateTime dt = new DateTime(year,m,j,0,0 );
 			// Add 1 day for paques
 			dt = dt.plusDays(1);	
 			return dt;
@@ -247,14 +248,123 @@ public class astro {
 				  gLunes += 1;
 				}
 			    CptL= CptL + 0.250;
-
 			}
-			
-			
 			return true;
 			
 		} // end of Get_MoonDays function
 		
+		// Fête des déportés
+		public DateTime GetDeportes (int year) {
+		 // dernier dimanche d'avril
+			DateTime dt = new DateTime(year, 4, 30,0,0,0);           // On prend la fin du mois
+		    int d = dt.getDayOfWeek();
+			return dt.plusDays(-d);        // Et on retire les jours nécessaires
+		}
+		
+		// fete des meres
+		public DateTime GetFetmeres (int year) {
+		 // dernier dimanche de mai, sauf si pentecôte
+			DateTime dt = new DateTime(year, 5, 31,0,0,0);           // On prend la fin du mois
+			int d = dt.getDayOfWeek();
+			dt = dt.plusDays(-d); // Et on retire les jours nécessaires
+			DateTime paq = getPaques(year);
+			if (dt.getDayOfYear() == paq.getDayOfYear()+49) dt = dt.plusDays(7); 
+			return   dt  ;    
+		}
+		
+		// Meeus Astronmical Algorithms Chapter 27
+
+		DateTime GetSaisonDate(int year, int num) {
+			double jdeo,  yr, t, w, dl, s, julDay;
+			double deltaT;
+			double scl;
+			// Caclul initial du jour julien
+			yr=(year-2000)/1000.0;
+			jdeo= 0;
+			
+			switch (num) {
+				case 0: jdeo= 2451623.80984 + 365242.37404*yr + 0.05169*Math.pow(yr,2) - 0.00411*Math.pow(yr,3) - 0.00057*Math.pow(yr,4); break;
+				case 1: jdeo= 2451716.56767 + 365241.62603*yr + 0.00325*Math.pow(yr,2) + 0.00888*Math.pow(yr,3) - 0.00030*Math.pow(yr,4); break;
+				case 2: jdeo= 2451810.21715 + 365242.01767*yr - 0.11575*Math.pow(yr,2) + 0.00337*Math.pow(yr,3) + 0.00078*Math.pow(yr,4); break;
+				case 3: jdeo= 2451900.05952 + 365242.74049*yr - 0.06223*Math.pow(yr,2) - 0.00823*Math.pow(yr,3) + 0.00032*Math.pow(yr,4); break;
+				//default: jdeo= 0;
+		  }
+		   	    
+		    t= (jdeo - 2451545.0)/36525.0;
+		    w= (35999.373*t) - 2.47;
+		    dl= 1 + 0.0334*CosD(w) + 0.0007*CosD(2*w);
+		    // Correction périodique
+		    s= periodic24(t);
+		    julDay= jdeo + ( (0.00001*s) / dl ); 	// This is the answer in Julian Emphemeris Days
+
+		    // écart entre UTC et DTD en secondes entre les années from Meeus Astronmical Algroithms Chapter 10
+		    scl= (year - 2000) / 100.0;
+		    deltaT= 102 + 102*scl + 25.3*Math.pow(scl,2);
+		    // Special correction to avoid discontinurity in 2000
+		    if ((year >=2000) && (year <=2100)) deltaT= deltaT+ 0.37 * ( year - 2100 );
+		    // Ecart en jour fractionnaire
+		    deltaT= deltaT/86400.0;
+		    // On y est ! Conversion en date réelle 
+		    julDay= julDay - deltaT; 
+		    return julianTodt(julDay);
+		}
+		
+		/*
+		 * Converts a Julian day to a calendar date
+		 */
+		 public DateTime  julianTodt (double jDay) {
+			 int j1, j2, j3, j4, j5;
+			 //;			//scratch
+			 // get the date from the Julian day number
+			 int jDate = trunc (jDay);
+			 double jTime = frac (jDay);
+			 // Gregorian Correction 1582
+			 int gregjd  = 2299161;
+			 if( jDate >= gregjd ) {				
+				int tmp = trunc (((jDate - 1867216) - 0.25 ) / 36524.25 );
+					j1 = jDate + 1 + tmp - trunc(0.25*tmp);
+				} else
+					j1 = jDate;
+			//correction for half day offset
+			double dayfrac = jTime + 0.5;
+			if( dayfrac >= 1.0 ) {
+				dayfrac -= 1.0;
+				++j1;
+			}
+			
+			j2 = j1 + 1524;
+			j3 = trunc( 6680.0 + ( (j2 - 2439870) - 122.1 )/365.25 );
+			j4 = trunc(j3*365.25);
+			j5 = trunc( (j2 - j4)/30.6001 );
+
+			int d = j2 - j4 - trunc(j5*30.6001);
+			int m = j5 - 1;
+			if( m > 12 ) m -= 12;
+			int y = j3 - 4715;
+			if( m > 2 )   --y;
+			if( y <= 0 )  --y;
+			
+			// get time of day from day fraction
+			int hr  = trunc(dayfrac * 24.0);
+			int mn  = trunc((dayfrac*24.0 - hr)*60.0);
+			double	f  = ((dayfrac*24.0 - hr)*60.0 - mn)*60.0;
+			int sc  = trunc(f);
+				 f -= sc;
+		    if( f > 0.5 ) ++sc;
+		    /*boolean bc;
+		    if( y < 0 ) {
+		     	y = -y;
+		        bc= true;
+		    } else
+		        bc= false;*/
+		   if (sc > 59) {
+			   mn+=1;
+			   sc=0;
+		   }
+           DateTime dt = new DateTime(y,m,d,hr,mn,sc);
+		   return dt;
+		} // end julianTodt
+		 
 		// trunc double to integer
 		public int trunc(double x) {
 		   if (x>0.0) return (int) Math.floor(x);
@@ -270,4 +380,36 @@ public class astro {
 		public boolean isLeapYear (int year) {
 			return ((year & 3) == 0 && ((year % 25) != 0 || (year & 15) == 0));/* leap year */
 		}
+		
+		// Used in seasons routine
+		public double periodic24 (double t) {
+			double result = 0;
+			int [] A = {485,203,199,182,156,136,77,74,70,58,52,50,45,44,29,18,17,16,14,12,12,12,9,8};
+			double [] B = {324.96,337.23,342.08,27.85,73.14,171.52,222.54,296.72,243.58,119.81,297.17,21.02,
+				     247.54,325.15,60.93,155.12,288.79,198.04,199.76,95.39,287.11,320.81,227.73,15.45};
+			double [] C = {1934.136,32964.467,20.186,445267.112,45036.886,22518.443,
+					     65928.934,3034.906,9037.513,33718.147,150.678,2281.226,
+		                             29929.562,31555.956,4443.417,67555.328,4562.452,62894.029,
+					     31436.921,14577.848,31931.756,34777.259,1222.114,16859.074};
+			for (int i=0; i<=23; i+= 1) {
+			   result= result +  A[i]*CosD(B[i] + (C[i]*t));
+			}
+			return result;
+		}
+		
+		// Cosinus avec entrée en degrés
+		public double CosD (double x){
+		  return Math.cos(Math.toRadians(x));
+		}
+		
+		// Sinus avec entrée en degrés
+		public double SinD (double x){
+		  return Math.sin(Math.toRadians(x));
+		}
+		
+		// Tangente avec entrée en degrés
+		public double TanD (double x){
+		  return Math.tan(Math.toRadians(x));
+		}
+		
 }
