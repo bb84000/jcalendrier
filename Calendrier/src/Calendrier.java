@@ -22,6 +22,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -35,16 +37,20 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import java.awt.Insets;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.UIManager;
 
@@ -66,6 +72,7 @@ public class Calendrier {
 	private JTable table_q4;
 	private int Year;
 	private Boolean Init;
+	private Timer labelTimer;
 
 	// Config variables are in dlgConfig class
 	private dlgConfig Config = new dlgConfig();
@@ -94,8 +101,8 @@ public class Calendrier {
 	private JPanel panelSeasons_1;
 	private JPanel panelSeasons_2;
 	private JLabel lblToday_2;
-	private JLabel labelToday_1;
-	private JLabel labelSelected_1;
+	private JLabel lblToday_1;
+	private JLabel lblSelected_1;
 	private JLabel lblSelected_2;
 	private JLabel lblSeasons_2a;
 	private JLabel lblSeasons_1a;
@@ -105,7 +112,9 @@ public class Calendrier {
 	private JLabel lblSeasons_1b;
 	// Needed to restore location after modal dialog
 	Point CurLoc = new Point();
-	
+	private JLabel lblToday_1a;
+	private JLabel lblToday_2a;
+	private JButton btnPrevious;
 	/**
 	 * Launch the application.
 	 */
@@ -402,6 +411,7 @@ public class Calendrier {
 		panelToday_1.setSize(new Dimension(0, 120));
 		panelToday_1.setMinimumSize(new Dimension(10, 120));
 		panelToday_1.setMaximumSize(new Dimension(32767, 120));
+		panelToday_1.setLayout(null);
 		GridBagConstraints gbc_panelToday_1 = new GridBagConstraints();
 		gbc_panelToday_1.insets = new Insets(0, 0, 0, 0);
 		gbc_panelToday_1.anchor = GridBagConstraints.NORTH;
@@ -411,14 +421,22 @@ public class Calendrier {
 		pane_h1.add(panelToday_1, gbc_panelToday_1);
 		
 		// Label today
-		labelToday_1 = new JLabel("Today");
-		labelToday_1.setVerticalTextPosition(SwingConstants.TOP);
-		labelToday_1.setVerticalAlignment(SwingConstants.TOP);
-		labelToday_1.setPreferredSize(new Dimension(240, 110));
-		labelToday_1.setHorizontalTextPosition(SwingConstants.LEFT);
-		labelToday_1.setHorizontalAlignment(SwingConstants.LEFT);
-		labelToday_1.setAlignmentY(0.0f);
-		panelToday_1.add(labelToday_1);
+		lblToday_1 = new JLabel("Today");
+		lblToday_1.setBounds(10, 20, 245, 15);
+		lblToday_1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		lblToday_1.setVerticalTextPosition(SwingConstants.TOP);
+		lblToday_1.setVerticalAlignment(SwingConstants.TOP);
+		lblToday_1.setPreferredSize(new Dimension(245, 15));
+		lblToday_1.setHorizontalTextPosition(SwingConstants.LEFT);
+		lblToday_1.setHorizontalAlignment(SwingConstants.LEFT);
+		lblToday_1.setAlignmentY(0.0f);
+		panelToday_1.add(lblToday_1);
+		
+		lblToday_1a = new JLabel("New label");
+		lblToday_1a.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		lblToday_1a.setVerticalAlignment(SwingConstants.TOP);
+		lblToday_1a.setBounds(10, 36, 245, 93);
+		panelToday_1.add(lblToday_1a);
 
 		// panel selected day
 		panelSelected_1 = new JPanel();
@@ -438,14 +456,14 @@ public class Calendrier {
 		pane_h1.add(panelSelected_1, gbc_panelSelected_1);
 		
 		// label selected
-		labelSelected_1 = new JLabel("Selected");
-		labelSelected_1.setVerticalTextPosition(SwingConstants.TOP);
-		labelSelected_1.setVerticalAlignment(SwingConstants.TOP);
-		labelSelected_1.setPreferredSize(new Dimension(240, 110));
-		labelSelected_1.setHorizontalTextPosition(SwingConstants.LEFT);
-		labelSelected_1.setHorizontalAlignment(SwingConstants.LEFT);
-		labelSelected_1.setAlignmentY(0.0f);
-		panelSelected_1.add(labelSelected_1);
+		lblSelected_1 = new JLabel("Selected");
+		lblSelected_1.setVerticalTextPosition(SwingConstants.TOP);
+		lblSelected_1.setVerticalAlignment(SwingConstants.TOP);
+		lblSelected_1.setPreferredSize(new Dimension(240, 110));
+		lblSelected_1.setHorizontalTextPosition(SwingConstants.LEFT);
+		lblSelected_1.setHorizontalAlignment(SwingConstants.LEFT);
+		lblSelected_1.setAlignmentY(0.0f);
+		panelSelected_1.add(lblSelected_1);
 
 		// panel seasons
 		panelSeasons_1 = new JPanel();
@@ -646,6 +664,7 @@ public class Calendrier {
 		panelToday_2.setBorder(new TitledBorder(null, "Aujourd'hui",
 				TitledBorder.LEFT, TitledBorder.TOP, null, null));
 		panelToday_2.setMinimumSize(new Dimension(10, 120));
+		panelToday_2.setLayout(null);
 		GridBagConstraints gbc_panelToday_2 = new GridBagConstraints();
 		gbc_panelToday_2.insets = new Insets(0, 0, 0, 0);
 		gbc_panelToday_2.anchor = GridBagConstraints.NORTH;
@@ -654,13 +673,21 @@ public class Calendrier {
 		gbc_panelToday_2.gridy = 1;
 		pane_h2.add(panelToday_2, gbc_panelToday_2);
 		lblToday_2 = new JLabel("Today");
-		lblToday_2.setPreferredSize(new Dimension(240, 110));
+		lblToday_2.setBounds(10, 20, 245, 15);
+		lblToday_2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		lblToday_2.setPreferredSize(new Dimension(245, 15));
 		lblToday_2.setAlignmentY(Component.TOP_ALIGNMENT);
 		lblToday_2.setVerticalTextPosition(SwingConstants.TOP);
 		lblToday_2.setVerticalAlignment(SwingConstants.TOP);
 		lblToday_2.setHorizontalTextPosition(SwingConstants.LEFT);
 		lblToday_2.setHorizontalAlignment(SwingConstants.LEFT);
 		panelToday_2.add(lblToday_2);
+		
+		lblToday_2a = new JLabel("New label");
+		lblToday_2a.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		lblToday_2a.setVerticalAlignment(SwingConstants.TOP);
+		lblToday_2a.setBounds(10, 36, 245, 93);
+		panelToday_2.add(lblToday_2a);
 
 		// panel selected day
 		panelSelected_2 = new JPanel();
@@ -780,12 +807,18 @@ public class Calendrier {
 				if (!Init) {
 
 					String syear = YearField.getText();
-					if (syear.length() > 0) {
-						Year = Integer.parseInt(syear);
-						Quarter.setYear(Year);
-						frmCalendrier.setTitle("Calendrier - " + syear);
-						setSeasons(Year);
-						Quarter.repaint();
+					if (syear.length() == 4) {
+						int newYear = Integer.parseInt(syear);
+						if (newYear > 1582) {
+							Year= newYear;
+							Quarter.setYear(Year);
+							frmCalendrier.setTitle("Calendrier - " + syear);
+							setSeasons(Year);
+							Quarter.repaint();
+						}
+						//else YearField.setText(String.valueOf(Year));
+							
+						
 					}
 				}
 			}
@@ -794,7 +827,7 @@ public class Calendrier {
 		// Previous half button
 		Image arrowl = Toolkit.getDefaultToolkit().getImage(
 				getClass().getResource("resources/arrowl.png"));
-		JButton btnPrevious = new JButton("");
+		btnPrevious = new JButton("");
 		btnPrevious.setPreferredSize(new Dimension(33, 25));
 		btnPrevious.setIcon(new ImageIcon(arrowl));
 		btnPrevious.addActionListener(new ActionListener() {
@@ -908,8 +941,61 @@ public class Calendrier {
 		pMnuGen.add(pMnuConfig);
 		// System.out.print(Quarter.M);
 		Init = false;
+		if (!Beans.isDesignTime()) {
+			setLabelToday(dt);
+			lblSelected_1.setText("");
+			lblSelected_2.setText("");
+			
+			startLabel2();
+		}
+		
 	}
+	
+	// Update today Label every sec
+    private void startLabel2() {
+        labelTimer = new javax.swing.Timer(1000, updateLabel2());
+        labelTimer.start();
+        labelTimer.setRepeats(true);
+    }
+    
+    private Action updateLabel2() {
+        return new AbstractAction("Label action") {
 
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DateTime dt = new DateTime();
+            	String s = Astro.DateTimeToString(dt);
+                lblToday_1.setText(s);
+            	lblToday_2.setText(s);
+            }
+        };
+    } // end updatelabel
+
+    // set day lower panel
+	private void setLabelToday (DateTime dt) {
+		lblToday_1.setText(Astro.DateTimeToString(dt));
+		lblToday_2.setText(Astro.DateTimeToString(dt));
+		String s = setLabelDay(dt);
+		lblToday_1a.setText(s);
+	    lblToday_2a.setText(s);
+	}
+	
+	private String setLabelDay(DateTime dt) {
+		String s = "<html>"; 
+	    DateTime sunrise = Astro.calcSunrise(dt, 48.86223, 2.351074, true);
+	    sunrise = sunrise.plusMinutes(Astro.getTZOff(sunrise));
+	    DateTime sunset = Astro.calcSunrise(dt, 48.86223, 2.351074, false);
+	    sunset = sunset.plusMinutes(Astro.getTZOff(sunset));
+	    DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm");
+	    s = s+Quarter.YearDays.get(dt.getDayOfYear()-1).saint;
+	    s = s+" - "+dt.getDayOfYear()+"e jour, "+dt.getWeekOfWeekyear()+"e semaine<br>";
+	    s = s+"Lever et coucher du soleil : "+sunrise.toString(fmt)+" - "+sunset.toString(fmt);	
+	    return s;
+	}
+	
+    
 	private void yearbtnpressed(int btn) {
 		int curindex = 0;
 		int previndex = 1;
@@ -929,56 +1015,40 @@ public class Calendrier {
 			frmCalendrier.setTitle("Calendrier - " + syear);
 			frmCalendrier.repaint();
 			tabpane.setSelectedIndex(previndex);
-			Init = false;
 		} else {
 			tabpane.setSelectedIndex(curindex);
 		}
+		// Gregorian calendar only 
+		if ((tabpane.getSelectedIndex() == 0) && (Year == 1583)) btnPrevious.setEnabled(false);
+		else btnPrevious.setEnabled(true);
+		Init = false;
 	}
 
-	// Set seasons
+	
+	
+	
+	// Set seasons panels
 	public void setSeasons(int year) {
 		// Set seasons pane
 		if (!Beans.isDesignTime()) {
 			Astro = new astro();
-
-			String[] Fdays = { "Dimanche", "Lundi", "Mardi", "Mercredi",
-					"Jeudi", "Vendredi", "Samedi", "Dimanche" };
-			String[] Fmonths = { "décembre", "janvier", "février", "mars",
-					"avril", "mai", "juin", "juillet", "août", "septembre",
-					"octobre", "novembre", "décembre" };
-
 			DateTime prin, ete, aut, hiv;
 			prin = Astro.GetSaisonDate(Year, 0);
-			prin = prin.plusHours(1);
+			prin = prin.plusMinutes(Astro.getTZOff(prin));
 			ete = Astro.GetSaisonDate(Year, 1);
-			ete = ete.plusHours(2);
+			ete = ete.plusMinutes(Astro.getTZOff(ete));
 			aut = Astro.GetSaisonDate(Year, 2);
-			aut = aut.plusHours(2);
+			aut = aut.plusMinutes(Astro.getTZOff(aut));
 			hiv = Astro.GetSaisonDate(Year, 3);
-			hiv = hiv.plusHours(1);
-
-			if (!Beans.isDesignTime()) {
-				DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm:ss");
-				String s = "<html>Printemps: " + Fdays[prin.getDayOfWeek()]
-						+ " " + prin.getDayOfMonth() + " "
-						+ Fmonths[prin.getMonthOfYear()] + " " + Year + " "
-						+ prin.toString(fmt) + "<br>" + "Eté: "
-						+ Fdays[ete.getDayOfWeek()] + " " + ete.getDayOfMonth()
-						+ " " + Fmonths[ete.getMonthOfYear()] + " " + Year
-						+ " " + ete.toString(fmt) + "</html>";
-				lblSeasons_1a.setText(s);
-				lblSeasons_2a.setText(s);
-				s = "<html>Automne: " + Fdays[aut.getDayOfWeek()] + " "
-						+ aut.getDayOfMonth() + " "
-						+ Fmonths[aut.getMonthOfYear()] + " " + Year + " "
-						+ aut.toString(fmt) + "<br>" + "Hiver: "
-						+ Fdays[hiv.getDayOfWeek()] + " " + hiv.getDayOfMonth()
-						+ " " + Fmonths[hiv.getMonthOfYear()] + " " + Year
-						+ " " + hiv.toString(fmt) + "</html>";
-				lblSeasons_1b.setText(s);
-				lblSeasons_2b.setText(s);
-
-			}
+			hiv = hiv.plusMinutes(Astro.getTZOff(hiv));
+			String s = "<html>Printemps: " +Astro.DateTimeToString(prin)+"<br>"+
+						"Eté: "+Astro.DateTimeToString(ete)+"</html>";
+			lblSeasons_1a.setText(s);
+			lblSeasons_2a.setText(s);
+			s = "<html>Automne: " +Astro.DateTimeToString(aut)+"<br>"+
+					"Hiver: "+Astro.DateTimeToString(hiv)+"</html>";
+			lblSeasons_1b.setText(s);
+			lblSeasons_2b.setText(s);
 		}
 	}
 
