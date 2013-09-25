@@ -52,7 +52,9 @@ class DayCalRenderer
 	public Color colA = new Color(255,204,0);
 	public Color colB = new Color(255,0,0);
 	public Color colC = new Color(0,153,0);
-		
+	public int selDay = -1;
+	
+	
 	// cell dimensions
 	private int width = 0;
 	private int height = 0;
@@ -93,7 +95,7 @@ class DayCalRenderer
     	public String ferie;
     	public String season;
     	public DateTime seasondate;
-    	public CalDay(DateTime ddate, String dsdate, String dsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, String dzonevacscol, String dferie ) {
+    	public CalDay(DateTime ddate, String dsdate, String dsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, String dzonevacscol, String dferie, String dseason, DateTime dseasondate ) {
     	    date= ddate;
     		sdate= dsdate;
 			saint= dsaint;
@@ -102,6 +104,8 @@ class DayCalRenderer
 			typevacscol= dtypevacscol;
 			zonevacscol = dzonevacscol;
 			ferie = dferie;
+			season = dseason;
+			seasondate = dseasondate;
 		}
      }
     
@@ -160,7 +164,7 @@ class DayCalRenderer
 		}
         // fill the days list with saints
         for (int i=0; i < DaysCount; i+=1){
-        	CalDay tmpDay = new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","","");
+        	CalDay tmpDay = new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","","","",null);
         	String s = Saints.saints[CurDay.getDayOfMonth()-1][CurDay.getMonthOfYear()-1];
         	tmpDay.saint = s;
         	YearDays.add(tmpDay);
@@ -270,10 +274,9 @@ class DayCalRenderer
 				Object value, boolean isSelected, boolean hasFocus,
 				int row, int column )
 	{
-		
-		
-		// Retrieve table font 
-	    Color sunday_col = new Color(0, 255, 255);
+		//Colors
+		Color sunday_col = new Color(192, 255, 255);
+	    // Retrieve table font 
 		setFont(table.getFont());
 		quarter = Integer.parseInt(table.getName())-1;
         month = column+1+quarter*3;
@@ -286,6 +289,10 @@ class DayCalRenderer
 			dt = new DateTime(year, month, row+1, 12, 0 );
 			int dow = dt.getDayOfWeek();
 			int dy = dt.getDayOfYear();
+			if (hasFocus) {
+				selDay = dy-1;
+			    //System.out.println(selDay);
+			}
 			iniday= days.substring(dow,dow+1 );
 		    caption += row+1;
 			caption +=" "+iniday;
@@ -346,18 +353,27 @@ class DayCalRenderer
 	         //Bold border around the current day ;
 	        DateTime now;
 	        now = new DateTime();
+	        
 	        if ((now.getYear()==dt.getYear()) && (now.getDayOfYear()==dt.getDayOfYear()))// && (now.getDayOfMonth()ayOfMonth()==dt.dayOfMonth())) 
               	{
-              		Border line = BorderFactory.createLineBorder(table.getForeground(), 2);
+              		Border line = BorderFactory.createLineBorder(Color.RED, 1);
               		setBorder(line);
-      	    
               	}
-	        else setBorder(null);
-	        setText( caption );
+	        else if (hasFocus) {
+	        	Border line = BorderFactory.createLineBorder(table.getForeground(), 1);
+			
+	        	
+              	   setBorder(line);	
+
+	        	}
+	        else  setBorder(null);
+	       
+        setText( caption );
  	    } catch (Exception e) {
 			// N?e fait rien, le jour n'existe pas
 			// Efface caption et lignes
  	    	setText ("");
+ 	    	Border line = BorderFactory.createLineBorder(table.getForeground(), 0); setBorder(line);
 	        Lines.clear();
   	  }
   	    return this;

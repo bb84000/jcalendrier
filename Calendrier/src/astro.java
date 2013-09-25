@@ -499,18 +499,11 @@ public class astro {
 		
 		// DateTime to long String
 		public String DateTimeToString (DateTime dt){
-			String[] Fdays = { "Dimanche", "Lundi", "Mardi", "Mercredi",
-					"Jeudi", "Vendredi", "Samedi", "Dimanche" };
-			String[] Fmonths = { "décembre", "janvier", "février", "mars",
-					"avril", "mai", "juin", "juillet", "août", "septembre",
-					"octobre", "novembre", "décembre" };
+			
 	
 			try {
 				DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm:ss");
-				return Fdays[dt.getDayOfWeek()]
-						+ " " + dt.getDayOfMonth() + " "
-						+ Fmonths[dt.getMonthOfYear()] + " " + dt.getYear() + " "
-						+ dt.toString(fmt);
+				return DateToString (dt)+" "+dt.toString(fmt);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				return "";
@@ -519,6 +512,24 @@ public class astro {
 			
 			 
 		}
+		
+		public String DateToString (DateTime dt) {
+			String[] Fdays = { "Dimanche", "Lundi", "Mardi", "Mercredi",
+					"Jeudi", "Vendredi", "Samedi", "Dimanche" };
+			String[] Fmonths = { "décembre", "janvier", "février", "mars",
+					"avril", "mai", "juin", "juillet", "août", "septembre",
+					"octobre", "novembre", "décembre" };
+			try {
+				return Fdays[dt.getDayOfWeek()]
+						+ " " + dt.getDayOfMonth() + " "
+						+ Fmonths[dt.getMonthOfYear()] + " " + dt.getYear() ;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				return "";
+			} 
+		}
+		
+		
 		
 		//***********************************************************************/
 		//* Name:    calcSunriseUTC								*/

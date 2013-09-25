@@ -22,6 +22,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -53,6 +54,8 @@ import java.awt.Insets;
 
 import javax.swing.border.TitledBorder;
 import javax.swing.UIManager;
+import javax.swing.ListSelectionModel;
+
 
 public class Calendrier {
 
@@ -297,6 +300,12 @@ public class Calendrier {
 			};
 		};
 
+
+		
+		table_q1.setCellSelectionEnabled(true);
+		table_q1.setRowSelectionAllowed(false);
+		table_q1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
 		table_q1.setPreferredScrollableViewportSize(new Dimension(307, 612));
 		table_q1.setSize(new Dimension(307, 612));
 		table_q1.setFont(new Font("Tahoma", Font.PLAIN, 10));
@@ -307,7 +316,6 @@ public class Calendrier {
 		table_q1.setDefaultRenderer(Object.class, Quarter);
 		table_q1.setRowHeight(19);
 		table_q1.setRowMargin(1);
-		table_q1.setRowSelectionAllowed(false);
 		table_q1.setModel(new DefaultTableModel(new Object[][] {
 				{ null, null, null }, { null, null, null },
 				{ null, null, null }, { null, null, null },
@@ -448,6 +456,7 @@ public class Calendrier {
 				.getBorder("TitledBorder.border"),
 				"Jour s\u00E9lectionn\u00E9", TitledBorder.LEFT,
 				TitledBorder.TOP, null, null));
+		panelSelected_1.setLayout(null);
 		GridBagConstraints gbc_panelSelected_1 = new GridBagConstraints();
 		gbc_panelSelected_1.insets = new Insets(0, 0, 0, 0);
 		gbc_panelSelected_1.fill = GridBagConstraints.BOTH;
@@ -457,6 +466,8 @@ public class Calendrier {
 		
 		// label selected
 		lblSelected_1 = new JLabel("Selected");
+		lblSelected_1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		lblSelected_1.setBounds(10, 20, 245, 110);
 		lblSelected_1.setVerticalTextPosition(SwingConstants.TOP);
 		lblSelected_1.setVerticalAlignment(SwingConstants.TOP);
 		lblSelected_1.setPreferredSize(new Dimension(240, 110));
@@ -559,7 +570,6 @@ public class Calendrier {
 		table_q3.setDefaultRenderer(Object.class, Quarter);
 		table_q3.setRowHeight(19);
 		table_q3.setRowMargin(1);
-		table_q3.setRowSelectionAllowed(false);
 		table_q3.setModel(new DefaultTableModel(new Object[][] {
 				{ null, null, null }, { null, null, null },
 				{ null, null, null }, { null, null, null },
@@ -699,6 +709,7 @@ public class Calendrier {
 				.getBorder("TitledBorder.border"),
 				"Jour s\u00E9lectionn\u00E9", TitledBorder.LEFT,
 				TitledBorder.TOP, null, null));
+		panelSelected_2.setLayout(null);
 		GridBagConstraints gbc_panelSelected_2 = new GridBagConstraints();
 		gbc_panelSelected_2.insets = new Insets(0, 0, 0, 0);
 		gbc_panelSelected_2.fill = GridBagConstraints.BOTH;
@@ -706,6 +717,8 @@ public class Calendrier {
 		gbc_panelSelected_2.gridy = 1;
 		pane_h2.add(panelSelected_2, gbc_panelSelected_2);
 		lblSelected_2 = new JLabel("Selected");
+		lblSelected_2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		lblSelected_2.setBounds(10, 20, 245, 110);
 		lblSelected_2.setVerticalTextPosition(SwingConstants.TOP);
 		lblSelected_2.setVerticalAlignment(SwingConstants.TOP);
 		lblSelected_2.setPreferredSize(new Dimension(240, 110));
@@ -938,6 +951,37 @@ public class Calendrier {
 			}
 		});
 
+		// ClicK on a day in tables 
+		
+		table_q1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setLabelSelected();
+			}
+		});
+
+		table_q2.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setLabelSelected();
+			}
+		});
+
+		table_q3.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setLabelSelected();
+			}
+		});
+
+		table_q4.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setLabelSelected();
+			}
+		});
+		
+		
 		pMnuGen.add(pMnuConfig);
 		// System.out.print(Quarter.M);
 		Init = false;
@@ -982,16 +1026,62 @@ public class Calendrier {
 	    lblToday_2a.setText(s);
 	}
 	
+	// set selected label
+	private void setLabelSelected () {
+		if (Quarter.selDay >= 0) { 
+			DateTime dt = Quarter.YearDays.get(Quarter.selDay).date;
+			String s = "<html>"; 
+			s += Astro.DateToString(dt)+"<br>";
+			s += setLabelDay(dt);
+			lblSelected_1.setText(s);
+			lblSelected_2.setText(s);
+		}
+	}
+	
 	private String setLabelDay(DateTime dt) {
 		String s = "<html>"; 
-	    DateTime sunrise = Astro.calcSunrise(dt, 48.86223, 2.351074, true);
+	    // Sun hours
+		DateTime sunrise = Astro.calcSunrise(dt, 48.86223, 2.351074, true);
 	    sunrise = sunrise.plusMinutes(Astro.getTZOff(sunrise));
 	    DateTime sunset = Astro.calcSunrise(dt, 48.86223, 2.351074, false);
 	    sunset = sunset.plusMinutes(Astro.getTZOff(sunset));
 	    DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm");
-	    s = s+Quarter.YearDays.get(dt.getDayOfYear()-1).saint;
-	    s = s+" - "+dt.getDayOfYear()+"e jour, "+dt.getWeekOfWeekyear()+"e semaine<br>";
-	    s = s+"Lever et coucher du soleil : "+sunrise.toString(fmt)+" - "+sunset.toString(fmt);	
+	    int day = dt.getDayOfYear();
+	    // saint, day of year, week of year
+	    s += Quarter.YearDays.get(day-1).saint;
+	     s = s+" - "+day+"e jour, "+dt.getWeekOfWeekyear()+"e semaine<br>";
+	    // ferie
+	    String sf = Quarter.YearDays.get(day-1).ferie;
+	    if (sf.length() > 0) {
+	    	if (sf.charAt(0) == '.') sf = sf.substring(1);
+	    	s += "Férié: "+sf+"<br>"; 
+	    }
+	    // moon
+	    String sm = Quarter.YearDays.get(day-1).typelune ;
+	    if (sm.length() > 0) {
+	    	if (sm.contentEquals("NL")) sm = "Nouvelle lune"; 
+	    	else if (sm.contentEquals("PQ")) sm = "Premier quartier"; 
+	    	else if (sm.contentEquals("DQ")) sm = "Dernier quartier";
+	    	else if (sm.contentEquals("PL")) sm = "Pleine lune";
+	    	else  sm = "";		
+	        if (sm.length() > 0) s += sm+" : "+Quarter.YearDays.get(day-1).timelune.toString(fmt)+"<br>";	
+	    }
+	    // Seasons
+	    String ss = Quarter.YearDays.get(day-1).season;
+	    if (ss.length() > 0) {
+	    	s += ss+" à "+Quarter.YearDays.get(day-1).seasondate.toString(fmt)+ "<br>";
+	    }
+	    // Scolar holidays
+	    String sh =  Quarter.YearDays.get(day-1).zonevacscol;
+	    switch (sh.length()){
+	    	case 1 :	s += "Vacances scolaires: zone "+sh+"<br>"; 
+	    				break;
+	    	case 2 : 	s += "Vacances scolaires: zones "+sh.substring(0,1)+ "," + sh.substring(1,2)+"<br>";
+	    				break;
+	    	case 3 :	s += "Vacances scolaires: zones "+sh.substring(0,1)+ "," + sh.substring(1,2)+","+sh.substring(2,3)+"<br>";
+	    				break;
+	    }
+	    s += "Lever et coucher du soleil : "+sunrise.toString(fmt)+" - "+sunset.toString(fmt);	
 	    return s;
 	}
 	
