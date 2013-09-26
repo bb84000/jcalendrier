@@ -22,7 +22,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -55,8 +54,6 @@ import java.awt.Insets;
 import javax.swing.border.TitledBorder;
 import javax.swing.UIManager;
 import javax.swing.ListSelectionModel;
-
-
 public class Calendrier {
 
 	private JFrame frmCalendrier;
@@ -189,8 +186,8 @@ public class Calendrier {
 		Year = dt.getYear();
 		// Icone de l'application
 		Image MainIcon = Toolkit.getDefaultToolkit().getImage(
-				Calendrier.class.getResource("/resources/calendrier.png"));
-
+		Calendrier.class.getResource("/resources/calendrier.png"));
+		
 		// Création de la forme
 
 		frmCalendrier = new JFrame()
@@ -501,15 +498,15 @@ public class Calendrier {
 		// label seasons left
 		lblSeasons_1a = new JLabel("Seasons");
 		lblSeasons_1a.setMaximumSize(new Dimension(40, 30));
-		lblSeasons_1a.setMinimumSize(new Dimension(255, 30));
+		lblSeasons_1a.setMinimumSize(new Dimension(245, 30));
 		lblSeasons_1a.setSize(new Dimension(255, 30));
 		lblSeasons_1a.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblSeasons_1a.setVerticalTextPosition(SwingConstants.TOP);
 		lblSeasons_1a.setVerticalAlignment(SwingConstants.TOP);
-		lblSeasons_1a.setPreferredSize(new Dimension(255, 35));
+		lblSeasons_1a.setPreferredSize(new Dimension(245, 35));
 		GridBagConstraints gbc_lblSeasons_1a = new GridBagConstraints();
+		gbc_lblSeasons_1a.insets = new Insets(0, 8, 0, 0);
 		gbc_lblSeasons_1a.anchor = GridBagConstraints.NORTHWEST;
-		gbc_lblSeasons_1a.insets = new Insets(5, 8, 0, 5);
 		gbc_lblSeasons_1a.gridx = 0;
 		gbc_lblSeasons_1a.gridy = 0;
 		panelSeasons_1.add(lblSeasons_1a, gbc_lblSeasons_1a);
@@ -517,13 +514,14 @@ public class Calendrier {
 		// label seasons right
 		lblSeasons_1b = new JLabel("Seasons");
 		lblSeasons_1b.setSize(new Dimension(255, 30));
-		lblSeasons_1b.setPreferredSize(new Dimension(255, 35));
-		lblSeasons_1b.setMinimumSize(new Dimension(255, 30));
+		lblSeasons_1b.setPreferredSize(new Dimension(245, 35));
+		lblSeasons_1b.setMinimumSize(new Dimension(245, 30));
 		lblSeasons_1b.setMaximumSize(new Dimension(40, 30));
 		lblSeasons_1b.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblSeasons_1b.setVerticalTextPosition(SwingConstants.TOP);
 		lblSeasons_1b.setVerticalAlignment(SwingConstants.TOP);
 		GridBagConstraints gbc_lblSeasons_1b = new GridBagConstraints();
+		gbc_lblSeasons_1b.insets = new Insets(0, 8, 0, 0);
 		gbc_lblSeasons_1b.anchor = GridBagConstraints.NORTHWEST;
 		gbc_lblSeasons_1b.gridx = 1;
 		gbc_lblSeasons_1b.gridy = 0;
@@ -757,7 +755,7 @@ public class Calendrier {
 		lblSeasons_2a.setVerticalAlignment(SwingConstants.TOP);
 		lblSeasons_2a.setPreferredSize(new Dimension(255, 35));
 		GridBagConstraints gbc_lblSeasons_2a = new GridBagConstraints();
-		gbc_lblSeasons_2a.insets = new Insets(5, 8, 0, 5);
+		gbc_lblSeasons_2a.insets = new Insets(0, 8, 0, 0);
 		gbc_lblSeasons_2a.anchor = GridBagConstraints.NORTHWEST;
 		gbc_lblSeasons_2a.gridx = 0;
 		gbc_lblSeasons_2a.gridy = 0;
@@ -771,6 +769,7 @@ public class Calendrier {
 		lblSeasons_2b.setMaximumSize(new Dimension(40, 30));
 		lblSeasons_2b.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		GridBagConstraints gbc_lblSeasons_2b = new GridBagConstraints();
+		gbc_lblSeasons_2b.insets = new Insets(0, 8, 0, 0);
 		gbc_lblSeasons_2b.anchor = GridBagConstraints.NORTHWEST;
 		gbc_lblSeasons_2b.gridx = 1;
 		gbc_lblSeasons_2b.gridy = 0;
@@ -982,6 +981,11 @@ public class Calendrier {
 		});
 		
 		
+		
+	    
+	 
+
+
 		pMnuGen.add(pMnuConfig);
 		// System.out.print(Quarter.M);
 		Init = false;
@@ -995,6 +999,8 @@ public class Calendrier {
 		
 	}
 	
+
+		
 	// Update today Label every sec
     private void startLabel2() {
         labelTimer = new javax.swing.Timer(1000, updateLabel2());
@@ -1131,12 +1137,13 @@ public class Calendrier {
 			aut = aut.plusMinutes(Astro.getTZOff(aut));
 			hiv = Astro.GetSaisonDate(Year, 3);
 			hiv = hiv.plusMinutes(Astro.getTZOff(hiv));
-			String s = "<html>Printemps: " +Astro.DateTimeToString(prin)+"<br>"+
-						"Eté: "+Astro.DateTimeToString(ete)+"</html>";
+			DateTimeFormatter fmt = DateTimeFormat.forPattern("EEEE dd MMMM HH:mm");
+			String s = "<html>Printemps: " +prin.toString(fmt)+"<br>"+
+						"Eté: "+ete.toString(fmt)+"</html>";
 			lblSeasons_1a.setText(s);
 			lblSeasons_2a.setText(s);
-			s = "<html>Automne: " +Astro.DateTimeToString(aut)+"<br>"+
-					"Hiver: "+Astro.DateTimeToString(hiv)+"</html>";
+			s = "<html>Automne: " +aut.toString(fmt)+"<br>"+
+					"Hiver: "+hiv.toString(fmt)+"</html>";
 			lblSeasons_1b.setText(s);
 			lblSeasons_2b.setText(s);
 		}

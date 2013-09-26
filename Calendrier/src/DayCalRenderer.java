@@ -73,9 +73,6 @@ class DayCalRenderer
     public boolean ShowVacA;
     public boolean ShowVacB; 
     public boolean ShowVacC; 
-    private DateTime paq;
-    private DateTime dep;
-    private DateTime mer;
     private DateTime seas;
     
     
@@ -119,17 +116,24 @@ class DayCalRenderer
 		// Scolar holidays
 		VacScol = new CSVRead();
 		try {
-			if (!VacScol.readCSV("vacscol.csv")) {
-				VacScol.Liste= null; 
-			}
-		} catch (Exception e) {
+			if (!VacScol.readCSVfile("vacscol.csv")) {
+				if (!VacScol.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/vacscol.csv"))) {
+					VacScol.Liste= null; 
+				}
+			}	
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
 			VacScol.Liste= null; 
 		}
+		
 		// Ferie days
 		Feries = new CSVRead();
 		try {
-			if (!Feries.readCSV("ferie.csv")) {
-				Feries.Liste= null; 
+			if (!Feries.readCSVfile("ferie.csv")) {
+				//boolean fe = Feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"));
+				if (!Feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"))) {
+					Feries.Liste= null; 
+				}
 			}
 		} catch (Exception e) {
 			Feries.Liste= null; 
@@ -149,19 +153,7 @@ class DayCalRenderer
         if (Astr.isLeapYear(year)) DaysCount = 366;
         YearDays.clear(); 
 
-        
-        try {
-			paq = Astr.getPaques(year);
-			//asc = paq.plusDays(39);
-			//pen = paq.plusDays(49);
-			dep = Astr.GetDeportes(year);
-			mer = Astr.GetFetmeres(year);
-			
-			
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			//e1.printStackTrace();
-		}
+
         // fill the days list with saints
         for (int i=0; i < DaysCount; i+=1){
         	CalDay tmpDay = new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","","","",null);
@@ -193,7 +185,13 @@ class DayCalRenderer
         
         // Add feries to days list
         if (!(Feries.Liste == null)){
-    	   DateTimeFormatter format = DateTimeFormat.forPattern("dd/MM/yyyy");
+            // Mobile fetes
+            try {
+
+    		} catch (Exception e1) {
+    			// Do nothing, ther eis an error elsewere 
+    		}
+        	DateTimeFormatter format = DateTimeFormat.forPattern("dd/MM/yyyy");
     	   for (int i=0; i<Feries.Liste.size();i+=1) {
     		   String typday = Feries.Liste.get(i)[0];
     		   String s1 = Feries.Liste.get(i)[1];
@@ -209,6 +207,9 @@ class DayCalRenderer
 					 }
 				}
 				else {
+					DateTime paq = Astr.getPaques(year);
+					DateTime dep = Astr.GetDeportes(year);
+					DateTime mer = Astr.GetFetmeres(year);
 					if (typday.equals("DIPAQ"))	YearDays.get(paq.getDayOfYear()-1).ferie= s1;
 					else if (typday.equals("LUPAQ")) YearDays.get(paq.getDayOfYear()).ferie= s1;
 					else if (typday.equals("JEASC")) YearDays.get(paq.getDayOfYear()+38).ferie= s1;
@@ -393,12 +394,12 @@ class DayCalRenderer
 		// Draw a rectangle in the background of the cell
 		g.fillRect( 0, 0, width - 1, height - 1 );
 		
-		super.paint( g );
-		
-		
+		//super.paint( g );
+
 		// Draw holidays lines
 		
-		if (Lines.size() > 0) {
+		if (Lines.size() > 0)
+		{
 			Color curCol = g.getColor();
 			for (int i=0; i < Lines.size(); i+= 1) {
 			g.setColor(Lines.get(i).col);
@@ -406,12 +407,9 @@ class DayCalRenderer
 					g.drawLine(Lines.get(i).xb+j, Lines.get(i).yb, Lines.get(i).xe+j, Lines.get(i).ye);
 				}		
 			}
-				
-				
 				g.setColor(curCol);
-		
 		}
-		
+		super.paint( g );
 		// Paint icon on right side of label
 		try {
 			if (Image != null){   
@@ -436,8 +434,8 @@ class DayCalRenderer
 		bkcolor= clr;
 	}
 	 
-	public void drawLines () {
+	//public void drawLines () {
 
 		
-	}
+	//}
 }

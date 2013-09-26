@@ -216,21 +216,23 @@ public class dlgConfig extends JDialog {
 			f = new File (workingDirectory+"/"+config_file);
 			if (f.exists()) config_file= workingDirectory+"/"+config_file;
 			 else {
-			   	//config file not found. Ask user if it wants standard or portable operation
+			   	/*//config file not found. Ask user if it wants standard or portable operation not working in Linux
 			   	 String BtnCaptions[]={ "Standard", "Portable"};
 			   	 String msg = new String("Choix du mode de fonctionnement\n");
 			   	 msg += "Standard : Les données de configuration sont stoclées dans le répertoire utilisateur.\n";
 			   	 msg += "Portable : les données de configuration sont stockées dans le répertoire courant.";
 			   	 int ret = JOptionPane.showOptionDialog(null, msg, "Calendrier", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, BtnCaptions, "");
-				 if (ret==0) {								// store in user folder otherwise store in current folder
-				 	 File folderExisting = new File(workingDirectory); 
-				     if (!folderExisting.exists()) {  
-				    	 boolean success = (new File(workingDirectory)).mkdirs();
-				    	 if (success) config_file= workingDirectory+"/"+config_file;
-				    	 else JOptionPane.showMessageDialog(null, "Impossible de créer le dossier de l'application");
-				   	 }
-				   	 else config_file= workingDirectory+"/"+config_file;
-				 }
+				 if (ret==0)
+				 // store in user folder otherwise store in current folder*/
+				 
+				 	File folderExisting = new File(workingDirectory); 
+				    if (!folderExisting.exists()) {  
+				    	boolean success = (new File(workingDirectory)).mkdirs();
+				    	if (success) config_file= workingDirectory+"/"+config_file;
+				    	else JOptionPane.showMessageDialog(null, "Impossible de créer le dossier de l'application");
+				   	}
+				   	else config_file= workingDirectory+"/"+config_file;
+				 
 			 } 
 				
 		}
@@ -251,7 +253,7 @@ public class dlgConfig extends JDialog {
 					if (jr.getString().equals("savePos")) {
 						event = jr.next();
 						savePos = (event==Event.VALUE_TRUE);					
-						//cbPos.setSelected(savePos);
+						cbPos.setSelected(savePos);
 					}
 					else if (jr.getString().equals("locatX")) {
 						event = jr.next();
@@ -271,7 +273,8 @@ public class dlgConfig extends JDialog {
 					}
 					else if (jr.getString().equals("saveMoon")) {
 						event = jr.next();
-						saveMoon = (event==Event.VALUE_TRUE);					
+						saveMoon = (event==Event.VALUE_TRUE);	
+						cbMoon.setSelected(saveMoon);
 					}
 					
 					else if (jr.getString().equals("dispMoon")) {
@@ -280,7 +283,8 @@ public class dlgConfig extends JDialog {
 					}
 					else if (jr.getString().equals("saveVacScol")) {
 						event = jr.next();
-						saveVacScol = (event==Event.VALUE_TRUE);					
+						saveVacScol = (event==Event.VALUE_TRUE);	
+						cbVacScol.setSelected(saveVacScol);
 					}
 					else if (jr.getString().equals("dispVacA")) {
 						event = jr.next();

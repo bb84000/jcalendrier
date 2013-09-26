@@ -499,8 +499,6 @@ public class astro {
 		
 		// DateTime to long String
 		public String DateTimeToString (DateTime dt){
-			
-	
 			try {
 				DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm:ss");
 				return DateToString (dt)+" "+dt.toString(fmt);
@@ -508,11 +506,21 @@ public class astro {
 				// TODO Auto-generated catch block
 				return "";
 			} 
-			
-			
-			 
 		}
 		
+		// DateTime to long String with time formating
+		public String DateTimeToString (DateTime dt, String format){
+			if (format.length() == 0) format =  "HH:mm:ss";
+			try {
+				DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
+				return DateToString (dt)+" "+dt.toString(fmt);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				return "";
+			} 
+		}
+		
+		// Date to string long in french
 		public String DateToString (DateTime dt) {
 			String[] Fdays = { "Dimanche", "Lundi", "Mardi", "Mercredi",
 					"Jeudi", "Vendredi", "Samedi", "Dimanche" };
@@ -585,7 +593,9 @@ public class astro {
 			timeDiff = 4 * delta;
 			timeUTC = 720 + timeDiff - eqTime; // in minutes
 			int hr = (int) Math.floor(timeUTC /60);
-			int mn= (int) Math.round(timeUTC- hr*60);
+			int mn= (int) Math.floor(timeUTC- hr*60);
+	
+		
 			int y = dt.getYear();
 			int m = dt.getMonthOfYear();
 			int d = dt.getDayOfMonth();
