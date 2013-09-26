@@ -3,9 +3,8 @@ calendrier
 
 Universal french almanac.
 
-To do : 
-- display of selected day in right pane
-- other user customization
+- popup menus for user customization
+- save user configuration
 
 Java development from previous project in Delphi 7.
 
