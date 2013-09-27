@@ -53,8 +53,14 @@ class DayCalRenderer
 	public Color colB = new Color(255,0,0);
 	public Color colC = new Color(0,153,0);
 	public int selDay = -1;
-	
-	
+	public boolean ShowMoon;
+	public boolean ShowVacA;
+    public boolean ShowVacB; 
+    public boolean ShowVacC; 
+	// Arraylist containing all year days with their properties
+    public ArrayList<CalDay> YearDays= new ArrayList<CalDay>();
+	public String[] HalfImages = { "","" }; 
+    
 	// cell dimensions
 	private int width = 0;
 	private int height = 0;
@@ -66,19 +72,16 @@ class DayCalRenderer
     String iniday= "L";
     private int month;
     //private int dow;
-     public boolean ShowMoon;
+    
     private String[][] MoonDays; 
     private CSVRead VacScol;
     private CSVRead Feries;
-    public boolean ShowVacA;
-    public boolean ShowVacB; 
-    public boolean ShowVacC; 
+    private CSVRead imgsHalf;
     private DateTime seas;
     
     
     private boolean okMoon;
-    // Arraylist containing all year days with their properties
-    public ArrayList<CalDay> YearDays= new ArrayList<CalDay>();
+    
     
  // Day structure and properties
     public class CalDay {
@@ -130,16 +133,16 @@ class DayCalRenderer
 		Feries = new CSVRead();
 		try {
 			if (!Feries.readCSVfile("ferie.csv")) {
-				//boolean fe = Feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"));
-				if (!Feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"))) {
-					Feries.Liste= null; 
-				}
+				Feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv")); {				}
 			}
 		} catch (Exception e) {
-			Feries.Liste= null; 
+			//Feries.Liste= null;  not neededcheck isEmpty instead
 		}
-		// Sunset and sunrise
-		// Other holidays
+		// panel half images
+		imgsHalf = new CSVRead();
+		imgsHalf.readCSVfile("imgshalf.csv");
+		
+		
 	}
 	
     // Set the displayed year
@@ -148,6 +151,21 @@ class DayCalRenderer
     	year = y;
         int DaysCount = 365;
         astro Astr = new astro();   	
+        // Get half image if exists
+        HalfImages [0] = "";
+        HalfImages [1] = "";       
+        if (!imgsHalf.Liste.isEmpty()) {
+        	for (int i=0; i < imgsHalf.Liste.size(); i+=1 ){
+        		int yr = 0;
+        		yr = Integer.parseInt(imgsHalf.Liste.get(i)[0]);
+        		if (yr==y) {
+        			int hlf = Integer.parseInt(imgsHalf.Liste.get(i)[1]);
+        			HalfImages [hlf] = imgsHalf.Liste.get(i)[2];
+        		}
+         	}
+        }
+        	
+        
         // Create an arraylist of all year days, begin 1st january
         DateTime CurDay = new DateTime(year,1,1,0,0,1);
         if (Astr.isLeapYear(year)) DaysCount = 366;
@@ -184,8 +202,8 @@ class DayCalRenderer
         }
         
         // Add feries to days list
-        if (!(Feries.Liste == null)){
-            // Mobile fetes
+        if  (!Feries.Liste.isEmpty()) {  
+        // Mobile fetes
             try {
 
     		} catch (Exception e1) {

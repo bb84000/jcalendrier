@@ -17,9 +17,10 @@
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class CSVRead{
-	public ArrayList<String[]> Liste;
+	public ArrayList<String[]> Liste = new ArrayList<String[]>();
 	//private File file;
     
 
@@ -53,7 +54,6 @@ public class CSVRead{
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 			}
-			Liste = new ArrayList<String[]>();
 			InputStreamReader r = new InputStreamReader(is, cs);
 			try {
 				if (is.available() >0 ) {
@@ -87,7 +87,42 @@ public class CSVRead{
 				return false;
 			}
 	    
-}
+	}
+	
+	public void writeCSVfile(String filename, boolean append) {
+		File file = new File(filename);
+		FileWriter fw = null; 
+		// if file doesnt exists, then create it
+		try {
+			fw = new FileWriter(file.getAbsoluteFile(), true);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+		BufferedWriter bw = new BufferedWriter(fw);
+		if (!Liste.isEmpty()) {
+			String s = new String();
+			try {
+				Iterator itr = Liste.iterator();
+			    s = "";
+				while(itr.hasNext()) {
+			    	String [] element = (String []) itr.next();
+			    	for (int i=0; i < element.length; i+=1) { 
+			    		if (i == element.length-1) s= element[i];
+			    		else s= element[i]+",";
+			    		bw.write(s);
+			    	}
+			    	bw.newLine();
+			    };
+				bw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}	
+		}
+		
+	}
 } // CSVRead
 
 

@@ -22,11 +22,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
+import java.io.File;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -42,6 +45,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -176,7 +180,7 @@ public class Calendrier {
 	private void initialize() {
 		Init = true;
 		// Set config file name and load config if exists
-		// if not exists ask user to choose standard or portable
+
 		if (!Beans.isDesignTime()) {
 
 			Config.set_config_file("config.json");
@@ -187,6 +191,10 @@ public class Calendrier {
 		// Icone de l'application
 		Image MainIcon = Toolkit.getDefaultToolkit().getImage(
 		Calendrier.class.getResource("/resources/calendrier.png"));
+		
+		// images this year ?
+		
+				
 		
 		// Création de la forme
 
@@ -337,14 +345,20 @@ public class Calendrier {
 		pane_q1.add(header_q1, BorderLayout.NORTH);
 		pane_q1.add(table_q1, BorderLayout.CENTER);
 
-		// Add image
+		
 		// Todo user selected images
 		lblImage_1 = new JLabel("");
 		lblImage_1.setMaximumSize(new Dimension(530, 400));
 		lblImage_1.setMinimumSize(new Dimension(530, 400));
 		lblImage_1.setSize(new Dimension(530, 400));
 		lblImage_1.setPreferredSize(new Dimension(530, 400));
-		lblImage_1.setIcon(new StretchIcon("image.jpg"));
+		if (Quarter.HalfImages [0].length() > 0) 
+			lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
+		else lblImage_1.setIcon(new StretchIcon("image.jpg"));
+		
+
+		
+		
 		GridBagConstraints gbc_lblImage_1 = new GridBagConstraints();
 		gbc_lblImage_1.insets = new Insets(0, 0, 0, 0);
 		gbc_lblImage_1.anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
@@ -598,7 +612,10 @@ public class Calendrier {
 		lblImage_2.setMinimumSize(new Dimension(530, 400));
 		lblImage_2.setSize(new Dimension(530, 400));
 		lblImage_2.setPreferredSize(new Dimension(530, 400));
-		lblImage_2.setIcon(new StretchIcon("image.jpg"));
+		if (Quarter.HalfImages [1].length() > 0) 
+			lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
+		else lblImage_2.setIcon(new StretchIcon("image.jpg"));
+		
 		GridBagConstraints gbc_lblImage_2 = new GridBagConstraints();
 		gbc_lblImage_2.insets = new Insets(0, 0, 0, 0);
 		gbc_lblImage_2.anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
@@ -774,6 +791,21 @@ public class Calendrier {
 		gbc_lblSeasons_2b.gridx = 1;
 		gbc_lblSeasons_2b.gridy = 0;
 		panelSeasons_2.add(lblSeasons_2b, gbc_lblSeasons_2b);
+		
+		// Popup half image
+		JPopupMenu pMnuImage_h1 = new JPopupMenu();
+		addPopup(lblImage_1, pMnuImage_h1);
+		addPopup(lblImage_2, pMnuImage_h1);
+		
+		JMenuItem pMnuSelImage_h1 = new JMenuItem("Choisir une image");
+		pMnuSelImage_h1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setHalfImage(Year, tabpane.getSelectedIndex());
+			}
+		});
+		pMnuImage_h1.add(pMnuSelImage_h1);
+		
+		
 
 		// Moon phases checkboc
 		cbMoon.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -825,12 +857,17 @@ public class Calendrier {
 							Year= newYear;
 							Quarter.setYear(Year);
 							frmCalendrier.setTitle("Calendrier - " + syear);
+							int curpane = tabpane.getSelectedIndex(); 
+							switch (curpane) {
+							case 0 : if (Quarter.HalfImages [0].length() > 0) lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
+									 else lblImage_1.setIcon(new StretchIcon("image.jpg"));
+							case 1 : if (Quarter.HalfImages [1].length() > 0) lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
+										else lblImage_2.setIcon(new StretchIcon("image.jpg"));
+						}
 							setSeasons(Year);
+							
 							Quarter.repaint();
 						}
-						//else YearField.setText(String.valueOf(Year));
-							
-						
 					}
 				}
 			}
@@ -929,7 +966,7 @@ public class Calendrier {
 		pMnuGen.setLabel("Config");
 		addPopup(pane_bottom, pMnuGen);
 
-		// Launch config pôpup menu
+		// Launch config popup menu
 		pMnuConfig = new JMenuItem("Config");
 		pMnuConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -999,7 +1036,22 @@ public class Calendrier {
 		
 	}
 	
-
+	// set half year label image
+	private void setHalfImage(int year, int tab) {
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+		    "Fichiers images", "gif", "jpg", "jpeg", "png");
+		chooser.setFileFilter(filter);
+		chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+		int returnVal = chooser.showOpenDialog(null);
+		if(returnVal == JFileChooser.APPROVE_OPTION) {
+		   if (tab==0) 
+			lblImage_1.setIcon(new StretchIcon(chooser.getSelectedFile().getAbsolutePath()));
+		   else lblImage_2.setIcon(new StretchIcon(chooser.getSelectedFile().getAbsolutePath()));
+		}	
+		
+		
+	}
 		
 	// Update today Label every sec
     private void startLabel2() {
@@ -1111,9 +1163,24 @@ public class Calendrier {
 			frmCalendrier.setTitle("Calendrier - " + syear);
 			frmCalendrier.repaint();
 			tabpane.setSelectedIndex(previndex);
+			
 		} else {
 			tabpane.setSelectedIndex(curindex);
 		}
+		int curpane = tabpane.getSelectedIndex();
+		System.out.println(curpane);
+		switch (curpane) {
+			case 0 : if (Quarter.HalfImages [0].length() > 0) lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
+					 else lblImage_1.setIcon(new StretchIcon("image.jpg"));
+			case 1 : if (Quarter.HalfImages [1].length() > 0) lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
+						else lblImage_2.setIcon(new StretchIcon("image.jpg"));
+		}
+		
+			
+		
+		//if (Quarter.HalfImages [1].length() > 0) 
+		//	lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
+		
 		// Gregorian calendar only 
 		if ((tabpane.getSelectedIndex() == 0) && (Year == 1583)) btnPrevious.setEnabled(false);
 		else btnPrevious.setEnabled(true);
