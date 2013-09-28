@@ -153,18 +153,20 @@ public class Calendrier {
 		if (Config.savePos) {
 			frmCalendrier.setSize(Config.sizeW, Config.sizeH);
 			frmCalendrier.setLocation(Config.locatX, Config.locatY);
-		} else
-			frmCalendrier.setLocationRelativeTo(null);
+		} else frmCalendrier.setLocationRelativeTo(null);
+		
 		Quarter.colA = Config.colvacA;
 		checkedA.colFillu = Config.colvacA;
 		Quarter.colB = Config.colvacB;
 		checkedB.colFillu = Config.colvacB;
 		Quarter.colC = Config.colvacC;
 		checkedC.colFillu = Config.colvacC;
+		
 		if (Config.saveMoon) {
 			cbMoon.setSelected(Config.dispMoon);
 			Quarter.ShowMoon = cbMoon.isSelected();
 		}
+		
 		if (Config.saveVacScol) {
 			cbVacA.setSelected(Config.dispVacA);
 			Quarter.ShowVacA = cbVacA.isSelected();
@@ -173,7 +175,7 @@ public class Calendrier {
 			cbVacC.setSelected(Config.dispVacC);
 			Quarter.ShowVacC = cbVacC.isSelected();
 		}
-
+		
 	}
 
 	// Some initialization routines
@@ -192,10 +194,9 @@ public class Calendrier {
 		Image MainIcon = Toolkit.getDefaultToolkit().getImage(
 		Calendrier.class.getResource("/resources/calendrier.png"));
 		
-		// images this year ?
+		//initialisation des variables et listes du trimestre
 		
-				
-		
+
 		// Création de la forme
 
 		frmCalendrier = new JFrame()
@@ -234,7 +235,7 @@ public class Calendrier {
 				Config.saveConfig();
 			}
 		});
-
+		
 		frmCalendrier.setSize(new Dimension(1182, 728));
 		frmCalendrier.setMaximumSize(new Dimension(1180, 728));
 		frmCalendrier.getContentPane().setMaximumSize(
@@ -243,12 +244,17 @@ public class Calendrier {
 		frmCalendrier.setBounds(100, 100, 450, 300);
 		frmCalendrier.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmCalendrier.setSize(1180, 719);
-
+		 
 		// Apply configuration parameters
 		applyConfig();
 		String syear = "";
 		syear += Year;
 		frmCalendrier.setTitle("Calendrier - " + syear);
+		
+		
+		// quarter intialization		
+		Quarter.workingDirectory = Config.workingDirectory;
+		Quarter.init();	
 		Quarter.setYear(Year);
 		
 		// bottom panel for buttons
@@ -1024,8 +1030,7 @@ public class Calendrier {
 
 
 		pMnuGen.add(pMnuConfig);
-		// System.out.print(Quarter.M);
-		Init = false;
+				Init = false;
 		if (!Beans.isDesignTime()) {
 			setLabelToday(dt);
 			lblSelected_1.setText("");
@@ -1039,6 +1044,11 @@ public class Calendrier {
 	// set half year label image
 	private void setHalfImage(int year, int tab) {
 		JFileChooser chooser = new JFileChooser();
+		ImagePreviewPanel preview = new ImagePreviewPanel();
+		chooser.setAccessory(preview);
+		chooser.addPropertyChangeListener(preview);
+		
+		
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 		    "Fichiers images", "gif", "jpg", "jpeg", "png");
 		chooser.setFileFilter(filter);
@@ -1168,7 +1178,6 @@ public class Calendrier {
 			tabpane.setSelectedIndex(curindex);
 		}
 		int curpane = tabpane.getSelectedIndex();
-		System.out.println(curpane);
 		switch (curpane) {
 			case 0 : if (Quarter.HalfImages [0].length() > 0) lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
 					 else lblImage_1.setIcon(new StretchIcon("image.jpg"));

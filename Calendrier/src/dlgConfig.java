@@ -242,13 +242,14 @@ public class dlgConfig extends JDialog {
 		
 		
 		try {
-		
 			FileInputStream json = new FileInputStream(config_file);
 			JsonParser jr = Json.createParser(json);
 			Event event = null;
 			// Advance to "savePos" key
+			
 			while(jr.hasNext()) {
 				event = jr.next();
+				
 				try {
 					if (jr.getString().equals("savePos")) {
 						event = jr.next();

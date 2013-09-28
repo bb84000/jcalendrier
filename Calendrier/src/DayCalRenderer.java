@@ -7,6 +7,7 @@
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -60,12 +61,12 @@ class DayCalRenderer
 	// Arraylist containing all year days with their properties
     public ArrayList<CalDay> YearDays= new ArrayList<CalDay>();
 	public String[] HalfImages = { "","" }; 
+	public String workingDirectory = "";
     
 	// cell dimensions
 	private int width = 0;
 	private int height = 0;
 	
-	private saints Saints;
 	private int year;
     private int quarter;
     String days= "DLMMJVSD";
@@ -74,10 +75,12 @@ class DayCalRenderer
     //private int dow;
     
     private String[][] MoonDays; 
-    private CSVRead VacScol;
-    private CSVRead Feries;
-    private CSVRead imgsHalf;
+    private bArrayList feries;
+    private bArrayList imagesHalf;
+    private bArrayList saints;
+    private bArrayList vacscol;
     private DateTime seas;
+   
     
     
     private boolean okMoon;
@@ -109,78 +112,88 @@ class DayCalRenderer
 		}
      }
     
-	// Initialize permanent classes
-    
-    public DayCalRenderer  ()
-	{
-		Saints = new saints();
+
+	
+   // Classes and variables initialization
+
+	public void init() {
+		// panel half images
+		imagesHalf = new bArrayList();
+		String imgfile= "imgshalf.csv";
+		if (workingDirectory.length()> 0) imgfile = workingDirectory+"/imgshalf.csv";
+		imagesHalf.readCSVfile(imgfile);
+		
+		// saints arrays
+		//Saints = new saints();
+		saints = new bArrayList();
+		String sntfile = "saints.csv";
+		if (workingDirectory.length()> 0) sntfile = workingDirectory+"/saints.csv";
+		if (!saints.readCSVfile(sntfile)) {
+			saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv"));
+		}
+		
 		//Moon = new PhaseMoon();
 		MoonDays = new String[56][2];
-		// Scolar holidays
-		VacScol = new CSVRead();
-		try {
-			if (!VacScol.readCSVfile("vacscol.csv")) {
-				if (!VacScol.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/vacscol.csv"))) {
-					VacScol.Liste= null; 
-				}
-			}	
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			VacScol.Liste= null; 
-		}
 		
 		// Ferie days
-		Feries = new CSVRead();
-		try {
-			if (!Feries.readCSVfile("ferie.csv")) {
-				Feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv")); {				}
-			}
-		} catch (Exception e) {
-			//Feries.Liste= null;  not neededcheck isEmpty instead
+		feries = new bArrayList();
+		String ferfile = "ferie.csv";
+		if (workingDirectory.length()> 0) ferfile = workingDirectory+"/ferie.csv";
+		if (!feries.readCSVfile(ferfile)) {
+			feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"));
 		}
-		// panel half images
-		imgsHalf = new CSVRead();
-		imgsHalf.readCSVfile("imgshalf.csv");
-		
-		
-	}
-	
-    // Set the displayed year
 
-	public void setYear (int y){
+		// Scolar holidays
+		vacscol = new bArrayList();
+		if (!vacscol.readCSVfile("vacscol.csv")) {
+			vacscol.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/vacscol.csv"));
+		}	
+	}
+
+ // Set the displayed year
+    public void setYear (int y){
     	year = y;
         int DaysCount = 365;
-        astro Astr = new astro();   	
+        astro Astr = new astro(); 
+        
         // Get half image if exists
         HalfImages [0] = "";
         HalfImages [1] = "";       
-        if (!imgsHalf.Liste.isEmpty()) {
-        	for (int i=0; i < imgsHalf.Liste.size(); i+=1 ){
+        if (!imagesHalf.isEmpty())
+        {
+        	Iterator<String[]> itr = imagesHalf.iterator();
+        	while(itr.hasNext()) {
         		int yr = 0;
-        		yr = Integer.parseInt(imgsHalf.Liste.get(i)[0]);
+        		String [] element =  itr.next();
+        		yr = Integer.parseInt(element [0]);
         		if (yr==y) {
-        			int hlf = Integer.parseInt(imgsHalf.Liste.get(i)[1]);
-        			HalfImages [hlf] = imgsHalf.Liste.get(i)[2];
+        			int hlf = Integer.parseInt(element[1]);
+        			HalfImages [hlf] = element[2];
         		}
-         	}
-        }
-        	
-        
+        	}
+        } // end half images
+       
         // Create an arraylist of all year days, begin 1st january
         DateTime CurDay = new DateTime(year,1,1,0,0,1);
         if (Astr.isLeapYear(year)) DaysCount = 366;
         YearDays.clear(); 
 
-
-        // fill the days list with saints
-        for (int i=0; i < DaysCount; i+=1){
-        	CalDay tmpDay = new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","","","",null);
-        	String s = Saints.saints[CurDay.getDayOfMonth()-1][CurDay.getMonthOfYear()-1];
-        	tmpDay.saint = s;
-        	YearDays.add(tmpDay);
-        	// increment day
-        	CurDay = CurDay.plusDays(1);	
+        // Create and fill the days list with saints
+        if (!saints.isEmpty()) {
+        	for (int i=0; i < DaysCount; i+=1) {
+        		YearDays.add( new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), saints.get(CurDay.getDayOfMonth()-1)[CurDay.getMonthOfYear()-1],null, "","","","","",null));
+        		// increment day
+        		CurDay = CurDay.plusDays(1);	
+        	}
         }
+        else {  // no saints to load, create list
+        	for (int i=0; i < DaysCount; i+=1) {
+        		YearDays.add(new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","","","",null));
+        		// increment day
+        		CurDay = CurDay.plusDays(1);
+        	}
+        } // end yeardays list and saints
+
       	
         // add moonphases to days list
         okMoon= Astr.GetMoonDays(MoonDays, y); 
@@ -202,82 +215,76 @@ class DayCalRenderer
         }
         
         // Add feries to days list
-        if  (!Feries.Liste.isEmpty()) {  
+        if  (!feries.isEmpty()) {  
         // Mobile fetes
-            try {
-
-    		} catch (Exception e1) {
-    			// Do nothing, ther eis an error elsewere 
-    		}
-        	DateTimeFormatter format = DateTimeFormat.forPattern("dd/MM/yyyy");
-    	   for (int i=0; i<Feries.Liste.size();i+=1) {
-    		   String typday = Feries.Liste.get(i)[0];
-    		   String s1 = Feries.Liste.get(i)[1];
-    		   String s2 = Feries.Liste.get(i)[2];
-    		  
-    		   try {
-				DateTime datemin = format.parseDateTime(s2);
-    			if (datemin.getYear() <= year) {
-				if (typday.equals("FIXE")){
+            DateTimeFormatter format = DateTimeFormat.forPattern("dd/MM/yyyy");
+        	Iterator<String[]> itr = feries.iterator();
+			while(itr.hasNext()) {
+		    	String [] element =  itr.next();
+		    	String typday = element[0];
+		    	String s1 = element[1];
+		    	String s2 = element[2];
+		    	
+		    	try {
+					DateTime datemin = format.parseDateTime(s2);
 					if (datemin.getYear() <= year) {
-					   CurDay= new DateTime(year, datemin.getMonthOfYear(), datemin.getDayOfMonth(),0,0); 
-					   YearDays.get(CurDay.getDayOfYear()-1).ferie= s1;
-					 }
-				}
-				else {
-					DateTime paq = Astr.getPaques(year);
-					DateTime dep = Astr.GetDeportes(year);
-					DateTime mer = Astr.GetFetmeres(year);
-					if (typday.equals("DIPAQ"))	YearDays.get(paq.getDayOfYear()-1).ferie= s1;
-					else if (typday.equals("LUPAQ")) YearDays.get(paq.getDayOfYear()).ferie= s1;
-					else if (typday.equals("JEASC")) YearDays.get(paq.getDayOfYear()+38).ferie= s1;
-					else if (typday.equals("DIPEN")) YearDays.get(paq.getDayOfYear()+48).ferie= s1;
-					else if (typday.equals("LUPEN")) YearDays.get(paq.getDayOfYear()+48).ferie= s1;
-					else if (typday.equals("SOUDEP")) {
-						if (!(dep.getDayOfYear() == paq.getDayOfYear())) YearDays.get(dep.getDayOfYear()-1).ferie= s1;
-					}
-					else if (typday.equals("FETMER")) {
-						//if (!(mer.getDayOfYear() == paq.getDayOfYear()+49)) YearDays.get(mer.getDayOfYear()-1).ferie= s1;
-						//else 
-						YearDays.get(mer.getDayOfYear()-1).ferie= s1;
+						if (typday.equals("FIXE")){
+							if (datemin.getYear() <= year) {
+								CurDay= new DateTime(year, datemin.getMonthOfYear(), datemin.getDayOfMonth(),0,0); 
+								YearDays.get(CurDay.getDayOfYear()-1).ferie= s1;
+							}
 						}
+						else {
+							DateTime paq = Astr.getPaques(year);
+							DateTime dep = Astr.GetDeportes(year);
+							DateTime mer = Astr.GetFetmeres(year);
+							if (typday.equals("DIPAQ"))	YearDays.get(paq.getDayOfYear()-1).ferie= s1;
+							else if (typday.equals("LUPAQ")) YearDays.get(paq.getDayOfYear()).ferie= s1;
+							else if (typday.equals("JEASC")) YearDays.get(paq.getDayOfYear()+38).ferie= s1;
+							else if (typday.equals("DIPEN")) YearDays.get(paq.getDayOfYear()+48).ferie= s1;
+							else if (typday.equals("LUPEN")) YearDays.get(paq.getDayOfYear()+48).ferie= s1;
+							else if (typday.equals("SOUDEP")) {
+								if (!(dep.getDayOfYear() == paq.getDayOfYear())) YearDays.get(dep.getDayOfYear()-1).ferie= s1;
+							}
+							else if (typday.equals("FETMER")) YearDays.get(mer.getDayOfYear()-1).ferie= s1;
+						}	
 					}
-    			}
-			} catch (Exception e) {
-				// invalid date
-				//e.printStackTrace();
+				}
+				 catch (Exception e) {
+					//do nothing invalid entry;
+				 }
 			}
-    	   }
-        }
+        	
+        } // end feries
         
         // Add scolar holidays to days list
-        if (!(VacScol.Liste==null)) {
+        if  (!vacscol.isEmpty()) {  
         	DateTimeFormatter format = DateTimeFormat.forPattern("dd/MM/yyyy");
-        	
-        	for (int i=0; i<VacScol.Liste.size()-1;i+=1) {
-        		String s = VacScol.Liste.get(i)[0];
-        		try {
-					y = Integer.parseInt(s);
-					if (y==year){
-						DateTime datebeg = format.parseDateTime(VacScol.Liste.get(i)[1]);
-						DateTime dateend = format.parseDateTime(VacScol.Liste.get(i)[2]);
+        	Iterator<String[]> itr = vacscol.iterator();
+			while(itr.hasNext()) {
+		    	int yr = 0;
+				String [] element =  itr.next();
+		    	try {
+					yr = Integer.parseInt(element[0]);
+					if (yr==year){
+						DateTime datebeg = format.parseDateTime(element[1]);
+						DateTime dateend = format.parseDateTime(element[2]);
 						int j = datebeg.getDayOfYear();
 						while (j <= dateend.getDayOfYear()){
-							YearDays.get(j-1).typevacscol = VacScol.Liste.get(i)[3];	
+							YearDays.get(j-1).typevacscol = element[3];	
 							String ss = YearDays.get(j-1).zonevacscol;
-							YearDays.get(j-1).zonevacscol = ss+ VacScol.Liste.get(i)[4];
-							//System.out.println(YearDays.get(j-1).sdate+"-"+YearDays.get(j-1).zonevacscol);
+							YearDays.get(j-1).zonevacscol = ss+ element[4];
 							j +=1;
 						}
-					}
+					}		
 				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
-					//e.printStackTrace();
+					// do nothing invalid entry
 				}
-        		
-        	}
+			}
         
-        }
+        } // end vacscol
+        
+       
         // Add seasons
         String [] season = {"Printemps","Eté","Automne","Hiver"};
         for (int i = 0; i < 4; i+= 1) {
