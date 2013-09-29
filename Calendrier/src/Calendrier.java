@@ -1022,12 +1022,6 @@ public class Calendrier {
 				setLabelSelected();
 			}
 		});
-		
-		
-		
-	    
-	 
-
 
 		pMnuGen.add(pMnuConfig);
 				Init = false;
@@ -1116,8 +1110,9 @@ public class Calendrier {
 	    DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm");
 	    int day = dt.getDayOfYear();
 	    // saint, day of year, week of year
-	    s += Quarter.YearDays.get(day-1).saint;
-	     s = s+" - "+day+"e jour, "+dt.getWeekOfWeekyear()+"e semaine<br>";
+	    s += day+"e jour, "+dt.getWeekOfWeekyear()+"e semaine<br>";
+	    s += Quarter.YearDays.get(day-1).lsaint+"<br>";
+	    // s = s+" - "+day+"e jour, "+dt.getWeekOfWeekyear()+"e semaine<br>";
 	    // ferie
 	    String sf = Quarter.YearDays.get(day-1).ferie;
 	    if (sf.length() > 0) {

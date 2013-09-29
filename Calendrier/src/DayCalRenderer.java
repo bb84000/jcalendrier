@@ -91,6 +91,7 @@ class DayCalRenderer
     	public DateTime date;
     	public String sdate;
     	public String saint;
+    	public String lsaint; 
     	public DateTime timelune;
     	public String typelune;
     	public String typevacscol;
@@ -98,10 +99,11 @@ class DayCalRenderer
     	public String ferie;
     	public String season;
     	public DateTime seasondate;
-    	public CalDay(DateTime ddate, String dsdate, String dsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, String dzonevacscol, String dferie, String dseason, DateTime dseasondate ) {
+    	public CalDay(DateTime ddate, String dsdate, String dsaint, String dlsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, String dzonevacscol, String dferie, String dseason, DateTime dseasondate ) {
     	    date= ddate;
     		sdate= dsdate;
 			saint= dsaint;
+			lsaint = dlsaint;
 			timelune= dtimelune;
 			typelune= dtypelune;
 			typevacscol= dtypevacscol;
@@ -120,17 +122,18 @@ class DayCalRenderer
 		// panel half images
 		imagesHalf = new bArrayList();
 		String imgfile= "imgshalf.csv";
-		if (workingDirectory.length()> 0) imgfile = workingDirectory+"/imgshalf.csv";
+		if (workingDirectory.length()> 0) imgfile = workingDirectory+"/"+imgfile;
 		imagesHalf.readCSVfile(imgfile);
 		
 		// saints arrays
-		//Saints = new saints();
 		saints = new bArrayList();
 		String sntfile = "saints.csv";
+		
 		if (workingDirectory.length()> 0) sntfile = workingDirectory+"/saints.csv";
 		if (!saints.readCSVfile(sntfile)) {
 			saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv"));
 		}
+ 
 		
 		//Moon = new PhaseMoon();
 		MoonDays = new String[56][2];
@@ -153,7 +156,7 @@ class DayCalRenderer
  // Set the displayed year
     public void setYear (int y){
     	year = y;
-        int DaysCount = 365;
+        int DaysCount = 366;
         astro Astr = new astro(); 
         
         // Get half image if exists
@@ -175,20 +178,38 @@ class DayCalRenderer
        
         // Create an arraylist of all year days, begin 1st january
         DateTime CurDay = new DateTime(year,1,1,0,0,1);
-        if (Astr.isLeapYear(year)) DaysCount = 366;
+        
+        // Clone saints list to process leap ane non leap years 
+        bArrayList CurSaints = (bArrayList) saints.clone(); 
+        
+        if (!Astr.isLeapYear(year)) {
+        	DaysCount = 365;
+        	CurSaints.remove(59);  // remove february 29 saint
+        }
+        
         YearDays.clear(); 
 
         // Create and fill the days list with saints
         if (!saints.isEmpty()) {
+        	
         	for (int i=0; i < DaysCount; i+=1) {
-        		YearDays.add( new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), saints.get(CurDay.getDayOfMonth()-1)[CurDay.getMonthOfYear()-1],null, "","","","","",null));
+        		String s;
+        		try {
+					// long saint name 
+        			s = CurSaints.get(CurDay.getDayOfYear()-1)[2];
+				} catch (Exception e) {
+				   //in case of trouble with user list
+				}
+        		s= "" ;
+        		YearDays.add( new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), CurSaints.get(CurDay.getDayOfYear()-1)[1],
+        				                s, null, "","","","","",null));
         		// increment day
         		CurDay = CurDay.plusDays(1);	
         	}
         }
         else {  // no saints to load, create list
         	for (int i=0; i < DaysCount; i+=1) {
-        		YearDays.add(new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "",null, "","","","","",null));
+        		YearDays.add(new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "","",null, "","","","","",null));
         		// increment day
         		CurDay = CurDay.plusDays(1);
         	}

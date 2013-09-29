@@ -24,12 +24,20 @@ import java.util.ArrayList;
 
 public class bArrayList extends ArrayList<String[]>{
 	
-	/**
-	 * 
-	 */
+	
+	private char separator = ',';
+	private char delimiter = '"';
+	
 	private static final long serialVersionUID = 1L;
 
-    
+ 	public void setSeparator(char sep){
+ 		separator = sep;
+ 	}
+ 	
+ 	public void setDelimiter(char del) {
+ 		delimiter= del;
+ 	}
+ 	
 	public boolean readCSVfile(String filename){
     	try {
 			File file = new File(filename);
@@ -80,7 +88,7 @@ public class bArrayList extends ArrayList<String[]>{
 		try {
 			cs = Charset.forName(csname);
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
+			cs = Charset.forName("Cp1252");
 		}
 		InputStreamReader r = new InputStreamReader(is, cs);
 		try {
@@ -101,10 +109,11 @@ public class bArrayList extends ArrayList<String[]>{
 				// it is, we've hit the end of the file. If not, 
 				while (dataRow != null){
 					//on retire le délimiteur
-					dataRow= dataRow.replaceAll("\"", "");
-					String[] dataArray = dataRow.split(",");
+					//dataRow= dataRow.replaceAll("\"", "");
+					String[] dataArray = splitCSV(dataRow, ",");
 					add(dataArray);
 					dataRow = CSVFile.readLine(); // Read next line of data.
+					
 				}
 				// Close the file once all data has been read.
 				CSVFile.close();
@@ -113,6 +122,30 @@ public class bArrayList extends ArrayList<String[]>{
 			return false;
 		}
     }
+	
+	// take care of separator and delimiter to split line
+	private String[] splitCSV (String s, String sp ){
+		String otherThanQuote = " [^\"] ";
+        String quotedString = String.format(" \" %s* \" ", otherThanQuote);
+        String regex = String.format("(?x) "+ // enable comments, ignore white spaces
+                separator+"                "+ // match a comma
+                "(?=                       "+ // start positive look ahead
+                "  (                       "+ //   start group 1
+                "    %s*                   "+ //     match 'otherThanQuote' zero or more times
+                "    %s                    "+ //     match 'quotedString'
+                "  )*                      "+ //   end group 1 and repeat it zero or more times
+                "  %s*                     "+ //   match 'otherThanQuote'
+                "  $                       "+ // match the end of the string
+                ")                         ", // stop positive look ahead
+                otherThanQuote, quotedString, otherThanQuote);
+
+        String[] tokens = s.split(regex);
+        for(int i=0; i< tokens.length; i+=1) {
+           tokens[i]= tokens[i].replaceAll(Character.toString(delimiter), "");
+
+        }
+		return tokens;
+	}
 
 
 }
