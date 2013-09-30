@@ -76,7 +76,8 @@ class DayCalRenderer
     
     private String[][] MoonDays; 
     private bArrayList feries;
-    private bArrayList imagesHalf;
+    public bArrayList imagesHalf;
+    public String imgfile;
     private bArrayList saints;
     private bArrayList vacscol;
     private DateTime seas;
@@ -121,7 +122,7 @@ class DayCalRenderer
 	public void init() {
 		// panel half images
 		imagesHalf = new bArrayList();
-		String imgfile= "imgshalf.csv";
+		imgfile= "imgshalf.csv";
 		if (workingDirectory.length()> 0) imgfile = workingDirectory+"/"+imgfile;
 		imagesHalf.readCSVfile(imgfile);
 		
@@ -152,7 +153,6 @@ class DayCalRenderer
 			vacscol.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/vacscol.csv"));
 		}	
 	}
-
  // Set the displayed year
     public void setYear (int y){
     	year = y;
@@ -197,10 +197,12 @@ class DayCalRenderer
         		try {
 					// long saint name 
         			s = CurSaints.get(CurDay.getDayOfYear()-1)[2];
+        			if (s.length()==0) s= CurSaints.get(CurDay.getDayOfYear()-1)[1];
 				} catch (Exception e) {
 				   //in case of trouble with user list
+					s= "" ;
 				}
-        		s= "" ;
+        		
         		YearDays.add( new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), CurSaints.get(CurDay.getDayOfYear()-1)[1],
         				                s, null, "","","","","",null));
         		// increment day
@@ -285,7 +287,7 @@ class DayCalRenderer
 			while(itr.hasNext()) {
 		    	int yr = 0;
 				String [] element =  itr.next();
-		    	try {
+				try {
 					yr = Integer.parseInt(element[0]);
 					if (yr==year){
 						DateTime datebeg = format.parseDateTime(element[1]);

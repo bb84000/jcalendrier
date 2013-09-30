@@ -328,7 +328,7 @@ public class astro {
 		// (Julian day number algorithm adopted from Press et al.)
 		*/
 		
-		public double dtTojulian(DateTime dt)
+		public double dtTojulian1(DateTime dt)
 		{
 			double jy, ja, jm;			//scratch
 			int y, m, d, h, mn, s;
@@ -386,63 +386,94 @@ public class astro {
 		}
 		
 		
-		/*
-		 * Converts a Julian day to a calendar date
-		 */
-		 public DateTime  julianTodt (double jDay) {
-			 int j1, j2, j3, j4, j5;
-			 //;			//scratch
-			 // get the date from the Julian day number
-			 int jDate = trunc (jDay);
-			 double jTime = frac (jDay);
-			 // Gregorian Correction 1582
-			 int gregjd  = 2299161;
-			 if( jDate >= gregjd ) {				
-				int tmp = trunc (((jDate - 1867216) - 0.25 ) / 36524.25 );
-					j1 = jDate + 1 + tmp - trunc(0.25*tmp);
-				} else
-					j1 = jDate;
-			//correction for half day offset
-			double dayfrac = jTime + 0.5;
-			if( dayfrac >= 1.0 ) {
-				dayfrac -= 1.0;
-				++j1;
-			}
-			
-			j2 = j1 + 1524;
-			j3 = trunc( 6680.0 + ( (j2 - 2439870) - 122.1 )/365.25 );
-			j4 = trunc(j3*365.25);
-			j5 = trunc( (j2 - j4)/30.6001 );
+		// Julian DateTime conversion
+		// code is based on algorithms published in Jean Meeus's "Astronomical Algorithms", 1st ed., 1991. 
+		
+		
+		
+		// Julian to DateTime
+	    public DateTime julianTodt (double jDay) {
 
-			int d = j2 - j4 - trunc(j5*30.6001);
-			int m = j5 - 1;
-			if( m > 12 ) m -= 12;
-			int y = j3 - 4715;
-			if( m > 2 )   --y;
-			if( y <= 0 )  --y;
-			
-			// get time of day from day fraction
-			int hr  = trunc(dayfrac * 24.0);
-			int mn  = trunc((dayfrac*24.0 - hr)*60.0);
-			double	f  = ((dayfrac*24.0 - hr)*60.0 - mn)*60.0;
-			int sc  = trunc(f);
-				 f -= sc;
-		    if( f > 0.5 ) ++sc;
-		    /*boolean bc;
-		    if( y < 0 ) {
-		     	y = -y;
-		        bc= true;
-		    } else
-		        bc= false;*/
-		   if (sc == 60) {
-			   sc = 59;
-               	
-		   }
+		    final int YEAR = 0;
+		    final int MONTH = 1;
+	    	final int DAY = 2;
+	    	final int HOURS = 3;
+	    	final int MINUTES = 4;
+	    	final int SECONDS = 5;
+	    	final int MILLIS = 6;
+			int ymd_hms[] = { -1, -1, -1, -1, -1, -1, -1 };
+	        int a, b, c, d, e, z;
+	        
+	        //double jd = jDay + 2400000.5 + 0.5;  	// if a JDN is passed as argument,
+            double jd = jDay + 0.5;  				// omit the 2400000.5 term
+	        double f, x;
 
-			   
-           DateTime dt = new DateTime(y,m,d,hr,mn,sc);
-		   return dt;
+	        z = (int) Math.floor(jd);
+	        f = jd - z;
+
+	        if (z >= 2299161) {
+	        	int alpha = (int) Math.floor((z - 1867216.25) / 36524.25);
+	        	a = z + 1 + alpha - (int) Math.floor(alpha / 4);
+	        } else {
+	        	a = z;
+	        }
+
+	        b = a + 1524;
+	        c = (int) Math.floor((b - 122.1) / 365.25);
+	        d = (int) Math.floor(365.25 * c);
+	        e = (int) Math.floor((b - d) / 30.6001);
+
+	        ymd_hms[DAY] = b - d - (int) Math.floor(30.6001 * e);
+	        ymd_hms[MONTH] = (e < 14) ? (e - 1) : (e - 13);
+	        ymd_hms[YEAR] = (ymd_hms[MONTH] > 2)? (c - 4716) : (c - 4715);
+
+	        for (int i = HOURS; i <= MILLIS; i++) {
+	        	switch(i) {
+	        		case HOURS:
+	        			f = f * 24.0;
+	        			break;
+	        		case MINUTES: case SECONDS:
+	        			f = f * 60.0;
+	        			break;
+	        		case MILLIS:
+	        			f = f * 1000.0;
+	        			break;  
+	        	}
+	        	x = Math.floor(f);
+	        	ymd_hms[i] = (int) x;
+	        	f = f - x;
+	        }   
+	        return new DateTime(ymd_hms[YEAR], ymd_hms[MONTH], ymd_hms[DAY], 
+	        					ymd_hms[HOURS], ymd_hms[MINUTES], ymd_hms[SECONDS],  ymd_hms[MILLIS]);
 		} // end julianTodt
+		
+		
+	    // DateTime to julian conversion
+	    public double dtTojulian (DateTime dt) {
+			int y =  dt.getYear();  					//ymd_hms[YEAR];
+	        int m =  dt.getMonthOfYear();				//ymd_hms[MONTH];
+	        double d = (double) dt.getDayOfMonth(); 	//ymd_hms[DAY];
+
+	       /* d = d + ((dt.getHourOfDay() / 24.0) + 		//ymd_hms[HOURS] / 24.0) +
+	                 (dt.getMinuteOfHour() / 1440.0) +	//ymd_hms[MINUTES] / 1440.0) +
+	                 (dt.getSecondOfMinute() / 86400.0) +									//ymd_hms[SECONDS] / 86400.0) +
+	                 (dt.getMillisOfSecond() / 86400000.0));								//ymd_hms[MILLIS] / 86400000.0));
+			*/
+	        d = d+ (dt.getMillisOfDay() /86400000.0);
+	        
+	        if (m == 1 || m == 2) {
+	            y--;
+	            m = m + 12;
+	        }
+
+	        double a = Math.floor(y / 100);
+	        double b = 2 - a + Math.floor(a / 4);
+
+	        return (Math.floor(365.25 * (y + 4716.0)) +
+	               Math.floor(30.6001 * (m + 1)) +
+	               d + b - 1524.5); // - 2400000.5;  // for Julian Day omit the 2400000.5 term	
+			
+		}
 		 
 		// trunc double to integer
 		public int trunc(double x) {

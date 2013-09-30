@@ -58,6 +58,8 @@ import java.awt.Insets;
 import javax.swing.border.TitledBorder;
 import javax.swing.UIManager;
 import javax.swing.ListSelectionModel;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 public class Calendrier {
 
 	private JFrame frmCalendrier;
@@ -233,6 +235,7 @@ public class Calendrier {
 				Config.sizeW = d.width;
 				Config.sizeH = d.height;
 				Config.saveConfig();
+				Quarter.imagesHalf.writeCSVfile(Quarter.imgfile);
 			}
 		});
 		
@@ -310,6 +313,7 @@ public class Calendrier {
 				return false;
 			};
 		};
+
 
 
 		
@@ -1001,11 +1005,25 @@ public class Calendrier {
 				setLabelSelected();
 			}
 		});
+		
+		table_q1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				setLabelSelected();	
+			}
+		});
 
 		table_q2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setLabelSelected();
+			}
+		});	
+		
+		table_q2.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				setLabelSelected();	
 			}
 		});
 
@@ -1016,13 +1034,27 @@ public class Calendrier {
 			}
 		});
 
+		table_q3.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				setLabelSelected();	
+			}
+		});
+		
 		table_q4.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setLabelSelected();
 			}
 		});
-
+		
+		table_q4.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				setLabelSelected();	
+			}
+		});
+		
 		pMnuGen.add(pMnuConfig);
 				Init = false;
 		if (!Beans.isDesignTime()) {
@@ -1053,8 +1085,25 @@ public class Calendrier {
 			lblImage_1.setIcon(new StretchIcon(chooser.getSelectedFile().getAbsolutePath()));
 		   else lblImage_2.setIcon(new StretchIcon(chooser.getSelectedFile().getAbsolutePath()));
 		}	
-		
-		
+		// update list of images
+		String [] arr = new String [3];
+		arr[0]=Integer.toString(year);
+		arr[1]=Integer.toString(tab);
+		arr[2]=chooser.getSelectedFile().getAbsolutePath();
+		boolean found = false;
+		for (int i=0; i<Quarter.imagesHalf.size(); i+=1) {
+			if (Quarter.imagesHalf.get(i)[0].equals(arr[0])) {
+				// Year found, check half
+				if (Quarter.imagesHalf.get(i)[1].equals(arr[1])) {
+					// half found replace line
+					Quarter.imagesHalf.set(i, arr) ;
+					found= true;
+					break;
+				}
+			}
+		}
+		// item not in list ,add it
+		if (!found) Quarter.imagesHalf.add(arr);
 	}
 		
 	// Update today Label every sec

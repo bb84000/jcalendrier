@@ -3,24 +3,33 @@
  * 
  * boolean readCSVfile(String filename [String filename, String csname])
  *   String filename : filename
- *   String csname : charset string , "UTF8", "Cp1252"
+ *   String csname : charset string , "UTF8", "Cp1252" (optional)
  * 
- *  boolean readCSVstream(InputStream is, String  csname)
+ *  boolean readCSVstream(InputStream is[, String  csname])
  *  	InputStream is : stream (from resource or other source)
  *  	String  csname : see above
+ *  
+ *  void setSeparator(char sep)
+ *  CSV separator, default is coma
+ *  
+ *  void setDelimiter(char del)
+ *  CSV delimiter, default is double quote
  * 
  * bb - september 2013
  * 
  */
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class bArrayList extends ArrayList<String[]>{
 	
@@ -100,7 +109,7 @@ public class bArrayList extends ArrayList<String[]>{
 		}
     }
 		
-	// common routine to read streams	
+	// common routine to read CSV streams	
 	private boolean	readstream (InputStreamReader r) {
 		try {
 				BufferedReader CSVFile = new BufferedReader(r);
@@ -108,12 +117,10 @@ public class bArrayList extends ArrayList<String[]>{
 				// The while checks to see if the data is null. If 
 				// it is, we've hit the end of the file. If not, 
 				while (dataRow != null){
-					//on retire le délimiteur
-					//dataRow= dataRow.replaceAll("\"", "");
-					String[] dataArray = splitCSV(dataRow, ",");
-					add(dataArray);
+					String[] dataArray = readCSVline(dataRow);
+					// add data only if not an empty line
+					if (dataRow.length()>0) add(dataArray);
 					dataRow = CSVFile.readLine(); // Read next line of data.
-					
 				}
 				// Close the file once all data has been read.
 				CSVFile.close();
@@ -123,29 +130,87 @@ public class bArrayList extends ArrayList<String[]>{
 		}
     }
 	
-	// take care of separator and delimiter to split line
-	private String[] splitCSV (String s, String sp ){
-		String otherThanQuote = " [^\"] ";
-        String quotedString = String.format(" \" %s* \" ", otherThanQuote);
-        String regex = String.format("(?x) "+ // enable comments, ignore white spaces
-                separator+"                "+ // match a comma
-                "(?=                       "+ // start positive look ahead
-                "  (                       "+ //   start group 1
-                "    %s*                   "+ //     match 'otherThanQuote' zero or more times
-                "    %s                    "+ //     match 'quotedString'
-                "  )*                      "+ //   end group 1 and repeat it zero or more times
-                "  %s*                     "+ //   match 'otherThanQuote'
-                "  $                       "+ // match the end of the string
-                ")                         ", // stop positive look ahead
-                otherThanQuote, quotedString, otherThanQuote);
-
-        String[] tokens = s.split(regex);
-        for(int i=0; i< tokens.length; i+=1) {
-           tokens[i]= tokens[i].replaceAll(Character.toString(delimiter), "");
-
-        }
-		return tokens;
+	
+	// Read CSV line, "home made" 
+	public String [] readCSVline (String s) {
+		// create an arraylist ot get the fields 
+		ArrayList<String> list = new ArrayList<>();
+		while (s.length()>0) {
+			// delimiter at beginning skip it
+			if (s.charAt(0)== delimiter) {
+				s = s.substring(1); 
+				// search field ending delimiter
+				int p = s.indexOf(delimiter);
+				if (p>=0) {
+					list.add(s.substring(0,p));
+					//remove end delimiter
+					s = s.substring(p+1);
+					// separator is now at beginning
+					try {
+						if (s.charAt(0)== separator) s = s.substring (1);
+						else s = "";
+					} catch (Exception e) {
+						s = "";
+					}
+				}
+				// no end delimiter, search separator
+				else {
+					p = s.indexOf(separator);
+					if (p>=0){
+						list.add(s.substring(0,p));
+						s = s.substring(p+1);
+					}
+					// no separator likely end of line
+					else {
+						list.add(s);
+						s= "";
+					}
+				}
+			}
+			else {
+				int p = s.indexOf(separator);
+				if (p>=0) {
+					list.add(s.substring(0,p));
+					s = s.substring(p+1);
+				}
+				// no separator likely end of line
+				else {
+					list.add(s);
+					s= "";
+				}
+			}
+		}
+		String []strArray = new String[list.size()];
+		return (String[]) list.toArray(strArray);
 	}
-
+	
+	public int writeCSVfile(String filename) {
+		if (!isEmpty())
+        {
+			File file = new File(filename);
+			try {
+				FileWriter fw = new FileWriter(file.getAbsoluteFile());
+				BufferedWriter bw = new BufferedWriter(fw);
+				Iterator<String[]> itr = iterator();
+				while(itr.hasNext()) {
+					String [] element =  itr.next();
+					String s="";
+					for (int i=0; i< element.length; i+=1) {
+						s += delimiter+element[i]+delimiter;
+						if (i < element.length-1) s+= separator;
+					}
+					bw.write(s);
+					bw.newLine();
+					
+				}
+				
+				bw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				return 0;
+			}
+        }
+		return 0;
+	}
 
 }
