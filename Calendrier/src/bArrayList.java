@@ -1,14 +1,19 @@
 /**
  * ArrayList <String[] with CSV load and save functions 
  * 
- * boolean readCSVfile(String filename [String filename, String csname])
- *   String filename : filename
- *   String csname : charset string , "UTF8", "Cp1252" (optional)
+ * boolean readCSVfile(String filename [, String csname])
+ *   	String filename : filename
+ *  	String csname : charset string , "UTF8", "Cp1252" (optional)
  * 
  *  boolean readCSVstream(InputStream is[, String  csname])
  *  	InputStream is : stream (from resource or other source)
  *  	String  csname : see above
  *  
+ *  long writeCSVfile(String filename[, String  csname])
+ *  	String filename : filename
+ * 	 	String  csname : see above
+ * 		return byte written
+ * 
  *  void setSeparator(char sep)
  *  CSV separator, default is coma
  *  
@@ -23,12 +28,17 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 public class bArrayList extends ArrayList<String[]>{
@@ -184,13 +194,55 @@ public class bArrayList extends ArrayList<String[]>{
 		return (String[]) list.toArray(strArray);
 	}
 	
-	public int writeCSVfile(String filename) {
-		if (!isEmpty())
-        {
+	
+	// write file to disk
+	
+	public long writeCSVfile(String filename){
+		try {
 			File file = new File(filename);
+			FileOutputStream fs = new FileOutputStream(file.getAbsoluteFile());
+			writeCSVstream(fs);
+			return file.length();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			return 0;
+		}
+	}
+	
+	// write file to disk with charset support
+	public long writeCSVfile(String filename, String csname){
+		try {
+			File file = new File(filename);
+			FileOutputStream fs = new FileOutputStream(file.getAbsoluteFile());
+			writeCSVstream(fs, csname);
+			return file.length();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			return 0;
+		}
+	}
+	
+	private void writeCSVstream(FileOutputStream fs ) {
+		OutputStreamWriter osw = new OutputStreamWriter(fs);
+		writestream (osw);
+	}
+	
+	private void writeCSVstream(FileOutputStream fs, String csname ) {
+		OutputStreamWriter osw;
+		try {
+			osw = new OutputStreamWriter(fs, csname);
+			writestream (osw);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	private void writestream(OutputStreamWriter osw) {
 			try {
-				FileWriter fw = new FileWriter(file.getAbsoluteFile());
-				BufferedWriter bw = new BufferedWriter(fw);
+				
+				BufferedWriter bw = new BufferedWriter(osw);
 				Iterator<String[]> itr = iterator();
 				while(itr.hasNext()) {
 					String [] element =  itr.next();
@@ -201,16 +253,26 @@ public class bArrayList extends ArrayList<String[]>{
 					}
 					bw.write(s);
 					bw.newLine();
-					
 				}
-				
 				bw.close();
+				//result = file.length();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				return 0;
 			}
-        }
-		return 0;
 	}
+	
+	public void sort (int fld) {
+		final int i = fld;
+		try {
+			Collections.sort(this,new Comparator<String[]>() {
+				public int compare(String[] strings, String[] otherStrings) {
+					return strings[i].compareTo(otherStrings[i]);
+				}
+			});
+		} catch (Exception e) {
+			// Do nothing, index out of bounds
+		}
+	} // end sort routine
+
 
 }

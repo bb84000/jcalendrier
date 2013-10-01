@@ -53,6 +53,8 @@ class DayCalRenderer
 	public Color colA = new Color(255,204,0);
 	public Color colB = new Color(255,0,0);
 	public Color colC = new Color(0,153,0);
+	public Color colback = new Color(255,255,255);
+	public Color colsun = new Color (192,255,255);
 	public int selDay = -1;
 	public boolean ShowMoon;
 	public boolean ShowVacA;
@@ -126,6 +128,7 @@ class DayCalRenderer
 		if (workingDirectory.length()> 0) imgfile = workingDirectory+"/"+imgfile;
 		imagesHalf.readCSVfile(imgfile);
 		
+
 		// saints arrays
 		saints = new bArrayList();
 		String sntfile = "saints.csv";
@@ -324,13 +327,13 @@ class DayCalRenderer
 				int row, int column )
 	{
 		//Colors
-		Color sunday_col = new Color(192, 255, 255);
+		//Color sunday_col = new Color(192, 255, 255);
 	    // Retrieve table font 
 		setFont(table.getFont());
 		quarter = Integer.parseInt(table.getName())-1;
         month = column+1+quarter*3;
     	DateTime dt;
-		setBackground(table.getBackground());
+		setBackground(colback);
     	String caption="";
   	    setForeground(table.getForeground());
   	    //System.out.println(width);
@@ -356,14 +359,14 @@ class DayCalRenderer
 	        	//System.out.println (saint.charAt(1));
 	        	if (!(snt.charAt(0) == '.')) caption += " "+snt;
 	        	else caption += " "+saint;
-	        	setBackground(sunday_col);
+	        	setBackground(colsun);
 	        }
 	        
 	        // Couleur dimanches
 	        if (dow == 7) {  
 	        	
               //component.setBackground(clr);
-              setBackground(sunday_col);
+              setBackground(colsun);
             }
 
 	        // Moon phases
