@@ -24,10 +24,15 @@ import javax.swing.JCheckBox;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,6 +124,7 @@ public class dlgConfig extends JDialog {
 	public JButton btnzoneC;
 	public int mresult;
 	public dlgConfig(JFrame frm) {
+		setResizable(false);
 		setTitle("Pr\u00E9f\u00E9rences");
 		// reinit color buttons
 		addComponentListener(new ComponentAdapter() {
@@ -136,6 +142,8 @@ public class dlgConfig extends JDialog {
 				btnzoneC.setBackground(colvacC);
 				//System.out.println(e);
 			}
+		
+
 		});
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setBounds(100, 100, 450, 300);
@@ -201,7 +209,7 @@ public class dlgConfig extends JDialog {
 				panel_colors.setBorder(BorderFactory.createTitledBorder("Couleurs"));
 				panel_colors.setLayout(null);
 				GridBagConstraints gbc_panel_colors = new GridBagConstraints();
-				gbc_panel_colors.insets = new Insets(0, 0, 5, 5);
+				gbc_panel_colors.insets = new Insets(0, 5, 5, 5);
 				gbc_panel_colors.fill = GridBagConstraints.BOTH;
 				gbc_panel_colors.gridx = 0;
 				gbc_panel_colors.gridy = 0;
@@ -248,7 +256,7 @@ public class dlgConfig extends JDialog {
 				btnzoneA.setName("vacA");
 				btnzoneA.addMouseListener(ma);
 				btnzoneA.setBackground(colvacA);
-				btnzoneA.setBounds(167, 15, 39, 20);
+				btnzoneA.setBounds(163, 15, 39, 20);
 				panel_colors.add(btnzoneA);
 				
 				
@@ -261,7 +269,7 @@ public class dlgConfig extends JDialog {
 				btnzoneB.setName("vacB");
 				btnzoneB.addMouseListener(ma);
 				btnzoneB.setBackground(colvacB);
-				btnzoneB.setBounds(167, 38, 39, 20);
+				btnzoneB.setBounds(163, 38, 39, 20);
 				panel_colors.add(btnzoneB);
 				
 				
@@ -274,7 +282,7 @@ public class dlgConfig extends JDialog {
 				btnzoneC.setName("vacC");
 				btnzoneC.addMouseListener(ma);
 				btnzoneC.setBackground(colvacC);
-				btnzoneC.setBounds(167, 61, 39, 20);
+				btnzoneC.setBounds(163, 61, 39, 20);
 				panel_colors.add(btnzoneC);
 				
 				
@@ -517,25 +525,7 @@ if (ret==0)
 						.write("colvacC", String.format("%06X", colvacC.getRGB()& 0xffffff))
 					.writeEnd()
 				.writeEnd()
-				//.writeStartObject()
-				//	
-				//.writeEnd()
-			/*.writeStartObject("address") // "address":{
-.write("type", 1) // "type":1,
-.write("street", "1 A Street") // "street":"1 A Street",
-.writeNull("city") // "city":null,
-.write("verified", false) // "verified":false
-.writeEnd() // },
-.writeStartArray("phone-numbers") // "phone-numbers":[
-.writeStartObject() // {
-.write("number", "555-1111") // "number":"555-1111",
-.write("extension", "123") // "extension":"123"
-.writeEnd() // },
-.writeStartObject() // {
-.write("number", "555-2222") // "number":"555-2222",
-.writeNull("extension") // "extension":null
-.writeEnd() // }
-.writeEnd() // ]*/
+
 			.writeEnd() // }
 			.close();
 			return true;
@@ -548,5 +538,37 @@ if (ret==0)
 
 
 
+	}
+	
+	// Manifest
+	
+	public ArrayList <String[]> readManifest (String filename){
+		// create an arraylist ot get the fields 
+		ArrayList<String[]> list = new ArrayList<>();
+
+		try {
+			InputStream is = Calendrier.class.getResourceAsStream(filename);		
+			InputStreamReader r = new InputStreamReader(is);
+			BufferedReader MFFile = new BufferedReader(r);
+			String dataRow = MFFile.readLine();
+			while (dataRow.length()>0) {
+				int p = dataRow.indexOf(":");
+				if (p>=0) {
+					String[] row = new String [2];
+					row[0]= dataRow.substring(0, p);
+					row[1]= dataRow.substring(p+1);
+					list.add(row);
+				}
+				dataRow = MFFile.readLine(); // Read next line of data.
+			}
+			// Close the file once all data has been read.
+			MFFile.close();
+			return list;
+		} catch (IOException e1) {
+		// TODO Auto-generated catch block
+		return null;
+	}
+		
+		
 	}
 }

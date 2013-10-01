@@ -22,10 +22,23 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -33,6 +46,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -52,6 +66,8 @@ import javax.swing.table.JTableHeader;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import sun.text.normalizer.VersionInfo;
 
 import java.awt.Insets;
 
@@ -83,6 +99,7 @@ public class Calendrier {
 
 	// Config variables are in dlgConfig class
 	private dlgConfig Config;
+	private aboutBox about;
 
 	private JLabel lblNewLabel_1;
 	private JPopupMenu pMnuGen;
@@ -95,6 +112,7 @@ public class Calendrier {
 	private JCheckBox cbVacA = new JCheckBox("Vacances Zone A");
 	private JCheckBox cbVacB = new JCheckBox("Vacances Zone B");
 	private JCheckBox cbVacC = new JCheckBox("Vacances Zone C");
+	private Image MainIcon;
 	CheckBoxIcon checkedA = new CheckBoxIcon();
 	CheckBoxIcon checkedB = new CheckBoxIcon();
 	CheckBoxIcon checkedC = new CheckBoxIcon();
@@ -122,6 +140,8 @@ public class Calendrier {
 	private JLabel lblToday_1a;
 	private JLabel lblToday_2a;
 	private JButton btnPrevious;
+	private final Action action = new SwingAction();
+	private JMenuItem pMnuAbout;
 	
 	/**
 	 * Launch the application.
@@ -188,11 +208,15 @@ public class Calendrier {
 	// Some initialization routines
 	private void initialize() {
 		Init = true;
-
+		// Icone de l'application
+		MainIcon = Toolkit.getDefaultToolkit().getImage(
+		Calendrier.class.getResource("/resources/calendrier.png"));
+		
 		// Set config file name and load config if exists
-
+		Config = new dlgConfig(frmCalendrier);
+		Config.setIconImage(MainIcon);
 		if (!Beans.isDesignTime()) {
-			Config = new dlgConfig(frmCalendrier);
+			
 			Config.set_config_file("config.json");
 			try {
 				Config.loadConfig();
@@ -200,16 +224,12 @@ public class Calendrier {
 				// TODO Auto-generated catch block
 				//e1.printStackTrace();
 			}
-
 		}
 		DateTime dt = new DateTime();
 		Year = dt.getYear();
 		// Icone de l'application
-		Image MainIcon = Toolkit.getDefaultToolkit().getImage(
+		MainIcon = Toolkit.getDefaultToolkit().getImage(
 		Calendrier.class.getResource("/resources/calendrier.png"));
-		
-		//initialisation des variables et listes du trimestre
-		
 
 		// Création de la forme
 
@@ -989,28 +1009,56 @@ public class Calendrier {
 
 		setSeasons(Year);
 
-		// Launch configuration dialog;
+		// Launch popup menu;
 		pMnuGen = new JPopupMenu();
 		pMnuGen.setLabel("Config");
 		addPopup(pane_bottom, pMnuGen);
 
-	
+		// Config dialog
 		pMnuConfig = new JMenuItem("Config");
 		pMnuGen.add(pMnuConfig);
 		
-		
-			// Launch config popup menu
+		// Launch config popup menu
 		pMnuConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				// Needs to memorize current location
 				CurLoc = frmCalendrier.getLocation();
-				
-				//Config.btnback.setBackground(Config.colback);
 				Config.setVisible(true);
-				
 			}
-			
-		});
+		});	
+		
+
+		String version ="";
+		String build = "";
+		ArrayList<String[]> list = Config.readManifest("/META-INF/MANIFEST.MF");
+		if (!list.isEmpty()){
+			Iterator<String[]> itr = list.iterator();
+        	while(itr.hasNext()) {
+        		String [] element =  itr.next();
+        		System.out.println(element[0]);
+        		if (element[0].equals("Specification-Version")) version= element[1].trim();
+        		else if (element[0].equals("Implementation-Version")) build= element[1].trim();
+		
+        	}
+		}
+		
+		// About dialogimplementationVersion
+		about = new aboutBox(frmCalendrier);
+		about.setIconImage(MainIcon);
+		about.lblProgname.setText("Calendrier");
+		about.lblVersion.setText("Version : "+version+"."+build);
+		about.lblicon.setIcon(new StretchIcon(MainIcon));
+		pMnuAbout = new JMenuItem("A propos");
+		pMnuAbout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				about.setVisible(true);
+			}
+			    
+			});
+			pMnuGen.add(pMnuAbout);
+		
+		
+
 		
 
 		
@@ -1020,6 +1068,7 @@ public class Calendrier {
 			public void componentHidden(ComponentEvent arg0) {
 				// Re initialize vars and repaint;
 				applyConfig();
+
 				frmCalendrier.repaint();
 				frmCalendrier.setLocation(CurLoc);
 			}
@@ -1094,6 +1143,8 @@ public class Calendrier {
 		}
 		// Apply configuration parameters
 		applyConfig();
+	
+
 	}
 	
 	// set half year label image
@@ -1337,5 +1388,44 @@ public class Calendrier {
 	}
 	
 	
+	
+	private class SwingAction extends AbstractAction {
+		public SwingAction() {
+			putValue(NAME, "SwingAction");
+			putValue(SHORT_DESCRIPTION, "Some short description");
+		}
+		public void actionPerformed(ActionEvent e) {
+		}
+	}
+	
+	public static String getManifestInfo() {
+	    Enumeration<?> resEnum;
+	    
+	        try {
+				resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
+				while (resEnum.hasMoreElements()) {
+				    try {
+				        URL url = (URL)resEnum.nextElement();
+				        InputStream is = url.openStream();
+				        if (is != null) {
+				            Manifest manifest = new Manifest(is);
+				            Attributes mainAttribs = manifest.getMainAttributes();
+				            String version = mainAttribs.getValue("Implementation-Version");
+				            if(version != null) {
+				                return version;
+				            }
+				        }
+				    }
+				    catch (Exception e) {
+				        // Silently ignore wrong manifests on classpath?
+				    }
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+	    return null; 
+	}
 	
 }
