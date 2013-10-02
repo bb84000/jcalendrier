@@ -224,7 +224,7 @@ class DayCalRenderer
         // add moonphases to days list
         okMoon= Astr.GetMoonDays(MoonDays, y); 
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy-HH:mm");
-        DateTime tmpMoonD = new DateTime();;
+        DateTime tmpMoonD = new DateTime();
         if (okMoon ){ 
            	for (int i=0; i<56; i+=1) {
 				try {

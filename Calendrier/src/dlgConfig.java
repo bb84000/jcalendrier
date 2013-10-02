@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.json.*;
@@ -42,6 +43,10 @@ import javax.json.stream.JsonGeneratorFactory;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParser.Event;
 import javax.swing.JLabel;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -77,7 +82,11 @@ public class dlgConfig extends JDialog {
 	public boolean dispVacA = false;
 	public boolean dispVacB = false;
 	public boolean dispVacC = false;
-	//public dlgConfig dialog;
+	public String version = "";
+	public String build ="";
+	public DateTime builddate = null;
+	public String vendor = "";
+	public ArrayList <String[]> manifest= null;
 	private String config_file = "config.json";
 
 	private static final long serialVersionUID = 1L;
@@ -369,13 +378,13 @@ public class dlgConfig extends JDialog {
 			if (f.exists()) config_file= workingDirectory+"/"+config_file;
 			else {
 				/*//config file not found. Ask user if it wants standard or portable operation not working in Linux
-String BtnCaptions[]={ "Standard", "Portable"};
-String msg = new String("Choix du mode de fonctionnement\n");
-msg += "Standard : Les données de configuration sont stoclées dans le répertoire utilisateur.\n";
-msg += "Portable : les données de configuration sont stockées dans le répertoire courant.";
-int ret = JOptionPane.showOptionDialog(null, msg, "Calendrier", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, BtnCaptions, "");
-if (ret==0)
-// store in user folder otherwise store in current folder*/
+				String BtnCaptions[]={ "Standard", "Portable"};
+				String msg = new String("Choix du mode de fonctionnement\n");
+				msg += "Standard : Les données de configuration sont stoclées dans le répertoire utilisateur.\n";
+				msg += "Portable : les données de configuration sont stockées dans le répertoire courant.";
+				int ret = JOptionPane.showOptionDialog(null, msg, "Calendrier", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, BtnCaptions, "");
+				if (ret==0)
+				// store in user folder otherwise store in current folder*/
 
 				File folderExisting = new File(workingDirectory);
 				if (!folderExisting.exists()) {
@@ -387,6 +396,28 @@ if (ret==0)
 
 			}
 
+		}
+		// Read Manifest file 
+		String bldate= "";
+		manifest = readManifest("/META-INF/MANIFEST.MF");
+		if (!manifest.isEmpty()){
+			Iterator<String[]> itr = manifest.iterator();
+        	while(itr.hasNext()) {
+        		String [] element =  itr.next();
+        		//System.out.println(element[0]);
+        		if (element[0].equals("Specification-Version")) version= element[1].trim();
+        		else if (element[0].equals("Implementation-Version")) build= element[1].trim();
+        		else if (element[0].equals("Build-Date")) bldate= element[1].trim();
+        		else if (element[0].equals("Specification-Vendor")) vendor= element[1].trim();
+        	}
+        	DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        	builddate= new DateTime();
+        	try {
+				builddate= formatter.parseDateTime(bldate);
+			} catch (Exception e) {
+				builddate = null;
+				//e.printStackTrace();
+			}
 		}
 	}
 
@@ -558,6 +589,8 @@ if (ret==0)
 					row[0]= dataRow.substring(0, p);
 					row[1]= dataRow.substring(p+1);
 					list.add(row);
+				
+				
 				}
 				dataRow = MFFile.readLine(); // Read next line of data.
 			}

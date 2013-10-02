@@ -22,23 +22,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -46,7 +39,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -66,9 +58,6 @@ import javax.swing.table.JTableHeader;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import sun.text.normalizer.VersionInfo;
-
 import java.awt.Insets;
 
 import javax.swing.border.TitledBorder;
@@ -136,11 +125,14 @@ public class Calendrier {
 	private JLabel lblSeasons_2b;
 	private JLabel lblSeasons_1b;
 	// Needed to restore location after modal dialog
-	Point CurLoc = new Point();
+	private Point CurLoc = new Point();
+	private int iYear;
+	private int iDay;
+	private int icounter;
 	private JLabel lblToday_1a;
 	private JLabel lblToday_2a;
 	private JButton btnPrevious;
-	private final Action action = new SwingAction();
+	//private final Action action = new SwingAction();
 	private JMenuItem pMnuAbout;
 	
 	/**
@@ -227,6 +219,8 @@ public class Calendrier {
 		}
 		DateTime dt = new DateTime();
 		Year = dt.getYear();
+		iYear = Year;
+		iDay = dt.getDayOfYear();
 		// Icone de l'application
 		MainIcon = Toolkit.getDefaultToolkit().getImage(
 		Calendrier.class.getResource("/resources/calendrier.png"));
@@ -882,6 +876,7 @@ public class Calendrier {
 
 		// Year field
 		YearField = new JTextField();
+		
 		YearField.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
 				warn();
@@ -899,7 +894,8 @@ public class Calendrier {
 				if (!Init) {
 
 					String syear = YearField.getText();
-					if (syear.length() == 4) {
+					yearchanged(syear);
+					/*if (syear.length() == 4) {
 						int newYear = Integer.parseInt(syear);
 						if (newYear > 1582) {
 							Year= newYear;
@@ -916,7 +912,7 @@ public class Calendrier {
 							
 							Quarter.repaint();
 						}
-					}
+					}*/
 				}
 			}
 		});
@@ -1015,7 +1011,7 @@ public class Calendrier {
 		addPopup(pane_bottom, pMnuGen);
 
 		// Config dialog
-		pMnuConfig = new JMenuItem("Config");
+		pMnuConfig = new JMenuItem("Pr\u00E9f\u00E9rences");
 		pMnuGen.add(pMnuConfig);
 		
 		// Launch config popup menu
@@ -1027,40 +1023,50 @@ public class Calendrier {
 			}
 		});	
 		
-
-		String version ="";
-		String build = "";
-		ArrayList<String[]> list = Config.readManifest("/META-INF/MANIFEST.MF");
-		if (!list.isEmpty()){
-			Iterator<String[]> itr = list.iterator();
-        	while(itr.hasNext()) {
-        		String [] element =  itr.next();
-        		System.out.println(element[0]);
-        		if (element[0].equals("Specification-Version")) version= element[1].trim();
-        		else if (element[0].equals("Implementation-Version")) build= element[1].trim();
-		
-        	}
-		}
-		
 		// About dialogimplementationVersion
 		about = new aboutBox(frmCalendrier);
+		// Place about box at frame center 
+		about.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				try {
+					Point p = frmCalendrier.getLocation();
+					p.x += (frmCalendrier.getWidth() / 2) - (about.getWidth() / 2);
+					p.y += (frmCalendrier.getHeight() / 2) - (about.getHeight() / 2);
+					about.setLocation(p);
+				} catch (Exception e) {
+					//Do nothing, error !
+				}
+			}
+		});	
+		
+		about.setTitle("A propos du Calendrier");
 		about.setIconImage(MainIcon);
-		about.lblProgname.setText("Calendrier");
-		about.lblVersion.setText("Version : "+version+"."+build);
-		about.lblicon.setIcon(new StretchIcon(MainIcon));
+		about.lblicon.setIcon(new StretchIcon(MainIcon));		
+		about.lblprogname.setText("Calendrier");
+		about.lblVersion.setText("Version : "+Config.version+"."+Config.build);
+		String s;
+		try {
+			s = " - ";
+			s += Config.builddate.toString("dd/MM/yyyy");
+		} catch (Exception e1) {
+			// invalid or no date
+			s="";
+		}
+		about.lblvendor.setText(Config.vendor+s);
+
+		// About menu item
 		pMnuAbout = new JMenuItem("A propos");
+		
+		// Display aboutbox
 		pMnuAbout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				about.setVisible(true);
 			}
 			    
 			});
-			pMnuGen.add(pMnuAbout);
+		pMnuGen.add(pMnuAbout);
 		
-		
-
-		
-
 		
 		// Configuration dialog closed with OK
 		Config.addComponentListener(new ComponentAdapter() {
@@ -1205,10 +1211,29 @@ public class Calendrier {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                DateTime dt = new DateTime();
-            	String s = Astro.DateTimeToString(dt);
+                //increment second counter
+            	icounter += 1;
+            	DateTime dt = new DateTime();
+               	String s = Astro.DateTimeToString(dt);
                 lblToday_1.setText(s);
             	lblToday_2.setText(s);
+            	// check if year has changed every minute
+            	if (icounter > 59) {
+            		icounter= 0;  // reset
+            		int yr = dt.getYear();
+            		int dy = dt.getDayOfYear();
+            		if (yr != iYear) {
+            			iYear= yr;
+            			yearchanged(String.valueOf(yr));
+            			YearField.setText(String.valueOf(yr));
+            			setLabelDay(dt);
+            		}
+            		// day changed ?
+            		if (dy != iDay){
+            			iDay = dy;
+            			setLabelDay(dt);
+            		}
+            	}
             }
         };
     } // end updatelabel
@@ -1282,7 +1307,29 @@ public class Calendrier {
 	    return s;
 	}
 	
-    
+    private void yearchanged(String syear) {
+    	
+
+			//String syear = String.valueOf(yr);
+			if (syear.length() == 4) {
+				int newYear = Integer.parseInt(syear);
+				if (newYear > 1582) {
+					Year= newYear;
+					Quarter.setYear(Year);
+					frmCalendrier.setTitle("Calendrier - " + syear);
+					int curpane = tabpane.getSelectedIndex(); 
+					switch (curpane) {
+					case 0 : if (Quarter.HalfImages [0].length() > 0) lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
+							 else lblImage_1.setIcon(new StretchIcon("image.jpg"));
+					case 1 : if (Quarter.HalfImages [1].length() > 0) lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
+								else lblImage_2.setIcon(new StretchIcon("image.jpg"));
+				}
+					setSeasons(Year);
+					Quarter.repaint();
+				}
+			}
+    }
+	
 	private void yearbtnpressed(int btn) {
 		int curindex = 0;
 		int previndex = 1;
@@ -1388,15 +1435,6 @@ public class Calendrier {
 	}
 	
 	
-	
-	private class SwingAction extends AbstractAction {
-		public SwingAction() {
-			putValue(NAME, "SwingAction");
-			putValue(SHORT_DESCRIPTION, "Some short description");
-		}
-		public void actionPerformed(ActionEvent e) {
-		}
-	}
 	
 	public static String getManifestInfo() {
 	    Enumeration<?> resEnum;
