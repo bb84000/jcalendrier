@@ -1,3 +1,11 @@
+/*
+ * Base class for Calendrier application 
+ * 
+ * 
+ * bb 95 - october 2013
+ *  
+ */
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -23,13 +31,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -58,6 +60,7 @@ import javax.swing.table.JTableHeader;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import java.awt.Insets;
 
 import javax.swing.border.TitledBorder;
@@ -88,15 +91,23 @@ public class Calendrier {
 
 	// Config variables are in dlgConfig class
 	private dlgConfig Config;
+	// This is the class to display days in cell
+	// and load diverse lists 
+	private DayCalRenderer Quarter = new DayCalRenderer();
+	// This is the class for diverse astronomic computations
+	private astro Astro = new astro();
+	// Class about box
 	private aboutBox about;
 
 	private JLabel lblNewLabel_1;
+	// popup menu to config and about
 	private JPopupMenu pMnuGen;
 	private JMenuItem pMnuConfig;
+	private JMenuItem pMnuAbout;
 
 	private JTextField YearField;
 
-	private DayCalRenderer Quarter = new DayCalRenderer();
+
 	private JCheckBox cbMoon = new JCheckBox("Phases de la lune");
 	private JCheckBox cbVacA = new JCheckBox("Vacances Zone A");
 	private JCheckBox cbVacB = new JCheckBox("Vacances Zone B");
@@ -120,20 +131,21 @@ public class Calendrier {
 	private JLabel lblSelected_2;
 	private JLabel lblSeasons_2a;
 	private JLabel lblSeasons_1a;
-	// some vars
-	private astro Astro;
+
 	private JLabel lblSeasons_2b;
 	private JLabel lblSeasons_1b;
 	// Needed to restore location after modal dialog
 	private Point CurLoc = new Point();
+	private Dimension CurSize = new Dimension();
+	// needed to know if the date has changed since program has been launched 
 	private int iYear;
 	private int iDay;
 	private int icounter;
 	private JLabel lblToday_1a;
 	private JLabel lblToday_2a;
 	private JButton btnPrevious;
-	//private final Action action = new SwingAction();
-	private JMenuItem pMnuAbout;
+	
+	
 	
 	/**
 	 * Launch the application.
@@ -142,6 +154,10 @@ public class Calendrier {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					String OS = (System.getProperty("os.name")).toUpperCase();
+					// Color buttons are disabled in mac ! so force our look and feel
+					if (OS.contains("MAC ")) UIManager.setLookAndFeel(
+							UIManager.getCrossPlatformLookAndFeelClassName());
 					Calendrier window = new Calendrier();
 					window.frmCalendrier.setVisible(true);
 				} catch (Exception e) {
@@ -165,12 +181,13 @@ public class Calendrier {
 	 */
 
 	private void applyConfig() {
-
+		// set size and position
 		if (Config.savePos) {
 			frmCalendrier.setSize(Config.sizeW, Config.sizeH);
 			frmCalendrier.setLocation(Config.locatX, Config.locatY);
 		} else frmCalendrier.setLocationRelativeTo(null);
 		
+		// set diverse colors
 		Quarter.colA = Config.colvacA;
 		checkedA.colFillu = Config.colvacA;
 		Quarter.colB = Config.colvacB;
@@ -181,11 +198,13 @@ public class Calendrier {
 		Quarter.colback= Config.colback;
 		Quarter.colsun= Config.colsun;
 		
+		// set moons
 		if (Config.saveMoon) {
 			cbMoon.setSelected(Config.dispMoon);
 			Quarter.ShowMoon = cbMoon.isSelected();
 		}
 		
+		// set scolar holidays
 		if (Config.saveVacScol) {
 			cbVacA.setSelected(Config.dispVacA);
 			Quarter.ShowVacA = cbVacA.isSelected();
@@ -195,9 +214,11 @@ public class Calendrier {
 			Quarter.ShowVacC = cbVacC.isSelected();
 		}
 		
+		
+		
 	}
 
-	// Some initialization routines
+	// Frame initialization 
 	private void initialize() {
 		Init = true;
 		// Icone de l'application
@@ -221,10 +242,7 @@ public class Calendrier {
 		Year = dt.getYear();
 		iYear = Year;
 		iDay = dt.getDayOfYear();
-		// Icone de l'application
-		MainIcon = Toolkit.getDefaultToolkit().getImage(
-		Calendrier.class.getResource("/resources/calendrier.png"));
-
+		
 		// Création de la forme
 
 		frmCalendrier = new JFrame()
@@ -267,23 +285,23 @@ public class Calendrier {
 			}
 		});
 		
-		frmCalendrier.setSize(new Dimension(1182, 728));
-		frmCalendrier.setMaximumSize(new Dimension(1180, 728));
+		//frmCalendrier.setSize(new Dimension(1200, 740));
+		frmCalendrier.setMaximumSize(new Dimension(1200, 740));
 		frmCalendrier.getContentPane().setMaximumSize(
-				new Dimension(1182, 2147483647));
+				new Dimension(1240, 2147483647));
 		frmCalendrier.setIconImage(MainIcon);
 		frmCalendrier.setBounds(100, 100, 450, 300);
 		frmCalendrier.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmCalendrier.setSize(1180, 719);
+		frmCalendrier.setSize(1200, 720);
 		 
-		// Apply configuration parameters
-		//applyConfig();
 		String syear = "";
 		syear += Year;
 		frmCalendrier.setTitle("Calendrier - " + syear);
 		
 		
-		// quarter intialization		
+		// quarter intialization
+		
+		
 		Quarter.workingDirectory = Config.workingDirectory;
 		Quarter.init();	
 		Quarter.setYear(Year);
@@ -292,7 +310,7 @@ public class Calendrier {
 		pane_bottom = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) pane_bottom.getLayout();
 		flowLayout.setHgap(15);
-		pane_bottom.setMaximumSize(new Dimension(1182, 32767));
+		pane_bottom.setMaximumSize(new Dimension(1200, 32767));
 		pane_bottom.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null,
 				null, null));
 		pane_bottom.setPreferredSize(new Dimension(10, 40));
@@ -311,7 +329,7 @@ public class Calendrier {
 		pane_h1 = new JPanel();
 		tabpane.addTab("1er semestre", null, pane_h1, null);
 		GridBagLayout gbl_pane_h1 = new GridBagLayout();
-		gbl_pane_h1.columnWidths = new int[] { 307, 266, 266, 307, 0 };
+		gbl_pane_h1.columnWidths = new int[] { 313, 266, 266, 313, 0 };
 		gbl_pane_h1.rowHeights = new int[] { 400, 140, 34, 0 };
 		gbl_pane_h1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
 				Double.MIN_VALUE };
@@ -321,9 +339,9 @@ public class Calendrier {
 		// 1st quarter table
 		pane_q1 = new JPanel();
 		pane_q1.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		pane_q1.setPreferredSize(new Dimension(307, 613));
-		pane_q1.setMinimumSize(new Dimension(307, 613));
-		pane_q1.setMaximumSize(new Dimension(307, 613));
+		pane_q1.setPreferredSize(new Dimension(313, 613));
+		pane_q1.setMinimumSize(new Dimension(313, 613));
+		pane_q1.setMaximumSize(new Dimension(313, 613));
 		GridBagConstraints gbc_pane_q1 = new GridBagConstraints();
 		gbc_pane_q1.insets = new Insets(0, 0, 0, 0);
 		gbc_pane_q1.gridheight = 3;
@@ -334,6 +352,8 @@ public class Calendrier {
 
 		// 1st quarter table
 		// Disable cell edition to have a read only table
+		// quarters names are "1", "2", "3", and "4" 
+		// to allow retreiving their instances in events  
 		table_q1 = new JTable() {
 			private static final long serialVersionUID = 1L;
 
@@ -341,20 +361,16 @@ public class Calendrier {
 				return false;
 			};
 		};
-
-
-
-		
 		table_q1.setCellSelectionEnabled(true);
 		table_q1.setRowSelectionAllowed(false);
 		table_q1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		table_q1.setPreferredScrollableViewportSize(new Dimension(307, 612));
-		table_q1.setSize(new Dimension(307, 612));
+		table_q1.setPreferredScrollableViewportSize(new Dimension(10, 612));
+		table_q1.setSize(new Dimension(313, 612));
 		table_q1.setFont(new Font("Tahoma", Font.PLAIN, 10));
-		table_q1.setMaximumSize(new Dimension(307, 612));
-		table_q1.setMinimumSize(new Dimension(307, 612));
-		table_q1.setPreferredSize(new Dimension(307, 612));
+		table_q1.setMaximumSize(new Dimension(313, 612));
+		table_q1.setMinimumSize(new Dimension(313, 612));
+		table_q1.setPreferredSize(new Dimension(313, 612));
 		table_q1.setName("1");
 		table_q1.setDefaultRenderer(Object.class, Quarter);
 		table_q1.setRowHeight(19);
@@ -410,9 +426,9 @@ public class Calendrier {
 		// 2nd quarter
 		pane_q2 = new JPanel();
 		pane_q2.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		pane_q2.setMinimumSize(new Dimension(307, 613));
-		pane_q2.setMaximumSize(new Dimension(307, 613));
-		pane_q2.setPreferredSize(new Dimension(307, 613));
+		pane_q2.setMinimumSize(new Dimension(313, 613));
+		pane_q2.setMaximumSize(new Dimension(313, 613));
+		pane_q2.setPreferredSize(new Dimension(313, 613));
 		GridBagConstraints gbc_pane_q2 = new GridBagConstraints();
 		gbc_pane_q2.gridheight = 3;
 		gbc_pane_q2.anchor = GridBagConstraints.NORTHWEST;
@@ -429,15 +445,15 @@ public class Calendrier {
 			};
 		};
 
-		table_q2.setMinimumSize(new Dimension(307, 612));
-		table_q2.setMaximumSize(new Dimension(307, 612));
-		table_q2.setPreferredSize(new Dimension(307, 612));
+		table_q2.setMinimumSize(new Dimension(313, 612));
+		table_q2.setMaximumSize(new Dimension(313, 612));
+		table_q2.setPreferredSize(new Dimension(313, 612));
 		table_q2.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		table_q2.setName("2");
 		table_q2.setDefaultRenderer(Object.class, Quarter);
 		table_q2.setRowHeight(19);
 		table_q2.setRowMargin(1);
-		table_q2.setPreferredScrollableViewportSize(new Dimension(307, 612));
+		table_q2.setPreferredScrollableViewportSize(new Dimension(313, 612));
 		table_q2.setModel(new DefaultTableModel(new Object[][] {
 				{ null, null, null }, { null, null, null },
 				{ null, null, null }, { null, null, null },
@@ -585,7 +601,7 @@ public class Calendrier {
 		pane_h2 = new JPanel();
 		tabpane.addTab("2\u00E8me semestre", null, pane_h2, null);
 		GridBagLayout gbl_pane_h2 = new GridBagLayout();
-		gbl_pane_h2.columnWidths = new int[] { 307, 266, 266, 307, 0 };
+		gbl_pane_h2.columnWidths = new int[] { 313, 266, 266, 313, 0 };
 		gbl_pane_h2.rowHeights = new int[] { 400, 140, 34, 0 };
 		gbl_pane_h2.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
 				Double.MIN_VALUE };
@@ -594,9 +610,9 @@ public class Calendrier {
 
 		pane_q3 = new JPanel();
 		pane_q3.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		pane_q3.setPreferredSize(new Dimension(307, 613));
-		pane_q3.setMinimumSize(new Dimension(307, 613));
-		pane_q3.setMaximumSize(new Dimension(307, 613));
+		pane_q3.setPreferredSize(new Dimension(313, 613));
+		pane_q3.setMinimumSize(new Dimension(313, 613));
+		pane_q3.setMaximumSize(new Dimension(313, 613));
 		GridBagConstraints gbc_pane_q3 = new GridBagConstraints();
 		gbc_pane_q3.insets = new Insets(0, 0, 0, 0);
 		gbc_pane_q3.gridheight = 3;
@@ -613,11 +629,11 @@ public class Calendrier {
 				return false;
 			};
 		};
-		table_q3.setPreferredScrollableViewportSize(new Dimension(307, 612));
+		table_q3.setPreferredScrollableViewportSize(new Dimension(313, 612));
 		table_q3.setFont(new Font("Tahoma", Font.PLAIN, 10));
-		table_q3.setMaximumSize(new Dimension(307, 612));
-		table_q3.setMinimumSize(new Dimension(307, 612));
-		table_q3.setPreferredSize(new Dimension(307, 612));
+		table_q3.setMaximumSize(new Dimension(313, 612));
+		table_q3.setMinimumSize(new Dimension(313, 612));
+		table_q3.setPreferredSize(new Dimension(313, 612));
 		table_q3.setName("3");
 		table_q3.setDefaultRenderer(Object.class, Quarter);
 		table_q3.setRowHeight(19);
@@ -669,10 +685,10 @@ public class Calendrier {
 
 		// 4eme trimestre
 		pane_q4 = new JPanel();
-		pane_q4.setPreferredSize(new Dimension(307, 613));
+		pane_q4.setPreferredSize(new Dimension(313, 613));
 		pane_q4.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		pane_q4.setMinimumSize(new Dimension(307, 613));
-		pane_q4.setMaximumSize(new Dimension(307, 613));
+		pane_q4.setMinimumSize(new Dimension(313, 613));
+		pane_q4.setMaximumSize(new Dimension(313, 613));
 		GridBagConstraints gbc_pane_q4 = new GridBagConstraints();
 		gbc_pane_q4.gridheight = 3;
 		gbc_pane_q4.anchor = GridBagConstraints.NORTHWEST;
@@ -689,16 +705,16 @@ public class Calendrier {
 				return false;
 			};
 		};
-		table_q4.setMinimumSize(new Dimension(307, 612));
-		table_q4.setMaximumSize(new Dimension(307, 612));
-		table_q4.setPreferredSize(new Dimension(307, 612));
+		table_q4.setMinimumSize(new Dimension(313, 612));
+		table_q4.setMaximumSize(new Dimension(313, 612));
+		table_q4.setPreferredSize(new Dimension(313, 612));
 		table_q4.setRowMargin(0);
 		table_q4.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		table_q4.setName("4");
 		table_q4.setDefaultRenderer(Object.class, Quarter);
 		table_q4.setRowHeight(19);
 		table_q4.setRowMargin(1);
-		table_q4.setPreferredScrollableViewportSize(new Dimension(307, 612));
+		table_q4.setPreferredScrollableViewportSize(new Dimension(313, 612));
 		table_q4.setModel(new DefaultTableModel(new Object[][] {
 				{ null, null, null }, { null, null, null },
 				{ null, null, null }, { null, null, null },
@@ -895,24 +911,7 @@ public class Calendrier {
 
 					String syear = YearField.getText();
 					yearchanged(syear);
-					/*if (syear.length() == 4) {
-						int newYear = Integer.parseInt(syear);
-						if (newYear > 1582) {
-							Year= newYear;
-							Quarter.setYear(Year);
-							frmCalendrier.setTitle("Calendrier - " + syear);
-							int curpane = tabpane.getSelectedIndex(); 
-							switch (curpane) {
-							case 0 : if (Quarter.HalfImages [0].length() > 0) lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
-									 else lblImage_1.setIcon(new StretchIcon("image.jpg"));
-							case 1 : if (Quarter.HalfImages [1].length() > 0) lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
-										else lblImage_2.setIcon(new StretchIcon("image.jpg"));
-						}
-							setSeasons(Year);
-							
-							Quarter.repaint();
-						}
-					}*/
+					
 				}
 			}
 		});
@@ -1019,6 +1018,7 @@ public class Calendrier {
 			public void actionPerformed(ActionEvent arg0) {
 				// Needs to memorize current location
 				CurLoc = frmCalendrier.getLocation();
+			    CurSize = frmCalendrier.getSize();
 				Config.setVisible(true);
 			}
 		});	
@@ -1077,69 +1077,43 @@ public class Calendrier {
 
 				frmCalendrier.repaint();
 				frmCalendrier.setLocation(CurLoc);
+				frmCalendrier.setSize(CurSize);
+				DateTime dt =new DateTime();
+				setLabelToday(dt);
 			}
 		});
 
 		// ClicK on a day in tables 
-		
-		table_q1.addMouseListener(new MouseAdapter() {
+		MouseAdapter ma = new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				setLabelSelected();
+					setLabelSelected (e.getComponent());
 			}
-		});
+		};
 		
-		table_q1.addKeyListener(new KeyAdapter() {
+		table_q1.addMouseListener(ma);
+		table_q2.addMouseListener(ma);
+		table_q3.addMouseListener(ma);
+		table_q4.addMouseListener(ma);
+		
+		// Change day with keyboard 
+		
+		KeyAdapter ka =new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				setLabelSelected();	
+				//System.out.println(arg0);
+				setLabelSelected(arg0.getComponent());	
 			}
-		});
+		};
+		
+		table_q1.addKeyListener(ka);
+		table_q2.addKeyListener(ka);
+		table_q3.addKeyListener(ka);
+		table_q4.addKeyListener(ka);
 
-		table_q2.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				setLabelSelected();
-			}
-		});	
-		
-		table_q2.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				setLabelSelected();	
-			}
-		});
 
-		table_q3.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				setLabelSelected();
-			}
-		});
-
-		table_q3.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				setLabelSelected();	
-			}
-		});
-		
-		table_q4.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				setLabelSelected();
-			}
-		});
-		
-		table_q4.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				setLabelSelected();	
-			}
-		});
-		
-		
-				Init = false;
+		// set labels if running
+		Init = false;
 		if (!Beans.isDesignTime()) {
 			setLabelToday(dt);
 			lblSelected_1.setText("");
@@ -1151,7 +1125,7 @@ public class Calendrier {
 		applyConfig();
 	
 
-	}
+	} // end initialization method
 	
 	// set half year label image
 	private void setHalfImage(int year, int tab) {
@@ -1248,23 +1222,28 @@ public class Calendrier {
 	}
 	
 	// set selected label
-	private void setLabelSelected () {
-		if (Quarter.selDay >= 0) { 
-			DateTime dt = Quarter.YearDays.get(Quarter.selDay).date;
+	private void setLabelSelected (Component cp) {
+		JTable jt = (JTable) cp;
+		int month = jt.getSelectedColumn()+1+(Integer.parseInt(jt.getName())-1)*3;	
+		try {
+			DateTime dt = new DateTime(Year, month, jt.getSelectedRow()+1, 12,0,0);
 			String s = "<html>"; 
 			s += Astro.DateToString(dt)+"<br>";
 			s += setLabelDay(dt);
 			lblSelected_1.setText(s);
 			lblSelected_2.setText(s);
+		} catch (Exception e1) {
+			// Invalid cell
 		}
+
 	}
 	
 	private String setLabelDay(DateTime dt) {
 		String s = "<html>"; 
 	    // Sun hours
-		DateTime sunrise = Astro.calcSunrise(dt, 48.86223, 2.351074, true);
+		DateTime sunrise = Astro.calcSunrise(dt, Config.Latitude, Config.Longitude, true);
 	    sunrise = sunrise.plusMinutes(Astro.getTZOff(sunrise));
-	    DateTime sunset = Astro.calcSunrise(dt, 48.86223, 2.351074, false);
+	    DateTime sunset = Astro.calcSunrise(dt, Config.Latitude, Config.Longitude, false);
 	    sunset = sunset.plusMinutes(Astro.getTZOff(sunset));
 	    DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm");
 	    int day = dt.getDayOfYear();
@@ -1308,26 +1287,23 @@ public class Calendrier {
 	}
 	
     private void yearchanged(String syear) {
-    	
-
-			//String syear = String.valueOf(yr);
-			if (syear.length() == 4) {
-				int newYear = Integer.parseInt(syear);
-				if (newYear > 1582) {
-					Year= newYear;
-					Quarter.setYear(Year);
-					frmCalendrier.setTitle("Calendrier - " + syear);
-					int curpane = tabpane.getSelectedIndex(); 
-					switch (curpane) {
-					case 0 : if (Quarter.HalfImages [0].length() > 0) lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
-							 else lblImage_1.setIcon(new StretchIcon("image.jpg"));
-					case 1 : if (Quarter.HalfImages [1].length() > 0) lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
-								else lblImage_2.setIcon(new StretchIcon("image.jpg"));
+    	if (syear.length() == 4) {
+			int newYear = Integer.parseInt(syear);
+			if (newYear > 1582) {
+				Year= newYear;
+				Quarter.setYear(Year);
+				frmCalendrier.setTitle("Calendrier - " + syear);
+				int curpane = tabpane.getSelectedIndex(); 
+				switch (curpane) {
+				case 0 : if (Quarter.HalfImages [0].length() > 0) lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
+						 else lblImage_1.setIcon(new StretchIcon("image.jpg"));
+				case 1 : if (Quarter.HalfImages [1].length() > 0) lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
+						else lblImage_2.setIcon(new StretchIcon("image.jpg"));
 				}
-					setSeasons(Year);
-					Quarter.repaint();
-				}
+				setSeasons(Year);
+				Quarter.repaint();
 			}
+		}
     }
 	
 	private void yearbtnpressed(int btn) {
@@ -1391,7 +1367,7 @@ public class Calendrier {
 	public void setSeasons(int year) {
 		// Set seasons pane
 		if (!Beans.isDesignTime()) {
-			Astro = new astro();
+			//Astro = new astro();
 			DateTime prin, ete, aut, hiv;
 			prin = Astro.GetSaisonDate(Year, 0);
 			prin = prin.plusMinutes(Astro.getTZOff(prin));
@@ -1434,36 +1410,5 @@ public class Calendrier {
 		});
 	}
 	
-	
-	
-	public static String getManifestInfo() {
-	    Enumeration<?> resEnum;
-	    
-	        try {
-				resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
-				while (resEnum.hasMoreElements()) {
-				    try {
-				        URL url = (URL)resEnum.nextElement();
-				        InputStream is = url.openStream();
-				        if (is != null) {
-				            Manifest manifest = new Manifest(is);
-				            Attributes mainAttribs = manifest.getMainAttributes();
-				            String version = mainAttribs.getValue("Implementation-Version");
-				            if(version != null) {
-				                return version;
-				            }
-				        }
-				    }
-				    catch (Exception e) {
-				        // Silently ignore wrong manifests on classpath?
-				    }
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-	    return null; 
-	}
-	
+		
 }

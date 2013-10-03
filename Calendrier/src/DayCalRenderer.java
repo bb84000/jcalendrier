@@ -19,6 +19,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 
 
+
 class DayCalRenderer
 	extends		JLabel
 	implements	TableCellRenderer
@@ -134,8 +135,8 @@ class DayCalRenderer
 		String sntfile = "saints.csv";
 		
 		if (workingDirectory.length()> 0) sntfile = workingDirectory+"/saints.csv";
-		if (!saints.readCSVfile(sntfile)) {
-			saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv"));
+		if (!saints.readCSVfile(sntfile, "cp1252")) {
+			saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv" ),"cp1252");
 		}
  
 		
@@ -341,10 +342,6 @@ class DayCalRenderer
 			dt = new DateTime(year, month, row+1, 12, 0 );
 			int dow = dt.getDayOfWeek();
 			int dy = dt.getDayOfYear();
-			if (hasFocus) {
-				selDay = dy-1;
-			    //System.out.println(selDay);
-			}
 			iniday= days.substring(dow,dow+1 );
 		    caption += row+1;
 			caption +=" "+iniday;
