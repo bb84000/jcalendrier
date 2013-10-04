@@ -183,8 +183,9 @@ public class Calendrier {
 	private void applyConfig() {
 		// set size and position
 		if (Config.savePos) {
-			frmCalendrier.setSize(Config.sizeW, Config.sizeH);
-			frmCalendrier.setLocation(Config.locatX, Config.locatY);
+			frmCalendrier.setSize(Config.size);
+
+			frmCalendrier.setLocation(Config.location);
 		} else frmCalendrier.setLocationRelativeTo(null);
 		
 		// set diverse colors
@@ -272,12 +273,8 @@ public class Calendrier {
 		frmCalendrier.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				Point p = new Point(frmCalendrier.getLocation());
-				Config.locatX = p.x;
-				Config.locatY = p.y;
-				Dimension d = new Dimension(frmCalendrier.getSize());
-				Config.sizeW = d.width;
-				Config.sizeH = d.height;
+				Config.location = frmCalendrier.getLocation();
+				Config.size = frmCalendrier.getSize();
 				Config.saveConfig();
 				// Sort half images list on year field and save it
 				Quarter.imagesHalf.sort(0);

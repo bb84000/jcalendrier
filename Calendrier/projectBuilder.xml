@@ -1,44 +1,56 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="create_run_jar" name="Create Runnable Jar for Project Calendrier">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
-	
-	<target name="increment-version-code">
-	    <propertyfile file="version.properties">
-	        <entry key="buildNumber" type="int" default="1" operation="+" value="1" />
-	    	
-	    </propertyfile>
-	</target>
-	
+    <!--ANT 1.7 is required -->
 
-    			
-	<target name="create_run_jar">
+	<target name="increment-version-code">
+		
+		
+		<propertyfile file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties">
+			<entry key="build.number" type="int" default="1" operation="+" value="1" />
+			
+		</propertyfile>
+	</target>
+
+    <target name="create_run_jar">
 		<tstamp>
 			<format property="timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
 		</tstamp>
-		<property file="version.properties"/>
+     	
+    	<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   	
+    	
+    	<propertyfile file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties">
+			<entry key="Specification-Version" value="0.5.0" />
+    		<entry key="Specification-Vendor" value="sdtp - bb" />
+    		<entry key="Implementation-Version" value="${build.number}"/>
+    		<entry key="Build-Date" value= "${timestamp}"/>
+		</propertyfile>
+    	
+
 			
-
-		
 		<jar destfile="C:/Users/Bernard/git/calendrier/Calendrier/calendrier.jar">
-
-        	<manifest>
+	         <manifest>
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="Calendrier"/>
                 <attribute name="Class-Path" value="."/>
                 <attribute name="Rsrc-Class-Path" value="./ joda-time-2.3.jar javax.json-1.0.2.jar"/>
-                <attribute name="Specification-Version" value="0.5.0" />
-        		<attribute name="Specification-Vendor" value="sdtp - bb" />
-            	<attribute name="Implementation-Version" value="${buildNumber}"/>
-        		<attribute name="Build-Date" value="${timestamp}"/>
-          
-			</manifest>
+                <attribute name="Specification-Version" value="${Specification-Version}" />
+    		    <attribute name="Specification-Vendor" value="${Specification-Vendor}" />
+            	<attribute name="Implementation-Version" value="${build.number}"/>
+         		<attribute name="Build-Date" value="${timestamp}"/>
+        	</manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
-            <fileset dir="C:/Users/Bernard/git/calendrier/Calendrier/bin" excludes="**/libs/"/>
+            <!-- We do not need a libs folder as the libraries are needed in the root of the jar file -->
+			<!-- We do not copy resources from this, as the property file is not updated, but from the src folder -->
+			<fileset dir="C:/Users/Bernard/git/calendrier/Calendrier/bin">
+            	<exclude name="**/libs/"/>
+            	<exclude name="**/resources/" />
+            </fileset>	
 			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="joda-time-2.3.jar"/>
-		    <zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="javax.json-1.0.2.jar"/>			
-			
+			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="javax.json-1.0.2.jar"/>	
+			<fileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\\">
+				<exclude name="**/libs/"/>
+				<exclude name="**/*.java"/>
+			</fileset>
         </jar>
-          	
-    </target>
+     </target>
 </project>

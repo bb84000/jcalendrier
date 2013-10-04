@@ -4,9 +4,14 @@ Version 0.5.0.104 - 02/10/2013
 - Added routine to change today content when year or day are changed
 - Other cosmetic changes
 
-Version 0.5.0.112
+Version 0.5.0.112 - 04/10/2013
 - Bug correction : set proper charset for reading saints list
 - Optimization of mouse and key events to display selected day
 - Increased size of column (6 px)
 - implemented list of french prefectures to get exact surise and sunset
   in the location
+  
+Version 0.5.0.114
+- Optimization of config dialog routines
+- Use property file to store version information (manifest file not properly retrieved on Mac)
+
