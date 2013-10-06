@@ -232,9 +232,9 @@ public class Calendrier {
 		Config.setIconImage(MainIcon);
 		if (!Beans.isDesignTime()) {
 			
-			Config.set_config_file("config.json");
+			Config.set_config_file("calendrier.config.xml");
 			try {
-				//Config.loadConfig();
+				Config.loadConfigXML();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				//e1.printStackTrace();
@@ -276,7 +276,7 @@ public class Calendrier {
 			public void windowClosing(WindowEvent arg0) {
 				Config.location = frmCalendrier.getLocation();
 				Config.size = frmCalendrier.getSize();
-				Config.saveConfig();
+				Config.saveConfigXML();
 				// Sort half images list on year field and save it
 				Quarter.imagesHalf.sort(0);
 				Quarter.imagesHalf.writeCSVfile(Quarter.imgfile);
@@ -1135,7 +1135,7 @@ public class Calendrier {
 		}
 		// Apply configuration parameters
 		applyConfig();
-	
+	  
 
 	} // end initialization method
 	

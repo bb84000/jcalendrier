@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +47,11 @@ import javax.swing.JLabel;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -61,6 +67,17 @@ import javax.swing.event.DocumentListener;
 import javax.swing.UIManager;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 
 // Config dialog main class
@@ -434,7 +451,7 @@ public class dlgConfig extends JDialog {
 						Latitude = nLatitude;
 						Longitude = nLongitude;
 						townind= ntownind;
-						saveConfig();
+						//saveConfig();
 						setVisible(false);
 					}
 				});
@@ -567,7 +584,7 @@ public class dlgConfig extends JDialog {
 		} catch (IOException e1) {
 			// Do nothing, likely erreor in the file
 		}
-		loadConfig();
+		//loadConfig();
 		cbTown.addActionListener(al);
 		tfLatitude.getDocument().addDocumentListener(dl);
 		tfLongitude.getDocument().addDocumentListener(dl);
@@ -703,6 +720,90 @@ public class dlgConfig extends JDialog {
 		}
 	}
 	
+	// Read XML configuration file
+	public boolean loadConfigXML() {
+        try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+		    Document configXML = builder.parse(new File(config_file));
+		    // Here we get the root element of XML 
+		    // to check if we are in the proper file
+	        Element rootElement = configXML.getDocumentElement();
+	        if (!rootElement.getAttribute("name").equals("Calendrier")) throw new Exception();
+	        NodeList list = rootElement.getChildNodes();
+	        for (int i = 0; i < list.getLength(); i++) {
+	            Node cNode = list.item(i);
+	            if (cNode.getNodeType() == Node.ELEMENT_NODE) {
+	            	String s = cNode.getTextContent();
+	            	if (cNode.getNodeName().equals("savePos")) {
+	            		savePos = s.equalsIgnoreCase("true");
+	            		cbPos.setSelected(savePos);
+	            	}
+	            	else if (cNode.getNodeName().equals("locatX")) location.x = Integer.parseInt(s);
+	            	else if (cNode.getNodeName().equals("locatY")) location.y = Integer.parseInt(s);
+	            	else if (cNode.getNodeName().equals("sizeW")) size.width = Integer.parseInt(s);
+	            	else if (cNode.getNodeName().equals("sizeW")) size.width = Integer.parseInt(s); 
+	            	else if (cNode.getNodeName().equals("saveMoon")) {
+	            		saveMoon = s.equalsIgnoreCase("true");
+	            		cbMoon.setSelected(saveMoon);  
+	            	}
+	            	else if (cNode.getNodeName().equals("saveVacScol")) {
+	            		saveVacScol = s.equalsIgnoreCase("true");
+	            		cbVacScol.setSelected(saveVacScol);
+	            	}
+	            	else if (cNode.getNodeName().equals("dispVacA")) dispVacA = s.equalsIgnoreCase("true");
+	            	else if (cNode.getNodeName().equals("dispVacB")) dispVacB = s.equalsIgnoreCase("true");
+	            	else if (cNode.getNodeName().equals("dispVacC")) dispVacC = s.equalsIgnoreCase("true");
+	            	else if (cNode.getNodeName().equals("dispMoon")) dispMoon = s.equalsIgnoreCase("true");
+	            	else if (cNode.getNodeName().equals("colback")) colback = new Color(Integer.parseInt(s,16));
+	            	else if (cNode.getNodeName().equals("colsun")) colsun = new Color(Integer.parseInt(s,16));
+	            	else if (cNode.getNodeName().equals("colvacA")) {
+	            		colvacA = new Color(Integer.parseInt(s,16));	
+	            		btnZoneA.setBackground(colvacA);
+	            	}
+	            	else if (cNode.getNodeName().equals("colvacB")) {
+	            		colvacB = new Color(Integer.parseInt(s,16));	
+	            		btnZoneB.setBackground(colvacB);
+	            	}
+	            	else if (cNode.getNodeName().equals("colvacC")) {
+	            		colvacC = new Color(Integer.parseInt(s,16));	
+	            		btnZoneC.setBackground(colvacC);
+	            	}
+	            	else if (cNode.getNodeName().equals("latitude")) nLatitude = Double.parseDouble(s);	
+	            	else if (cNode.getNodeName().equals("longitude")) nLongitude = Double.parseDouble(s);	
+	            	else if (cNode.getNodeName().equals("town")) ntown = s;
+	            }
+	        }
+	        // Search towns list for current town
+	     	if (!towns.isEmpty()) {
+	     		for (int i= 0; i< towns.size(); i+=1) {
+	     			if (ntown.equals(towns.get(i)[0])) {
+	     				town=towns.get(i)[0];
+	     				townind= i;
+	     				cbTown.setSelectedIndex(i);
+	     				if (i > 0) {
+	     					tfLatitude.setText(towns.get(i)[2]);
+	     					tfLongitude.setText(towns.get(i)[3]);
+	     					Latitude = Double.parseDouble(String.valueOf(towns.get(i)[2]));
+	     					Longitude = Double.parseDouble(String.valueOf(towns.get(i)[3]));
+	     				}
+	     				// Aucune selected at first line
+	     				else {
+	     					tfLatitude.setText(String.valueOf(nLatitude));
+	     					tfLongitude.setText(String.valueOf(nLongitude));
+	     					Latitude= nLatitude;
+	     					Longitude= nLongitude;
+	     				}	
+	     				break;
+	     			}
+	     		}
+	     	}
+       } catch (Exception e) {
+			return false;
+		}
+	  return true;	
+	}
+	
 	// Save configuration file
 	public boolean saveConfig() {
 		try {
@@ -754,6 +855,63 @@ public class dlgConfig extends JDialog {
 		}
 
 	}
-
+	
+	// Save config file to XML
+	public boolean saveConfigXML()  {
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		    // create a new XML document
+			DocumentBuilder builder = factory.newDocumentBuilder();
+		    Document configXML = builder.newDocument();
+		    // To identify right config
+		        Element el = configXML.createElement("config");
+		        el.setAttribute("name", "Calendrier");
+		        el.appendChild(createXMLEntry(configXML, "savePos", "boolean", savePos));
+		        el.appendChild(createXMLEntry(configXML,"locatX", "int",location.x));
+				el.appendChild(createXMLEntry(configXML,"locatY", "int",location.y));
+				el.appendChild(createXMLEntry(configXML,"sizeW", "int",size.width));
+				el.appendChild(createXMLEntry(configXML,"sizeH", "int",size.height));
+				el.appendChild(createXMLEntry(configXML,"saveMoon", "boolean", saveMoon));	// Moon phases save
+				el.appendChild(createXMLEntry(configXML,"dispMoon", "boolean", dispMoon));	// Moon phases display
+				el.appendChild(createXMLEntry(configXML,"saveVacScol", "boolean", saveVacScol));	// Scolar holidays save
+				el.appendChild(createXMLEntry(configXML,"dispVacA", "boolean", dispVacA));	// Zone A display
+				el.appendChild(createXMLEntry(configXML,"dispVacB", "boolean", dispVacB));
+				el.appendChild(createXMLEntry(configXML,"dispVacC", "boolean", dispVacC));
+				el.appendChild(createXMLEntry(configXML,"colback", "hex", String.format("%06X", colback.getRGB()& 0xffffff)));
+				el.appendChild(createXMLEntry(configXML,"colsun", "hex", String.format("%06X", colsun.getRGB()& 0xffffff)));
+				el.appendChild(createXMLEntry(configXML,"colvacA", "hex", String.format("%06X", colvacA.getRGB()& 0xffffff)));
+				el.appendChild(createXMLEntry(configXML,"colvacB", "hex", String.format("%06X", colvacB.getRGB()& 0xffffff)));
+				el.appendChild(createXMLEntry(configXML,"colvacC", "hex", String.format("%06X", colvacC.getRGB()& 0xffffff)));
+				el.appendChild(createXMLEntry(configXML,"latitude", "double", Latitude));
+				el.appendChild(createXMLEntry(configXML,"longitude", "double", Longitude));
+				el.appendChild(createXMLEntry(configXML,"town", "string", town));
+		        configXML.appendChild(el);
+		        // The XML document we created above is still in memory
+		        //  create DOM source, then sagve it to file
+		        DOMSource source = new DOMSource(configXML);
+		        try {
+					PrintStream ps = new PrintStream(config_file);
+					StreamResult result = new StreamResult(ps);
+					TransformerFactory transformerFactory = TransformerFactory.newInstance();
+					Transformer transformer = transformerFactory.newTransformer(); 
+					transformer.setOutputProperty(OutputKeys.INDENT, "yes"); // line breaks			
+					transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4"); // indent
+					transformer.transform(source, result);
+				} catch (Exception e) {
+					return false;
+				}
+		} catch (ParserConfigurationException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	private Element createXMLEntry(Document xml, String name, String type, Object value) {
+		Element e = xml.createElement(name);
+		e.setAttribute("type", type);
+		String svalue= String.valueOf(value);
+		e.setTextContent(svalue);
+		return  e;
+	}
 	
 }
