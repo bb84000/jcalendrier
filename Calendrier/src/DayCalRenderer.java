@@ -327,8 +327,7 @@ implements	TableCellRenderer
 			Object value, boolean isSelected, boolean hasFocus,
 			int row, int column )
 	{
-		//Colors
-		//Color sunday_col = new Color(192, 255, 255);
+
 		// Retrieve table font 
 		setFont(table.getFont());
 		quarter = Integer.parseInt(table.getName())-1;
@@ -418,6 +417,7 @@ implements	TableCellRenderer
 			else  setBorder(null);
 
 			setText( caption );
+			
 		} catch (Exception e) {
 			// N?e fait rien, le jour n'existe pas
 			// Efface caption et lignes

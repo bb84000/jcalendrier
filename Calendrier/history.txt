@@ -11,7 +11,10 @@ Version 0.5.0.112 - 04/10/2013
 - implemented list of french prefectures to get exact surise and sunset
   in the location
   
-Version 0.5.0.114
+Version 0.5.0.114 - 04/10/2013
 - Optimization of config dialog routines
 - Use property file to store version information (manifest file not properly retrieved on Mac)
 
+Version 0.5.0.115 - 06/10/2013
+- Added tooltip "of the day" when mouse cursor is over a day  
+- User can choose its own latitude and longitude 

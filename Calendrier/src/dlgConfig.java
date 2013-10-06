@@ -2,6 +2,7 @@
  * Configuration dialog and processing
  * Load configuration json file at startup
  * Save configuration json file on OK press
+ * read property file containing version informations
  */
 import java.awt.FlowLayout;
 
@@ -23,13 +24,11 @@ import javax.swing.JCheckBox;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,15 +56,15 @@ import java.awt.Font;
 
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.UIManager;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
-import java.awt.Rectangle;
 
 
-
+// Config dialog main class
 public class dlgConfig extends JDialog {
-
 	
 	// Configuration variables
 	public String workingDirectory;
@@ -88,9 +87,11 @@ public class dlgConfig extends JDialog {
 	public boolean dispVacA = false;
 	public boolean dispVacB = false;
 	public boolean dispVacC = false;
-	public double Latitude = 48.86223;	//Paris
+	private double ParisLat = 48.86223;	//Paris
+	private double ParisLon = 2.351074;	//Paris
+	public double Latitude = ParisLat;
 	private double nLatitude;
-	public double Longitude = 2.351074;	//Paris
+	public double Longitude = ParisLon;
 	private double nLongitude;
 	public String version = "";
 	public String build ="";
@@ -99,9 +100,12 @@ public class dlgConfig extends JDialog {
 	private bArrayList towns;
 	private String town;
 	private String ntown;
+	private int townind;
+	private int ntownind;
 	public ArrayList <String[]> manifest= null;
 	private String config_file = "config.json";
-
+	private ActionListener al;
+	private DocumentListener dl;
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -136,12 +140,12 @@ public class dlgConfig extends JDialog {
 	private JTextField tfLatitude;
 	private JTextField tfLongitude;
 	
-	
 	// Config dialog constructor
 	public dlgConfig(JFrame frm) {
 		setResizable(false);
 		setTitle("Pr\u00E9f\u00E9rences");
-		// reinit color buttons
+		
+		// reinit settings at launch
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
@@ -155,11 +159,22 @@ public class dlgConfig extends JDialog {
 				btnZoneB.setBackground(colvacB);
 				ncolvacC= colvacC;
 				btnZoneC.setBackground(colvacC);
-				//System.out.println(e);
+				nLatitude= Latitude;
+				nLongitude= Longitude;
+				tfLatitude.getDocument().removeDocumentListener(dl);
+				tfLongitude.getDocument().removeDocumentListener(dl);		
+				tfLatitude.setText(String.valueOf(Latitude));
+				tfLongitude.setText(String.valueOf(Longitude));
+				tfLatitude.getDocument().addDocumentListener(dl);
+				tfLongitude.getDocument().addDocumentListener(dl);	
+				ntownind= townind;
+				cbTown.removeActionListener(al);
+				cbTown.setSelectedIndex(townind);
+				cbTown.addActionListener(al);
+				
 			}
-
-
 		});
+		
 		// dialog initialization
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setBounds(100, 100, 450, 300);
@@ -197,6 +212,7 @@ public class dlgConfig extends JDialog {
 				panel_main.add(panel_colors, gbc_panel_colors);
 				
 				// Event processor for all color buttons
+				// compnent passed by parameter to choosecolor method
 				MouseAdapter macolor = new MouseAdapter() {
 					@Override
 					public void mousePressed(MouseEvent arg0) {
@@ -267,9 +283,8 @@ public class dlgConfig extends JDialog {
 				btnZoneC.setBackground(colvacC);
 				btnZoneC.setBounds(163, 61, 39, 20);
 				panel_colors.add(btnZoneC);
-
-
-			}
+			} // end color panel
+			
 			// Panel Display 
 			JPanel panel_display = new JPanel();
 			panel_display.setBorder(new TitledBorder(null, "Affichage", TitledBorder.LEADING, TitledBorder.TOP, new Font("Tahoma", Font.BOLD, 11), null));
@@ -319,22 +334,45 @@ public class dlgConfig extends JDialog {
 
 			// Combo box towns
 
+			
 			cbTown = new JComboBox<String>();
 			cbTown.setFont(new Font("Tahoma", Font.PLAIN, 11));
 			cbTown.setBounds(65, 25, 202, 20);
 			cbTown.setPreferredSize(new Dimension(120, 20));
 			cbTown.setMaximumRowCount(100);
 			panel_coord.add(cbTown);			
-			
-			// Event processing cb town
-			cbTown.addActionListener(new ActionListener() {
+			al = new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					changetown();
-
 				}
-			});
+			};
+			// Event processing of towns combo box
 
-			// Labels and tect boxes for latitude and longitude
+
+			dl = new DocumentListener() {
+				public void changedUpdate(DocumentEvent e) {
+					warn(e);
+				}
+
+				public void removeUpdate(DocumentEvent e) {
+					warn(e);
+				}
+
+				public void insertUpdate(DocumentEvent e) {
+					warn(e);
+				}
+
+				public void warn(DocumentEvent e) {
+					//System.out.println(e.getDocument().getProperty("owner"));
+						
+					changecoord(e); 
+					//String syear = YearField.getText();
+						//yearchanged(syear);
+				}
+			};
+			//YearField.getDocument().addDocumentListener(dl);
+			
+			// Labels and text boxes for latitude and longitude
 
 			JLabel lblLatitude = new JLabel("Latitude");
 			lblLatitude.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -345,6 +383,8 @@ public class dlgConfig extends JDialog {
 			tfLatitude.setBounds(65, 50, 202, 20);
 			panel_coord.add(tfLatitude);
 			tfLatitude.setColumns(10);
+			tfLatitude.getDocument().putProperty("owner", "lat"); 
+			
 
 			JLabel lblLongitude = new JLabel("Longitude");
 			lblLongitude.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -354,10 +394,11 @@ public class dlgConfig extends JDialog {
 			tfLongitude = new JTextField();
 			tfLongitude.setColumns(10);
 			tfLongitude.setBounds(65, 75, 202, 20);
+			tfLongitude.getDocument().putProperty("owner", "lon"); 
 			panel_coord.add(tfLongitude);
-		}
-		{
-			// Button pane
+		} // end main panel
+		
+		{	// Buttons pane
 			JPanel buttonPane = new JPanel();
 			buttonPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 			buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -366,15 +407,19 @@ public class dlgConfig extends JDialog {
 			gbc_buttonPane.fill = GridBagConstraints.HORIZONTAL;
 			gbc_buttonPane.gridx = 0;
 			gbc_buttonPane.gridy = 1;
-
 			getContentPane().add(buttonPane, gbc_buttonPane);
-			{
+			
+			{ // OK button 
 				okButton = new JButton("OK");
 				okButton.setFont(new Font("Tahoma", Font.BOLD, 11));
 				okButton.setPreferredSize(new Dimension(65, 23));
 				okButton.setMinimumSize(new Dimension(65, 23));
 				okButton.setMaximumSize(new Dimension(65, 23));
 				okButton.setActionCommand("OK");
+				buttonPane.add(okButton);
+				getRootPane().setDefaultButton(okButton);
+				
+				// OK button event processing 
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						savePos = cbPos.isSelected();
@@ -388,45 +433,64 @@ public class dlgConfig extends JDialog {
 						town = ntown;
 						Latitude = nLatitude;
 						Longitude = nLongitude;
+						townind= ntownind;
 						saveConfig();
 						setVisible(false);
 					}
-
 				});
-				buttonPane.add(okButton);
-				getRootPane().setDefaultButton(okButton);
-			}
-			{
+			} // end OK button
+			
+			{ // Cancel button
 				JButton cancelButton = new JButton("Annuler");
 				cancelButton.setMargin(new Insets(2, 5, 2, 5));
 				cancelButton.setFont(new Font("Tahoma", Font.BOLD, 11));
 				cancelButton.setPreferredSize(new Dimension(65, 23));
 				cancelButton.setMinimumSize(new Dimension(65, 23));
 				cancelButton.setMaximumSize(new Dimension(65, 23));
+				buttonPane.add(cancelButton);
+				// Cancel button event processing
 				cancelButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						dispose();
-
 					}
 				});
+			}
+		} // end button pane
 
+	} // end constructor dlgConfig
 
+	private void changecoord(DocumentEvent e) {
+		//if //System.out.println(e.getDocument().getProperty("owner"));	
+		cbTown.removeActionListener(al);
+		try {
+			if (e.getDocument().getProperty("owner").equals("lat")) nLatitude= Double.parseDouble(tfLatitude.getText());
+			if (e.getDocument().getProperty("owner").equals("lon")) nLongitude= Double.parseDouble(tfLongitude.getText());
+			ntownind= 0;
+			cbTown.setSelectedIndex(ntownind);
+			ntown= towns.get(ntownind)[0];
+		} catch (NumberFormatException e1) {
+			//Invalid value do nothing
+		}
+		cbTown.addActionListener(al);
+		
+	}
+	
+	private void changetown () {
+		tfLatitude.getDocument().removeDocumentListener(dl);
+		tfLongitude.getDocument().removeDocumentListener(dl);		
+		if (!towns.isEmpty()) {
 
-				buttonPane.add(cancelButton);
+			ntownind = cbTown.getSelectedIndex();
+			ntown= towns.get(ntownind)[0];
+			if (ntownind > 0) {
+				tfLatitude.setText(towns.get(ntownind)[2]);
+				tfLongitude.setText(towns.get(ntownind)[3]);
+				nLatitude = Double.parseDouble(String.valueOf(towns.get(ntownind)[2]));
+				nLongitude = Double.parseDouble(String.valueOf(towns.get(ntownind)[3]));
 			}
 		}
-
-	}
-
-	private void changetown () {
-		if (!towns.isEmpty()) {
-			tfLatitude.setText(towns.get(cbTown.getSelectedIndex())[2]);
-			nLatitude = Double.parseDouble(String.valueOf(towns.get(cbTown.getSelectedIndex())[2]));
-			tfLongitude.setText(towns.get(cbTown.getSelectedIndex())[3]);
-			nLongitude = Double.parseDouble(String.valueOf(towns.get(cbTown.getSelectedIndex())[3]));
-			ntown= towns.get(cbTown.getSelectedIndex())[0];
-
-		}
+		tfLatitude.getDocument().addDocumentListener(dl);
+		tfLongitude.getDocument().addDocumentListener(dl);
 	}
 
 	private void choosecolor (Component c) {
@@ -457,14 +521,15 @@ public class dlgConfig extends JDialog {
 			f = new File (workingDirectory+"/"+config_file);
 			if (f.exists()) config_file= workingDirectory+"/"+config_file;
 			else {
-				/*//config file not found. Ask user if it wants standard or portable operation not working in Linux
-String BtnCaptions[]={ "Standard", "Portable"};
-String msg = new String("Choix du mode de fonctionnement\n");
-msg += "Standard : Les données de configuration sont stoclées dans le répertoire utilisateur.\n";
-msg += "Portable : les données de configuration sont stockées dans le répertoire courant.";
-int ret = JOptionPane.showOptionDialog(null, msg, "Calendrier", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, BtnCaptions, "");
-if (ret==0)
-// store in user folder otherwise store in current folder*/
+				/* Discarded as it doesn't work on linux and mac
+				//config file not found. Ask user if it wants standard or portable operation not working in Linux
+				String BtnCaptions[]={ "Standard", "Portable"};
+				String msg = new String("Choix du mode de fonctionnement\n");
+				msg += "Standard : Les données de configuration sont stoclées dans le répertoire utilisateur.\n";
+				msg += "Portable : les données de configuration sont stockées dans le répertoire courant.";
+				int ret = JOptionPane.showOptionDialog(null, msg, "Calendrier", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, BtnCaptions, "");
+				if (ret==0)
+				// store in user folder otherwise store in current folder*/
 
 				File folderExisting = new File(workingDirectory);
 				if (!folderExisting.exists()) {
@@ -476,7 +541,7 @@ if (ret==0)
 			}
 		}
 
-		// Read town file;
+		// Read towns file and populate combo box
 		towns = new bArrayList();
 		towns.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/villes.csv" ),"cp1252");
 		towns.sort(0);
@@ -485,6 +550,7 @@ if (ret==0)
 			String [] element = it.next();
 			cbTown.addItem(element [0]);
 		}
+
 		
 		// Read version infos properties 
 		Properties versinfo = new Properties();
@@ -499,24 +565,22 @@ if (ret==0)
 			DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 			builddate= formatter.parseDateTime(bldate);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}// end version info properties
-
-}
+			// Do nothing, likely erreor in the file
+		}
+		loadConfig();
+		cbTown.addActionListener(al);
+		tfLatitude.getDocument().addDocumentListener(dl);
+		tfLongitude.getDocument().addDocumentListener(dl);
+	}// end version info properties
 	
-
+	// load config file
 	public boolean loadConfig(){
 		try {
 			FileInputStream json = new FileInputStream(config_file);
-
 			JsonParser jr = Json.createParser(json);
 			Event event = null;
-			// Advance to "savePos" key
-
 			while(jr.hasNext()) {
 				event = jr.next();
-
 				try {
 					if (jr.getString().equals("savePos")) {
 						event = jr.next();
@@ -544,7 +608,6 @@ if (ret==0)
 						saveMoon = (event==Event.VALUE_TRUE);	
 						cbMoon.setSelected(saveMoon);
 					}
-
 					else if (jr.getString().equals("dispMoon")) {
 						event = jr.next();
 						dispMoon = (event==Event.VALUE_TRUE);	
@@ -604,30 +667,43 @@ if (ret==0)
 						if (event==Event.VALUE_STRING) ntown = jr.getString();	
 					}
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					//e.printStackTrace();System.out.println(jr.toString());
+					// Do nothing, red error
 				}
 			}
-			// Search towns list for town
+			
+			// Search towns list for current town
 			if (!towns.isEmpty()) {
 				for (int i= 0; i< towns.size(); i+=1) {
 					if (ntown.equals(towns.get(i)[0])) {
 						town=towns.get(i)[0];
+						townind= i;
 						cbTown.setSelectedIndex(i);
-						tfLatitude.setText(towns.get(i)[2]);
-						tfLongitude.setText(towns.get(i)[3]);
-						Latitude = Double.parseDouble(String.valueOf(towns.get(i)[2]));
-						Longitude = Double.parseDouble(String.valueOf(towns.get(i)[3]));
+						if (i > 0) {
+							tfLatitude.setText(towns.get(i)[2]);
+							tfLongitude.setText(towns.get(i)[3]);
+							Latitude = Double.parseDouble(String.valueOf(towns.get(i)[2]));
+							Longitude = Double.parseDouble(String.valueOf(towns.get(i)[3]));
+						}
+						// Aucune selected at first line
+						else {
+							tfLatitude.setText(String.valueOf(nLatitude));
+							tfLongitude.setText(String.valueOf(nLongitude));
+							Latitude= nLatitude;
+							Longitude= nLongitude;
+						}	
 						break;
 					}
 				}
+
+				
 			}	
 			return true;
 		} catch (FileNotFoundException e) {
 			return false;
 		}
 	}
-
+	
+	// Save configuration file
 	public boolean saveConfig() {
 		try {
 			Map<String, Object> properties = new HashMap<String, Object>(1);
@@ -673,8 +749,7 @@ if (ret==0)
 			.close();
 			return true;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Do nothing, write error
 			return false;
 		}
 

@@ -27,6 +27,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
@@ -233,7 +234,7 @@ public class Calendrier {
 			
 			Config.set_config_file("config.json");
 			try {
-				Config.loadConfig();
+				//Config.loadConfig();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				//e1.printStackTrace();
@@ -358,6 +359,11 @@ public class Calendrier {
 				return false;
 			};
 		};
+		table_q1.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent arg0) {
+			}
+		});
 		table_q1.setCellSelectionEnabled(true);
 		table_q1.setRowSelectionAllowed(false);
 		table_q1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -408,9 +414,6 @@ public class Calendrier {
 		if (Quarter.HalfImages [0].length() > 0) 
 			lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
 		else lblImage_1.setIcon(new StretchIcon("image.jpg"));
-		
-
-		
 		
 		GridBagConstraints gbc_lblImage_1 = new GridBagConstraints();
 		gbc_lblImage_1.insets = new Insets(0, 0, 0, 0);
@@ -1080,6 +1083,14 @@ public class Calendrier {
 			}
 		});
 
+		
+		MouseMotionAdapter mma = new MouseMotionAdapter() {
+			  @Override
+		      public void mouseMoved(MouseEvent e) {
+		        setTooltipOver(e.getComponent(), e.getPoint());
+		      }
+	    };
+	
 		// ClicK on a day in tables 
 		MouseAdapter ma = new MouseAdapter() {
 			@Override
@@ -1093,8 +1104,12 @@ public class Calendrier {
 		table_q3.addMouseListener(ma);
 		table_q4.addMouseListener(ma);
 		
-		// Change day with keyboard 
+		table_q1.addMouseMotionListener(mma);
+		table_q2.addMouseMotionListener(mma);
+		table_q3.addMouseMotionListener(mma);
+		table_q4.addMouseMotionListener(mma);
 		
+		// Change day with keyboard 
 		KeyAdapter ka =new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
@@ -1218,6 +1233,22 @@ public class Calendrier {
 	    lblToday_2a.setText(s);
 	}
 	
+	
+	// set hover tooltip;
+	private void setTooltipOver (Component cp, Point p) {
+		JTable jt = (JTable) cp;
+        int month = jt.columnAtPoint(p)+1+(Integer.parseInt(jt.getName())-1)*3;
+        try {
+			DateTime dt = new DateTime(Year, month, jt.rowAtPoint(p)+1, 12,0,0);
+			String s = "<html>";
+			s += Astro.DateToString(dt)+"<br>";
+			s += setLabelDay(dt);
+			jt.setToolTipText(s);
+		} catch (Exception e) {
+			// invalid day
+			jt.setToolTipText("");
+		}
+  	}
 	// set selected label
 	private void setLabelSelected (Component cp) {
 		JTable jt = (JTable) cp;
@@ -1374,13 +1405,12 @@ public class Calendrier {
 			aut = aut.plusMinutes(Astro.getTZOff(aut));
 			hiv = Astro.GetSaisonDate(Year, 3);
 			hiv = hiv.plusMinutes(Astro.getTZOff(hiv));
-			DateTimeFormatter fmt = DateTimeFormat.forPattern("EEEE dd MMMM HH:mm");
-			String s = "<html>Printemps: " +prin.toString(fmt)+"<br>"+
-						"Eté: "+ete.toString(fmt)+"</html>";
+			String s = "<html>Printemps: " +Astro.DateTimeToString(prin, "HH:mm")+"<br>"+
+						"Eté: "+Astro.DateTimeToString(ete, "HH:mm")+"</html>";
 			lblSeasons_1a.setText(s);
 			lblSeasons_2a.setText(s);
-			s = "<html>Automne: " +aut.toString(fmt)+"<br>"+
-					"Hiver: "+hiv.toString(fmt)+"</html>";
+			s = "<html>Automne: " +Astro.DateTimeToString(aut, "HH:mm")+"<br>"+
+					"Hiver: "+Astro.DateTimeToString(hiv, "HH:mm")+"</html>";
 			lblSeasons_1b.setText(s);
 			lblSeasons_2b.setText(s);
 		}
