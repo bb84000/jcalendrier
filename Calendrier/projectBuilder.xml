@@ -46,7 +46,6 @@
             	<exclude name="**/resources/" />
             </fileset>	
 			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="joda-time-2.3.jar"/>
-			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="javax.json-1.0.2.jar"/>	
 			<fileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\\">
 				<exclude name="**/libs/"/>
 				<exclude name="**/*.java"/>

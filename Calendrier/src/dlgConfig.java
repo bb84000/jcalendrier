@@ -1,48 +1,53 @@
 /*
  * Configuration dialog and processing
- * Load configuration json file at startup
- * Save configuration json file on OK press
  * read property file containing version informations
  */
-import java.awt.FlowLayout;
-
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
-
-import javax.swing.JCheckBox;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 
-import javax.json.*;
-import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonGeneratorFactory;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParser.Event;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -51,33 +56,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.Dimension;
-import java.awt.Font;
-
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.UIManager;
-import javax.swing.JComboBox;
-import javax.swing.JTextField;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 
 // Config dialog main class
@@ -590,136 +568,7 @@ public class dlgConfig extends JDialog {
 		tfLongitude.getDocument().addDocumentListener(dl);
 	}// end version info properties
 	
-	// load config file
-	public boolean loadConfig(){
-		try {
-			FileInputStream json = new FileInputStream(config_file);
-			JsonParser jr = Json.createParser(json);
-			Event event = null;
-			while(jr.hasNext()) {
-				event = jr.next();
-				try {
-					if (jr.getString().equals("savePos")) {
-						event = jr.next();
-						savePos = (event==Event.VALUE_TRUE);	
-						cbPos.setSelected(savePos);
-					}
-					else if (jr.getString().equals("locatX")) {
-						event = jr.next();
-						if (event==Event.VALUE_NUMBER) location.x = jr.getInt();	
-					}
-					else if (jr.getString().equals("locatY")) {
-						event = jr.next();
-						if (event==Event.VALUE_NUMBER) location.y = jr.getInt();	
-					}
-					else if (jr.getString().equals("sizeW")) {
-						event = jr.next();
-						if (event==Event.VALUE_NUMBER) size.width = jr.getInt();	
-					}
-					else if (jr.getString().equals("sizeH")) {
-						event = jr.next();
-						if (event==Event.VALUE_NUMBER) size.height = jr.getInt();	
-					}
-					else if (jr.getString().equals("saveMoon")) {
-						event = jr.next();
-						saveMoon = (event==Event.VALUE_TRUE);	
-						cbMoon.setSelected(saveMoon);
-					}
-					else if (jr.getString().equals("dispMoon")) {
-						event = jr.next();
-						dispMoon = (event==Event.VALUE_TRUE);	
-					}
-					else if (jr.getString().equals("saveVacScol")) {
-						event = jr.next();
-						saveVacScol = (event==Event.VALUE_TRUE);	
-						cbVacScol.setSelected(saveVacScol);
-					}
-					else if (jr.getString().equals("dispVacA")) {
-						event = jr.next();
-						dispVacA = (event==Event.VALUE_TRUE);	
-					}
-					else if (jr.getString().equals("dispVacB")) {
-						event = jr.next();
-						dispVacB = (event==Event.VALUE_TRUE);	
-					}
-					else if (jr.getString().equals("dispVacC")) {
-						event = jr.next();
-						dispVacC = (event==Event.VALUE_TRUE);	
-					}
-					else if (jr.getString().equals("colback")) {
-						event = jr.next();
-						if (event==Event.VALUE_STRING) colback = new Color(Integer.parseInt(jr.getString(),16));
-						btnBack.setBackground(colback);
-					}
-					else if (jr.getString().equals("colsun")) {
-						event = jr.next();
-						if (event==Event.VALUE_STRING) colsun = new Color(Integer.parseInt(jr.getString(),16));	
-						btnSunday.setBackground(colsun);
-					}
-					else if (jr.getString().equals("colvacA")) {
-						event = jr.next();
-						if (event==Event.VALUE_STRING) colvacA = new Color(Integer.parseInt(jr.getString(),16));	
-						btnZoneA.setBackground(colvacA);
-					}
-					else if (jr.getString().equals("colvacB")) {
-						event = jr.next();
-						if (event==Event.VALUE_STRING) colvacB = new Color(Integer.parseInt(jr.getString(),16));
-						btnZoneB.setBackground(colvacB);
-					}
-					else if (jr.getString().equals("colvacC")) {
-						event = jr.next();
-						if (event==Event.VALUE_STRING) colvacC = new Color(Integer.parseInt(jr.getString(),16));	
-						btnZoneC.setBackground(colvacC);
-					}
-					else if (jr.getString().equals("latitude")) {
-						event = jr.next();
-						if (event==Event.VALUE_STRING) nLatitude = Double.parseDouble(jr.getString());	
-					}
-					else if (jr.getString().equals("longitude")) {
-						event = jr.next();
-						if (event==Event.VALUE_STRING) nLongitude = Double.parseDouble(jr.getString());	
-					}
-					else if (jr.getString().equals("town")) {
-						event = jr.next();
-						if (event==Event.VALUE_STRING) ntown = jr.getString();	
-					}
-				} catch (Exception e) {
-					// Do nothing, red error
-				}
-			}
-			
-			// Search towns list for current town
-			if (!towns.isEmpty()) {
-				for (int i= 0; i< towns.size(); i+=1) {
-					if (ntown.equals(towns.get(i)[0])) {
-						town=towns.get(i)[0];
-						townind= i;
-						cbTown.setSelectedIndex(i);
-						if (i > 0) {
-							tfLatitude.setText(towns.get(i)[2]);
-							tfLongitude.setText(towns.get(i)[3]);
-							Latitude = Double.parseDouble(String.valueOf(towns.get(i)[2]));
-							Longitude = Double.parseDouble(String.valueOf(towns.get(i)[3]));
-						}
-						// Aucune selected at first line
-						else {
-							tfLatitude.setText(String.valueOf(nLatitude));
-							tfLongitude.setText(String.valueOf(nLongitude));
-							Latitude= nLatitude;
-							Longitude= nLongitude;
-						}	
-						break;
-					}
-				}
-
-				
-			}	
-			return true;
-		} catch (FileNotFoundException e) {
-			return false;
-		}
-	}
-	
+		
 	// Read XML configuration file
 	public boolean loadConfigXML() {
         try {
@@ -802,58 +651,6 @@ public class dlgConfig extends JDialog {
 			return false;
 		}
 	  return true;	
-	}
-	
-	// Save configuration file
-	public boolean saveConfig() {
-		try {
-			Map<String, Object> properties = new HashMap<String, Object>(1);
-			properties.put(JsonGenerator.PRETTY_PRINTING, true);
-			JsonGeneratorFactory factory = Json.createGeneratorFactory(properties);
-			PrintWriter pw = new PrintWriter(config_file);
-			JsonGenerator jg = factory.createGenerator(pw );
-			jg.writeStartObject()
-			.writeStartObject("config") // Window state and position
-			.writeStartObject("Display")
-			.writeStartObject("Window")
-			.write("savePos", savePos)
-			.write("locatX", location.x)
-			.write("locatY", location.y)
-			.write ("sizeW", size.width)
-			.write ("sizeH", size.height)
-			.writeEnd()	
-			.writeStartObject("Moon")
-			.write("saveMoon", saveMoon)	// Moon phases save
-			.write("dispMoon", dispMoon)	// Moon phases display
-			.writeEnd()
-			.writeStartObject("ScolarHolidays")
-			.write("saveVacScol", saveVacScol)	// Scolar holidays save
-			.write("dispVacA", dispVacA)	// Zone A display
-			.write("dispVacB", dispVacB)
-			.write("dispVacC", dispVacC)
-			.writeEnd()
-			.writeEnd()
-			.writeStartObject("Colors")
-			.write("colback", String.format("%06X", colback.getRGB()& 0xffffff))
-			.write("colsun", String.format("%06X", colsun.getRGB()& 0xffffff))
-			.write("colvacA", String.format("%06X", colvacA.getRGB()& 0xffffff))
-			.write("colvacB", String.format("%06X", colvacB.getRGB()& 0xffffff))
-			.write("colvacC", String.format("%06X", colvacC.getRGB()& 0xffffff))
-			.writeEnd()
-			.writeStartObject("Location")
-			.write("latitude", String.valueOf(Latitude))
-			.write("longitude", String.valueOf(Longitude))
-			.write("town", town)
-			.writeEnd()
-			.writeEnd()
-			.writeEnd()
-			.close();
-			return true;
-		} catch (Exception e) {
-			// Do nothing, write error
-			return false;
-		}
-
 	}
 	
 	// Save config file to XML

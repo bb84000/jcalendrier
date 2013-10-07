@@ -42,6 +42,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -72,8 +73,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 public class Calendrier {
 
-	private JFrame frmCalendrier;
-	private JPanel pane_bottom;
+	private JFrame frmCalendrier;	private JPanel pane_bottom;
 	private JScrollPane scrollPane;
 	private JTabbedPane tabpane;
 	private JPanel pane_h1;
@@ -145,6 +145,7 @@ public class Calendrier {
 	private JLabel lblToday_1a;
 	private JLabel lblToday_2a;
 	private JButton btnPrevious;
+	private JMenuItem pMnuDelImage;
 	
 	
 	
@@ -325,6 +326,7 @@ public class Calendrier {
 
 		// 1st half pane
 		pane_h1 = new JPanel();
+		pane_h1.setName("pane_h1");
 		tabpane.addTab("1er semestre", null, pane_h1, null);
 		GridBagLayout gbl_pane_h1 = new GridBagLayout();
 		gbl_pane_h1.columnWidths = new int[] { 313, 266, 266, 313, 0 };
@@ -405,15 +407,15 @@ public class Calendrier {
 		
 		// Todo user selected images
 		lblImage_1 = new JLabel("");
+		lblImage_1.setName("halfimg1");
+		lblImage_1.setOpaque(true);
 		lblImage_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblImage_1.setToolTipText("Cliquez avec le bouton droit de la souris pour choisir une image");
 		lblImage_1.setMaximumSize(new Dimension(530, 400));
 		lblImage_1.setMinimumSize(new Dimension(530, 400));
 		lblImage_1.setSize(new Dimension(530, 400));
 		lblImage_1.setPreferredSize(new Dimension(530, 400));
-		if (Quarter.HalfImages [0].length() > 0) 
-			lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
-		else lblImage_1.setIcon(new StretchIcon("image.jpg"));
+		
 		
 		GridBagConstraints gbc_lblImage_1 = new GridBagConstraints();
 		gbc_lblImage_1.insets = new Insets(0, 0, 0, 0);
@@ -599,6 +601,7 @@ public class Calendrier {
 
 		// 2nd half panel
 		pane_h2 = new JPanel();
+		pane_h2.setName("pane_h2");
 		tabpane.addTab("2\u00E8me semestre", null, pane_h2, null);
 		GridBagLayout gbl_pane_h2 = new GridBagLayout();
 		gbl_pane_h2.columnWidths = new int[] { 313, 266, 266, 313, 0 };
@@ -664,15 +667,14 @@ public class Calendrier {
 
 		// Ajoute image
 		lblImage_2 = new JLabel("");
+		lblImage_2.setName("halfimg2");
 		lblImage_2.setHorizontalAlignment(SwingConstants.CENTER);
 		lblImage_2.setToolTipText("Cliquez avec le bouton droit de la souris pour choisir une image");
 		lblImage_2.setMaximumSize(new Dimension(530, 400));
 		lblImage_2.setMinimumSize(new Dimension(530, 400));
 		lblImage_2.setSize(new Dimension(530, 400));
 		lblImage_2.setPreferredSize(new Dimension(530, 400));
-		if (Quarter.HalfImages [1].length() > 0) 
-			lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
-		else lblImage_2.setIcon(new StretchIcon("image.jpg"));
+		
 		
 		GridBagConstraints gbc_lblImage_2 = new GridBagConstraints();
 		gbc_lblImage_2.insets = new Insets(0, 0, 0, 0);
@@ -850,19 +852,41 @@ public class Calendrier {
 		gbc_lblSeasons_2b.gridy = 0;
 		panelSeasons_2.add(lblSeasons_2b, gbc_lblSeasons_2b);
 		
+		
 		// Popup half image
+		
+		ActionListener ppal = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//System.out.println(e);
+				chooseHalfImage(Year, tabpane.getSelectedIndex());
+			}
+		};
+		
 		JPopupMenu pMnuImage_h1 = new JPopupMenu();
+		
 		addPopup(lblImage_1, pMnuImage_h1);
 		addPopup(lblImage_2, pMnuImage_h1);
 		
-		JMenuItem pMnuSelImage_h1 = new JMenuItem("Choisir une image");
-		pMnuSelImage_h1.addActionListener(new ActionListener() {
+		JMenuItem pMnuSelImage = new JMenuItem("Choisir une image");
+		pMnuSelImage.addActionListener(ppal);
+			pMnuImage_h1.add(pMnuSelImage);
+		
+		pMnuDelImage = new JMenuItem("Effacer");
+		int index = tabpane.getSelectedIndex();
+		String s = Quarter.HalfImages [index+1];
+		pMnuDelImage.setText("Effacer "+s);
+		pMnuDelImage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setHalfImage(Year, tabpane.getSelectedIndex());
+				int index = tabpane.getSelectedIndex();
+				removeHalfImage(Year, index);
+				
 			}
 		});
-		pMnuImage_h1.add(pMnuSelImage_h1);
+		pMnuImage_h1.add(pMnuDelImage);
 		
+		
+		setHalfImage(Year, 0);
+		setHalfImage(Year, 1);
 		
 
 		// Moon phases checkboc
@@ -1004,7 +1028,37 @@ public class Calendrier {
 
 		setSeasons(Year);
 
-		// Launch popup menu;
+		// Config and about popup menus
+		// Component listener to set the modal dialogs at the center of frame
+
+		ComponentAdapter ppca = new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				try {
+					Point p = frmCalendrier.getLocation();
+					p.x += (frmCalendrier.getWidth() / 2) - (arg0.getComponent().getWidth() / 2);
+					p.y += (frmCalendrier.getHeight() / 2) - (arg0.getComponent().getHeight() / 2);
+					arg0.getComponent().setLocation(p);
+				} catch (Exception e) {
+					//Do nothing, error !
+				}
+			}
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				// if config dialog, initialize vars and repaint;
+				// else do nothing
+				if (arg0.getComponent().getName().equals("dlgConfig")) {
+					applyConfig();
+					frmCalendrier.repaint();
+					frmCalendrier.setLocation(CurLoc);
+					frmCalendrier.setSize(CurSize);
+					DateTime dt =new DateTime();
+					setLabelToday(dt);
+				}
+			}
+		};
+		
+		// Launch config popup menu;
 		pMnuGen = new JPopupMenu();
 		pMnuGen.setLabel("Config");
 		addPopup(pane_bottom, pMnuGen);
@@ -1019,40 +1073,34 @@ public class Calendrier {
 				// Needs to memorize current location
 				CurLoc = frmCalendrier.getLocation();
 			    CurSize = frmCalendrier.getSize();
+			    
 				Config.setVisible(true);
 			}
 		});	
 		
+		// Configuration dialog closed with OK
+		Config.setName("dlgConfig");
+		Config.addComponentListener(ppca);
+
+
 		// About dialogimplementationVersion
 		about = new aboutBox(frmCalendrier);
-		// Place about box at frame center 
-		about.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentShown(ComponentEvent arg0) {
-				try {
-					Point p = frmCalendrier.getLocation();
-					p.x += (frmCalendrier.getWidth() / 2) - (about.getWidth() / 2);
-					p.y += (frmCalendrier.getHeight() / 2) - (about.getHeight() / 2);
-					about.setLocation(p);
-				} catch (Exception e) {
-					//Do nothing, error !
-				}
-			}
-		});	
-		
 		about.setTitle("A propos du Calendrier");
 		about.setIconImage(MainIcon);
+		about.setName("dlgAbout");
 		about.lblicon.setIcon(new StretchIcon(MainIcon));		
 		about.lblprogname.setText("Calendrier");
 		about.lblVersion.setText("Version : "+Config.version+"."+Config.build);
-		String s;
+		// Place about box at frame center 
+		about.addComponentListener(ppca);	
+		/*String s0;
 		try {
-			s = " - ";
-			s += Config.builddate.toString("dd/MM/yyyy");
+			s0 = " - ";
+			s0 += Config.builddate.toString("dd/MM/yyyy");
 		} catch (Exception e1) {
 			// invalid or no date
-			s="";
-		}
+			s0="";
+		}*/
 		about.lblvendor.setText(Config.vendor+s);
 
 		// About menu item
@@ -1068,20 +1116,6 @@ public class Calendrier {
 		pMnuGen.add(pMnuAbout);
 		
 		
-		// Configuration dialog closed with OK
-		Config.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentHidden(ComponentEvent arg0) {
-				// Re initialize vars and repaint;
-				applyConfig();
-
-				frmCalendrier.repaint();
-				frmCalendrier.setLocation(CurLoc);
-				frmCalendrier.setSize(CurSize);
-				DateTime dt =new DateTime();
-				setLabelToday(dt);
-			}
-		});
 
 		
 		MouseMotionAdapter mma = new MouseMotionAdapter() {
@@ -1113,7 +1147,7 @@ public class Calendrier {
 		KeyAdapter ka =new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				//System.out.println(arg0);
+				
 				setLabelSelected(arg0.getComponent());	
 			}
 		};
@@ -1139,50 +1173,90 @@ public class Calendrier {
 
 	} // end initialization method
 	
-	// set half year label image
-	private void setHalfImage(int year, int tab) {
-		JFileChooser chooser = new JFileChooser();
-		ImagePreviewPanel preview = new ImagePreviewPanel();
-		chooser.setAccessory(preview);
-		chooser.addPropertyChangeListener(preview);
-		
-		
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-		    "Fichiers images", "gif", "jpg", "jpeg", "png");
-		chooser.setFileFilter(filter);
-		chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-		int returnVal = chooser.showOpenDialog(null);
-		if(returnVal == JFileChooser.APPROVE_OPTION) {
-		   if (tab==0) {
-			   lblImage_1.setIcon(new StretchIcon(chooser.getSelectedFile().getAbsolutePath()));
-			   lblImage_1.setText("");
-		   }
-		   else {
-			   lblImage_2.setIcon(new StretchIcon(chooser.getSelectedFile().getAbsolutePath()));
-			   lblImage_2.setText("");
-		   }
+	
+	// st half year image
+	private void setHalfImage(int year, int index) {
+		JLabel jl;
+		if (index == 0) jl = lblImage_1;
+		else jl = lblImage_2;
+		if (Quarter.HalfImages [index].length() > 0) {
+			jl.setIcon(new StretchIcon(Quarter.HalfImages[index]));
+			jl.setText("");
+			String s1 = new File(Quarter.HalfImages [index]).getName();
+			pMnuDelImage.setText("Effacer "+s1);
+			pMnuDelImage.setVisible(true); 
 		}
-		// update list of images
-		String [] arr = new String [3];
-		arr[0]=Integer.toString(year);
-		arr[1]=Integer.toString(tab);
-		arr[2]=chooser.getSelectedFile().getAbsolutePath();
-		boolean found = false;
-		for (int i=0; i<Quarter.imagesHalf.size(); i+=1) {
-			if (Quarter.imagesHalf.get(i)[0].equals(arr[0])) {
-				// Year found, check half
-				if (Quarter.imagesHalf.get(i)[1].equals(arr[1])) {
-					// half found replace line
-					Quarter.imagesHalf.set(i, arr) ;
-					found= true;
-					break;
-				}
-			}
+		else {
+			jl.setIcon(new StretchIcon("image.jpg"));
+			pMnuDelImage.setVisible(false);
 		}
-		// item not in list ,add it
-		if (!found) Quarter.imagesHalf.add(arr);
 	}
+	
+	
+	// choose half year label image
+	private void chooseHalfImage(int year, int index) {
+		try {
+			
+			JFileChooser chooser = new JFileChooser();
+			ImagePreviewPanel preview = new ImagePreviewPanel();
+			chooser.setAccessory(preview);
+			chooser.addPropertyChangeListener(preview);
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(
+			    "Fichiers images", "gif", "jpg", "jpeg", "png");
+			chooser.setFileFilter(filter);
+			chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+			int returnVal = chooser.showOpenDialog(null);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				
+			   // update list of images
+			   String [] arr = new String [3];
+			   arr[0]=Integer.toString(year);
+			   arr[1]=Integer.toString(index);
+			   arr[2]=chooser.getSelectedFile().getAbsolutePath();
+			   boolean found = false;
+			   for (int i=0; i<Quarter.imagesHalf.size(); i+=1) {
+				   if (Quarter.imagesHalf.get(i)[0].equals(arr[0])) {
+					   // Year found, check half
+					   if (Quarter.imagesHalf.get(i)[1].equals(arr[1])) {
+						   // half found replace line
+						   Quarter.imagesHalf.set(i, arr) ;
+						   found= true;
+						   break;
+					   }
+				   }
+			   }
+			   // item not in list ,add it
+			   if (!found) Quarter.imagesHalf.add(arr);
+			   Quarter.HalfImages[index]= chooser.getSelectedFile().getAbsolutePath();
+			   setHalfImage(year, index);
+			}
+		} catch (Exception e) {
+			 JOptionPane.showMessageDialog(null, "Erreur de chargement de l'image");
+		}
+	}
+	
+	// remove half year image
+	private void removeHalfImage (int year, int tab)
+	{
+		String syear = String.valueOf(year);  //Quarter.HalfImages[tab]; 
+		String stab = String.valueOf(tab); 
+		boolean found = false;
+		   for (int i=0; i<Quarter.imagesHalf.size(); i+=1) {
+			  
+			   if (Quarter.imagesHalf.get(i)[0].equals(syear)) {
+				   // Year found, check half
+				   if (Quarter.imagesHalf.get(i)[1].equals(stab)) {
+					   // half found replace line
+					   Quarter.imagesHalf.remove(i) ;
+					   Quarter.HalfImages[tab]="";
+					   found= true;
+					   break;
+				   }
+			   }
+		   }
+		if (found) setHalfImage(year, tab);
 		
+	}
 	// Update today Label every sec
     private void startLabel2() {
         labelTimer = new javax.swing.Timer(1000, updateLabel2());
@@ -1322,12 +1396,7 @@ public class Calendrier {
 				Quarter.setYear(Year);
 				frmCalendrier.setTitle("Calendrier - " + syear);
 				int curpane = tabpane.getSelectedIndex(); 
-				switch (curpane) {
-				case 0 : if (Quarter.HalfImages [0].length() > 0) lblImage_1.setIcon(new StretchIcon(Quarter.HalfImages [0]));
-						 else lblImage_1.setIcon(new StretchIcon("image.jpg"));
-				case 1 : if (Quarter.HalfImages [1].length() > 0) lblImage_2.setIcon(new StretchIcon(Quarter.HalfImages [1]));
-						else lblImage_2.setIcon(new StretchIcon("image.jpg"));
-				}
+				setHalfImage(Year, curpane);
 				setSeasons(Year);
 				Quarter.repaint();
 			}
@@ -1358,29 +1427,8 @@ public class Calendrier {
 			tabpane.setSelectedIndex(curindex);
 		}
 		int curpane = tabpane.getSelectedIndex();
-		StretchIcon icon;
 		
-		switch (curpane) {
-			case 0 : if (Quarter.HalfImages [0].length() > 0) {
-						icon= new StretchIcon(Quarter.HalfImages [0]);		
-						lblImage_1.setIcon(icon);
-					}
-					 else {
-						 icon = new StretchIcon("image.jpg");
-						 lblImage_1.setIcon(icon);					}
-					if (!(icon.getImageLoadStatus()==8))  lblImage_1.setText(lblImage_1.getToolTipText());
-					else lblImage_1.setText("");
-			case 1 : if (Quarter.HalfImages [1].length() > 0) {
-						icon= new StretchIcon(Quarter.HalfImages [1]);	
-						lblImage_2.setIcon(icon);
-					}
-					else {
-						icon = new StretchIcon("image.jpg");
-						lblImage_2.setIcon(icon);
-					}
-					if (!(icon.getImageLoadStatus()==8))  lblImage_2.setText(lblImage_2.getToolTipText()); 
-					else lblImage_2.setText("");
-		}
+		setHalfImage(Year, curpane);
 		
 		// Gregorian calendar only 
 		if ((tabpane.getSelectedIndex() == 0) && (Year == 1583)) btnPrevious.setEnabled(false);
