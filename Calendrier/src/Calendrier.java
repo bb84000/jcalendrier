@@ -146,6 +146,7 @@ public class Calendrier {
 	private JLabel lblToday_2a;
 	private JButton btnPrevious;
 	private JMenuItem pMnuDelImage;
+	private JMenuItem pMnuPrefs;
 	
 	
 	
@@ -330,7 +331,7 @@ public class Calendrier {
 		tabpane.addTab("1er semestre", null, pane_h1, null);
 		GridBagLayout gbl_pane_h1 = new GridBagLayout();
 		gbl_pane_h1.columnWidths = new int[] { 313, 266, 266, 313, 0 };
-		gbl_pane_h1.rowHeights = new int[] { 400, 140, 34, 0 };
+		gbl_pane_h1.rowHeights = new int[] { 400, 150, 34, 0 };
 		gbl_pane_h1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
 				Double.MIN_VALUE };
 		gbl_pane_h1.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
@@ -484,9 +485,9 @@ public class Calendrier {
 		panelToday_1 = new JPanel();
 		panelToday_1.setBorder(new TitledBorder(null, "Aujourd'hui",
 				TitledBorder.LEFT, TitledBorder.TOP, null, null));
-		panelToday_1.setPreferredSize(new Dimension(10, 140));
+		panelToday_1.setPreferredSize(new Dimension(10, 150));
 		panelToday_1.setSize(new Dimension(0, 120));
-		panelToday_1.setMinimumSize(new Dimension(10, 120));
+		panelToday_1.setMinimumSize(new Dimension(10, 127));
 		panelToday_1.setMaximumSize(new Dimension(32767, 120));
 		panelToday_1.setLayout(null);
 		GridBagConstraints gbc_panelToday_1 = new GridBagConstraints();
@@ -512,7 +513,7 @@ public class Calendrier {
 		lblToday_1a = new JLabel("New label");
 		lblToday_1a.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblToday_1a.setVerticalAlignment(SwingConstants.TOP);
-		lblToday_1a.setBounds(10, 36, 245, 93);
+		lblToday_1a.setBounds(10, 34, 245, 100);
 		panelToday_1.add(lblToday_1a);
 
 		// panel selected day
@@ -585,7 +586,7 @@ public class Calendrier {
 
 		// label seasons right
 		lblSeasons_1b = new JLabel("Seasons");
-		lblSeasons_1b.setSize(new Dimension(255, 30));
+		lblSeasons_1b.setSize(new Dimension(245, 30));
 		lblSeasons_1b.setPreferredSize(new Dimension(245, 35));
 		lblSeasons_1b.setMinimumSize(new Dimension(245, 30));
 		lblSeasons_1b.setMaximumSize(new Dimension(40, 30));
@@ -605,7 +606,7 @@ public class Calendrier {
 		tabpane.addTab("2\u00E8me semestre", null, pane_h2, null);
 		GridBagLayout gbl_pane_h2 = new GridBagLayout();
 		gbl_pane_h2.columnWidths = new int[] { 313, 266, 266, 313, 0 };
-		gbl_pane_h2.rowHeights = new int[] { 400, 140, 34, 0 };
+		gbl_pane_h2.rowHeights = new int[] { 400, 150, 34, 0 };
 		gbl_pane_h2.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
 				Double.MIN_VALUE };
 		gbl_pane_h2.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
@@ -745,7 +746,7 @@ public class Calendrier {
 
 		// Panel Today
 		panelToday_2 = new JPanel();
-		panelToday_2.setPreferredSize(new Dimension(10, 140));
+		panelToday_2.setPreferredSize(new Dimension(10, 150));
 		panelToday_2.setBorder(new TitledBorder(null, "Aujourd'hui",
 				TitledBorder.LEFT, TitledBorder.TOP, null, null));
 		panelToday_2.setMinimumSize(new Dimension(10, 120));
@@ -771,7 +772,7 @@ public class Calendrier {
 		lblToday_2a = new JLabel("New label");
 		lblToday_2a.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblToday_2a.setVerticalAlignment(SwingConstants.TOP);
-		lblToday_2a.setBounds(10, 36, 245, 93);
+		lblToday_2a.setBounds(10, 34, 245, 93);
 		panelToday_2.add(lblToday_2a);
 
 		// panel selected day
@@ -823,14 +824,15 @@ public class Calendrier {
 				Double.MIN_VALUE };
 		gbl_panelSeasons_2.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
 		panelSeasons_2.setLayout(gbl_panelSeasons_2);
+		// left label
 		lblSeasons_2a = new JLabel("Seasons");
 		lblSeasons_2a.setMaximumSize(new Dimension(40, 30));
-		lblSeasons_2a.setMinimumSize(new Dimension(255, 30));
+		lblSeasons_2a.setMinimumSize(new Dimension(245, 30));
 		lblSeasons_2a.setSize(new Dimension(255, 30));
 		lblSeasons_2a.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblSeasons_2a.setVerticalTextPosition(SwingConstants.TOP);
 		lblSeasons_2a.setVerticalAlignment(SwingConstants.TOP);
-		lblSeasons_2a.setPreferredSize(new Dimension(255, 35));
+		lblSeasons_2a.setPreferredSize(new Dimension(245, 35));
 		GridBagConstraints gbc_lblSeasons_2a = new GridBagConstraints();
 		gbc_lblSeasons_2a.insets = new Insets(0, 8, 0, 0);
 		gbc_lblSeasons_2a.anchor = GridBagConstraints.NORTHWEST;
@@ -840,9 +842,9 @@ public class Calendrier {
 		lblSeasons_2b = new JLabel("Seasons");
 		lblSeasons_2b.setVerticalTextPosition(SwingConstants.TOP);
 		lblSeasons_2b.setVerticalAlignment(SwingConstants.TOP);
-		lblSeasons_2b.setSize(new Dimension(255, 30));
-		lblSeasons_2b.setPreferredSize(new Dimension(255, 35));
-		lblSeasons_2b.setMinimumSize(new Dimension(255, 30));
+		lblSeasons_2b.setSize(new Dimension(245, 30));
+		lblSeasons_2b.setPreferredSize(new Dimension(245, 35));
+		lblSeasons_2b.setMinimumSize(new Dimension(245, 30));
 		lblSeasons_2b.setMaximumSize(new Dimension(40, 30));
 		lblSeasons_2b.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		GridBagConstraints gbc_lblSeasons_2b = new GridBagConstraints();
@@ -853,12 +855,34 @@ public class Calendrier {
 		panelSeasons_2.add(lblSeasons_2b, gbc_lblSeasons_2b);
 		
 		
+		
 		// Popup half image
 		
 		ActionListener ppal = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//System.out.println(e);
-				chooseHalfImage(Year, tabpane.getSelectedIndex());
+				JMenuItem jmi = (JMenuItem) e.getSource();
+				String jminame = jmi.getName();
+				try {
+					// Choose an iamge
+					if (jminame.equals("pmnuchoose")) chooseHalfImage(Year, tabpane.getSelectedIndex());
+					// delete an image
+					if (jminame.equals("pmnudelete")) {
+						int index = tabpane.getSelectedIndex();
+						removeHalfImage(Year, index);
+					}
+					// show preferences dialog
+					if (jminame.equals("pmnuprefs")){
+						// Needs to memorize current location
+						CurLoc = frmCalendrier.getLocation();
+					    CurSize = frmCalendrier.getSize();
+					    
+						Config.setVisible(true);
+					}
+					// Show about dialog
+					if (jminame.equals("pmnuabout")) about.setVisible(true);
+				} catch (Exception e1) {
+					// do nothing item without name
+				}				
 			}
 		};
 		
@@ -868,21 +892,27 @@ public class Calendrier {
 		addPopup(lblImage_2, pMnuImage_h1);
 		
 		JMenuItem pMnuSelImage = new JMenuItem("Choisir une image");
+		pMnuSelImage.setName("pmnuchoose");
 		pMnuSelImage.addActionListener(ppal);
 			pMnuImage_h1.add(pMnuSelImage);
 		
 		pMnuDelImage = new JMenuItem("Effacer");
+		pMnuDelImage.setName("pmnudelete");
 		int index = tabpane.getSelectedIndex();
 		String s = Quarter.HalfImages [index+1];
 		pMnuDelImage.setText("Effacer "+s);
-		pMnuDelImage.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int index = tabpane.getSelectedIndex();
-				removeHalfImage(Year, index);
-				
-			}
-		});
+		pMnuDelImage.addActionListener(ppal);
 		pMnuImage_h1.add(pMnuDelImage);
+		
+		pMnuPrefs = new JMenuItem("Pr\u00E9f\u00E9rences");
+		pMnuPrefs.addActionListener(ppal);
+		pMnuPrefs.setName("pmnuprefs");
+		pMnuImage_h1.add(pMnuPrefs);
+		
+		JMenuItem pMnuAPropos = new JMenuItem("A propos");
+		pMnuAPropos.addActionListener(ppal);
+		pMnuAPropos.setName("pmnuabout");
+		pMnuImage_h1.add(pMnuAPropos);
 		
 		
 		setHalfImage(Year, 0);
@@ -1065,20 +1095,11 @@ public class Calendrier {
 
 		// Config dialog
 		pMnuConfig = new JMenuItem("Pr\u00E9f\u00E9rences");
+		pMnuConfig.setName("pmnuprefs");
 		pMnuGen.add(pMnuConfig);
 		
 		// Launch config popup menu
-		pMnuConfig.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// Needs to memorize current location
-				CurLoc = frmCalendrier.getLocation();
-			    CurSize = frmCalendrier.getSize();
-			    
-				Config.setVisible(true);
-			}
-		});	
-		
-		// Configuration dialog closed with OK
+		pMnuConfig.addActionListener(ppal);
 		Config.setName("dlgConfig");
 		Config.addComponentListener(ppca);
 
@@ -1093,26 +1114,28 @@ public class Calendrier {
 		about.lblVersion.setText("Version : "+Config.version+"."+Config.build);
 		// Place about box at frame center 
 		about.addComponentListener(ppca);	
-		/*String s0;
+		String s0;
 		try {
 			s0 = " - ";
 			s0 += Config.builddate.toString("dd/MM/yyyy");
 		} catch (Exception e1) {
 			// invalid or no date
 			s0="";
-		}*/
-		about.lblvendor.setText(Config.vendor+s);
+		}
+		about.lblvendor.setText(Config.vendor+s0);
 
 		// About menu item
 		pMnuAbout = new JMenuItem("A propos");
+		pMnuAbout.setName("pmnuabout");
 		
 		// Display aboutbox
-		pMnuAbout.addActionListener(new ActionListener() {
+		pMnuAbout.addActionListener(ppal);
+		/*new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				about.setVisible(true);
 			}
 			    
-			});
+			});*/
 		pMnuGen.add(pMnuAbout);
 		
 		
@@ -1238,6 +1261,13 @@ public class Calendrier {
 	// remove half year image
 	private void removeHalfImage (int year, int tab)
 	{
+		// are you sure ?
+		String s1 = new File(Quarter.HalfImages [tab]).getName();
+		int reply = JOptionPane.showConfirmDialog(null, "Voulez vous supprimer "+s1, "Calendrier", JOptionPane.YES_NO_OPTION);
+        if (reply != JOptionPane.YES_OPTION) {
+           return;
+        }
+        
 		String syear = String.valueOf(year);  //Quarter.HalfImages[tab]; 
 		String stab = String.valueOf(tab); 
 		boolean found = false;
@@ -1484,6 +1514,4 @@ public class Calendrier {
 			}
 		});
 	}
-	
-		
 }
