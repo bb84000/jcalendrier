@@ -1,3 +1,9 @@
+/**
+ * 
+ * Create plain color for Jchekboxes
+ * bb - october 2013
+ * 
+ */
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;

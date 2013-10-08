@@ -1,5 +1,7 @@
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -10,6 +12,15 @@ import javax.swing.JLabel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.Component;
+import java.awt.Color;
+import javax.swing.border.EtchedBorder;
 
 
 public class aboutBox extends JDialog {
@@ -21,7 +32,7 @@ public class aboutBox extends JDialog {
 	public JLabel lblprogname;
 	public JLabel lblVersion;
 	public JLabel lblvendor;
-	
+	public JLabel lblWebsite;
 	private final JPanel contentPanel = new JPanel();
 
 	/**
@@ -41,16 +52,10 @@ public class aboutBox extends JDialog {
 	 * Create the dialog.
 	 */
 	public aboutBox(JFrame frm) {
-
 		setResizable(false);
-		setBounds(100, 100, 360, 286);
-		//setTitle("A propos du Calendrier");
-		
-
-
+		setBounds(100, 100, 360, 230);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		
-
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -70,7 +75,7 @@ public class aboutBox extends JDialog {
 		lblprogname = new JLabel("text");
 		lblprogname.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblprogname.setHorizontalAlignment(SwingConstants.CENTER);
-		lblprogname.setBounds(73, 29, 206, 14);
+		lblprogname.setBounds(0, 30, 334, 14);
 		panel.add(lblprogname);
 		
 		
@@ -78,18 +83,48 @@ public class aboutBox extends JDialog {
 		lblVersion = new JLabel("text");
 		lblVersion.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblVersion.setHorizontalAlignment(SwingConstants.CENTER);
-		lblVersion.setBounds(73, 54, 206, 14);
+		lblVersion.setBounds(0, 55, 334, 14);
 		panel.add(lblVersion);
 		
 		
 		lblvendor = new JLabel("text");
 		lblvendor.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblvendor.setHorizontalAlignment(SwingConstants.CENTER);
-		lblvendor.setBounds(73, 80, 206, 14);
+		lblvendor.setBounds(0, 80, 334, 14);
 		panel.add(lblvendor);
+		
+		JPanel panel_website = new JPanel();
+		panel_website.setAlignmentY(0.0f);
+		panel_website.setAlignmentX(0.0f);
+		panel_website.setBounds(0, 105, 334, 14);
+		panel.add(panel_website);
+		((FlowLayout)panel_website.getLayout()).setVgap(0);
+		
+		JLabel lblsite = new JLabel("Site Web :");
+		lblsite.setBounds(new Rectangle(0, 0, 0, 14));
+		lblsite.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblsite.setAlignmentY(0.0f);
+		panel_website.add(lblsite);
+		
+		lblWebsite = new JLabel("New label");
+		lblWebsite.setForeground(Color.BLUE);
+		lblWebsite.setAlignmentX(Component.CENTER_ALIGNMENT);
+		lblWebsite.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent ev) {
+	            JLabel jl = (JLabel) ev.getComponent();
+				try {
+	                Desktop.getDesktop().browse(new URI(jl.getText()));
+	            } catch (IOException | URISyntaxException e) {
+	                // TODO Auto-generated catch block
+	            }
+			}
+		});
+		panel_website.add(lblWebsite);
 
 		// Button pane
 			JPanel buttonPane = new JPanel();
+			buttonPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 			buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{

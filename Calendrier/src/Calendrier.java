@@ -1,4 +1,4 @@
-/*
+/**
  * Base class for Calendrier application 
  * 
  * 
@@ -11,7 +11,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -32,7 +31,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
 import java.io.File;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -99,15 +97,14 @@ public class Calendrier {
 	private astro Astro = new astro();
 	// Class about box
 	private aboutBox about;
-
-	private JLabel lblNewLabel_1;
 	// popup menu to config and about
 	private JPopupMenu pMnuGen;
 	private JMenuItem pMnuConfig;
 	private JMenuItem pMnuAbout;
 
 	private JTextField YearField;
-
+	private JButton btnNext;
+	private JButton btnPrevious;
 
 	private JCheckBox cbMoon = new JCheckBox("Phases de la lune");
 	private JCheckBox cbVacA = new JCheckBox("Vacances Zone A");
@@ -144,7 +141,7 @@ public class Calendrier {
 	private int icounter;
 	private JLabel lblToday_1a;
 	private JLabel lblToday_2a;
-	private JButton btnPrevious;
+	//private JButton btnPrevious;
 	private JMenuItem pMnuDelImage;
 	private JMenuItem pMnuPrefs;
 	
@@ -271,6 +268,8 @@ public class Calendrier {
 				super.paint(g);
 			}
 		};
+		
+		
 
 		// Save user config data on close
 		frmCalendrier.addWindowListener(new WindowAdapter() {
@@ -308,8 +307,7 @@ public class Calendrier {
 		
 		// bottom panel for buttons
 		pane_bottom = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) pane_bottom.getLayout();
-		flowLayout.setHgap(15);
+
 		pane_bottom.setMaximumSize(new Dimension(1200, 32767));
 		pane_bottom.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null,
 				null, null));
@@ -917,11 +915,12 @@ public class Calendrier {
 		
 		setHalfImage(Year, 0);
 		setHalfImage(Year, 1);
+		cbMoon.setLocation(312, 8);
 		
 
 		// Moon phases checkboc
 		cbMoon.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		cbMoon.setSize(new Dimension(0, 24));
+		cbMoon.setSize(new Dimension(121, 23));
 		cbMoon.setMaximumSize(new Dimension(0, 24));
 		cbMoon.setMinimumSize(new Dimension(120, 24));
 		cbMoon.setPreferredSize(new Dimension(120, 24));
@@ -937,15 +936,21 @@ public class Calendrier {
 				frmCalendrier.repaint();
 			}
 		});
+		pane_bottom.setLayout(null);
 		pane_bottom.add(cbMoon);
-
-		//
-		lblNewLabel_1 = new JLabel(
-				"                                                       ");
-		pane_bottom.add(lblNewLabel_1);
 
 		// Year field
 		YearField = new JTextField();
+		YearField.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// center YearFiled
+				Point yfloc = YearField.getLocation();
+				
+				YearField.setLocation(yfloc);
+			}
+		});
+		YearField.setBounds(526, 9, 38, 20);
 		
 		YearField.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
@@ -974,6 +979,7 @@ public class Calendrier {
 		Image arrowl = Toolkit.getDefaultToolkit().getImage(
 				getClass().getResource("resources/arrowl.png"));
 		btnPrevious = new JButton("");
+		btnPrevious.setBounds(478, 7, 33, 25);
 		btnPrevious.setPreferredSize(new Dimension(33, 25));
 		btnPrevious.setIcon(new ImageIcon(arrowl));
 		btnPrevious.addActionListener(new ActionListener() {
@@ -994,7 +1000,8 @@ public class Calendrier {
 		// Bouton Semestre suivant
 		Image arrowr = Toolkit.getDefaultToolkit().getImage(
 				getClass().getResource("resources/arrowr.png"));
-		JButton btnNext = new JButton("");
+		btnNext = new JButton("");
+		btnNext.setBounds(579, 7, 33, 25);
 		btnNext.setPreferredSize(new Dimension(33, 25));
 		btnNext.setIcon(new ImageIcon(arrowr));
 		btnNext.addActionListener(new ActionListener() {
@@ -1007,6 +1014,7 @@ public class Calendrier {
 		// Holidays checkboxes
 		ImageIcon unchecked = new ImageIcon(this.getClass().getResource(
 				"/resources/cbmu.png"));
+		cbVacA.setBounds(627, 8, 121, 23);
 		cbVacA.setIcon(unchecked);
 		checkedA.colEdgeu = new Color(122, 138, 153);
 		cbVacA.setSelectedIcon(checkedA);
@@ -1020,6 +1028,7 @@ public class Calendrier {
 			}
 		});
 		pane_bottom.add(cbVacA);
+		cbVacB.setBounds(763, 8, 121, 23);
 
 		cbVacB.setIcon(unchecked);
 		checkedB.colEdgeu = new Color(122, 138, 153);
@@ -1034,6 +1043,7 @@ public class Calendrier {
 			}
 		});
 		pane_bottom.add(cbVacB);
+		cbVacC.setBounds(899, 8, 121, 23);
 
 		cbVacC.setIcon(unchecked);
 		checkedC.colEdgeu = new Color(122, 138, 153);
@@ -1090,6 +1100,7 @@ public class Calendrier {
 		
 		// Launch config popup menu;
 		pMnuGen = new JPopupMenu();
+		pMnuGen.setBounds(-10008, -10672, 111, 50);
 		pMnuGen.setLabel("Config");
 		addPopup(pane_bottom, pMnuGen);
 
@@ -1112,12 +1123,12 @@ public class Calendrier {
 		about.lblicon.setIcon(new StretchIcon(MainIcon));		
 		about.lblprogname.setText("Calendrier");
 		about.lblVersion.setText("Version : "+Config.version+"."+Config.build);
-		// Place about box at frame center 
+		about.lblWebsite.setText("www.sdtp.com");
 		about.addComponentListener(ppca);	
 		String s0;
 		try {
 			s0 = " - ";
-			s0 += Config.builddate.toString("dd/MM/yyyy");
+			s0 += Config.builddate.toString("dd/MM/yyyy HH:mm:ss");
 		} catch (Exception e1) {
 			// invalid or no date
 			s0="";
@@ -1130,16 +1141,7 @@ public class Calendrier {
 		
 		// Display aboutbox
 		pMnuAbout.addActionListener(ppal);
-		/*new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				about.setVisible(true);
-			}
-			    
-			});*/
 		pMnuGen.add(pMnuAbout);
-		
-		
-
 		
 		MouseMotionAdapter mma = new MouseMotionAdapter() {
 			  @Override
@@ -1192,8 +1194,44 @@ public class Calendrier {
 		}
 		// Apply configuration parameters
 		applyConfig();
-	  
+		
+		// Center buttons on botton pane
+		pane_bottom.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				
+				// Yearfield location
+				Point yrp = YearField.getLocation();
+				yrp.x = (pane_bottom.getWidth()/2)- (YearField.getWidth()/2) ;
+				YearField.setLocation(yrp);
+				// BtnNext
+				Point bnp = btnNext.getLocation();
+				bnp.x = yrp.x+ YearField.getWidth() + 10;
+				btnNext.setLocation(bnp); 
+				// btnPrevious
+				Point bpp = btnPrevious.getLocation();
+				bpp.x = yrp.x - btnPrevious.getWidth() - 10;
+				btnPrevious.setLocation(bpp);
+				// CB VacA
+				Point vap = cbVacA.getLocation();
+				vap.x= bnp.x + btnNext.getWidth() + 10;
+				cbVacA.setLocation(vap);
+				// CB VacB
+				Point vbp = cbVacB.getLocation();
+				vbp.x= vap.x + cbVacA.getWidth() + 10;
+				cbVacB.setLocation(vbp);		
+				// CB VacC
+				Point vcp = cbVacC.getLocation();
+				vcp.x= vbp.x + cbVacB.getWidth() + 10;
+				cbVacC.setLocation(vcp);		
+				// cbMoon
+				Point mnp = cbMoon.getLocation();
+				mnp.x = bpp.x- cbMoon.getWidth() -10;
+				cbMoon.setLocation(mnp);
 
+			}
+		});
+	
 	} // end initialization method
 	
 	
@@ -1514,4 +1552,8 @@ public class Calendrier {
 			}
 		});
 	}
+	
+	
+
+
 }
