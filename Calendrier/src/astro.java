@@ -1,4 +1,4 @@
-/*
+/**
  * Astro class
  * 
  * TimeDate getPaques(int year)

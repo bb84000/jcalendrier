@@ -164,7 +164,12 @@ public class dlgConfig extends JDialog {
 				tfLongitude.getDocument().addDocumentListener(dl);	
 				ntownind= townind;
 				cbTown.removeActionListener(al);
-				cbTown.setSelectedIndex(townind);
+				try {
+					cbTown.setSelectedIndex(townind);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					//e1.printStackTrace();
+				}
 				cbTown.addActionListener(al);
 				
 			}

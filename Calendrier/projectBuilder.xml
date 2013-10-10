@@ -1,32 +1,65 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="create_run_jar" name="Create Runnable Jar for Project Calendrier">
     <!--ANT 1.7 is required -->
-
+	<property environment="env"/>
+	<property name="ECLIPSE_HOME" value="../../../../../Program Files (x86)/Eclipse"/>
+	<property name="debuglevel" value="source,lines,vars"/>
+	<property name="target" value="1.7"/>
+	<property name="source" value="1.7"/>
+	
+	<path id="Calendrier.classpath">
+	        <pathelement location="bin"/>
+	        <pathelement location="src/libs/joda-time-2.3.jar"/>
+	</path>
+	
+	<!-- We delete bin directory created by a previous build -->
+	<!-- to be sure it exists, we create it, easyer than testing its existence !!!-->
+	<target name="clean">
+		<mkdir dir="bin"/>
+		<delete includeEmptyDirs="true">
+		    <fileset dir="bin" /> 
+		</delete>
+		<mkdir dir="bin/resources/" />
+		<mkdir dir="bin/libs/" />
+	</target>
+	
 	<target name="increment-version-code">
-		
-		
 		<propertyfile file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties">
 			<entry key="build.number" type="int" default="1" operation="+" value="1" />
-			
 		</propertyfile>
 	</target>
-
-    <target name="create_run_jar">
+	
+	<target name="update_properties">
 		<tstamp>
 			<format property="timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
 		</tstamp>
-     	
-    	<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   	
-    	
-    	<propertyfile file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties">
+		
+		<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   	
+		
+		<propertyfile file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties">
 			<entry key="Specification-Version" value="0.5.0" />
-    		<entry key="Specification-Vendor" value="sdtp - bb" />
-    		<entry key="Implementation-Version" value="${build.number}"/>
-    		<entry key="Build-Date" value= "${timestamp}"/>
+			<entry key="Specification-Vendor" value="sdtp - bb" />
+			<entry key="Implementation-Version" value="${build.number}"/>
+			<entry key="Build-Date" value= "${timestamp}"/>
 		</propertyfile>
-    	
-
-			
+	</target>
+	
+	<target name="compile">
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+	            <src path="src"/>
+	            <classpath refid="Calendrier.classpath"/>
+		</javac>
+		<!-- copy resources and libs in bin directory to allow run -->
+		<copy todir="bin/resources">
+		    <fileset dir="src/resources"/>
+		</copy>
+		<copy todir="bin/libs">
+		    <fileset dir="src/libs"/>
+		</copy>
+	</target>
+	
+	<target name="create_run_jar">
+    	<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   	
 		<jar destfile="C:/Users/Bernard/git/calendrier/Calendrier/calendrier.jar">
 	         <manifest>
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
@@ -35,8 +68,8 @@
                 <attribute name="Rsrc-Class-Path" value="./ joda-time-2.3.jar javax.json-1.0.2.jar"/>
                 <attribute name="Specification-Version" value="${Specification-Version}" />
     		    <attribute name="Specification-Vendor" value="${Specification-Vendor}" />
-            	<attribute name="Implementation-Version" value="${build.number}"/>
-         		<attribute name="Build-Date" value="${timestamp}"/>
+            	<attribute name="Implementation-Version" value="${Implementation-Version}"/>
+         		<attribute name="Build-Date" value="${Build-Date}"/>
         	</manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
             <!-- We do not need a libs folder as the libraries are needed in the root of the jar file -->
