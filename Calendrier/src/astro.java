@@ -7,7 +7,7 @@
  * 	Wikipedia http://fr.wikipedia.org/wiki/Calcul_de_la_date_de_P%C3%A2ques
  * 
  * void GetMoonDays(String[][] MoonDays, int year)
- * 	Fill an array with moon phases dates and type 
+ * 	Fill an array with moon phases dates and type (UTC)
  * 		variable passed MoonDays must have at least 56 rows and 2 columns
  * 	
  * boolean isLeapYear(int year)
@@ -24,11 +24,11 @@
  * 	returns fractional par of a double
  * 
  * DateTime GetSaisonDate(int year, int num) 
- *  returns date of new season
+ *  returns date of new season (UTC)
  *  num : spring 0, summer 1, autumn 2, winter 3
  * 
  * DateTime calcSunrise(DateTime dt, double latitude, double longitude, boolean rise)
- *  Return sunrise (rise = true) and sunset (rise = false)
+ *  Return sunrise (rise = true) and sunset (rise = false) in UTC
  * 
  * sunrise and sunset based on parts of code from NOAA Solar Calculator
  * at http://www.srrb.noaa.gov/highlights/sunrise/sunrise.html    

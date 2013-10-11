@@ -1505,8 +1505,6 @@ public class Calendrier {
 	}
 
 	
-	
-	
 	// Set seasons panels
 	public void setSeasons(int year) {
 		// Set seasons pane

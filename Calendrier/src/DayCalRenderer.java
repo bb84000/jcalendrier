@@ -230,6 +230,7 @@ implements	TableCellRenderer
 			for (int i=0; i<56; i+=1) {
 				try {
 					tmpMoonD = formatter.parseDateTime(MoonDays[i][0]);
+					tmpMoonD = tmpMoonD.plusMinutes(Astr.getTZOff(tmpMoonD));
 					CalDay tmpDay =YearDays.get(tmpMoonD.getDayOfYear()-1);
 					tmpDay.typelune = MoonDays[i][1] ;
 					tmpDay.timelune= tmpMoonD;

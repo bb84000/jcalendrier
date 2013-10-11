@@ -11,6 +11,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -35,6 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -134,9 +136,11 @@ public class dlgConfig extends JDialog {
 	private JComboBox<String> cbTown ;
 	private JTextField tfLatitude;
 	private JTextField tfLongitude;
+	private JLabel lblpath;
 	
 	// Config dialog constructor
 	public dlgConfig(JFrame frm) {
+		getContentPane().setPreferredSize(new Dimension(0, 15));
 		setResizable(false);
 		setTitle("Pr\u00E9f\u00E9rences");
 		
@@ -177,12 +181,12 @@ public class dlgConfig extends JDialog {
 		
 		// dialog initialization
 		setModalityType(ModalityType.APPLICATION_MODAL);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 450, 366);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{434, 0};
-		gridBagLayout.rowHeights = new int[]{232, 33, 0};
+		gridBagLayout.rowHeights = new int[]{232, 33, 15, 0};
 		gridBagLayout.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
 		getContentPane().setLayout(gridBagLayout);
 		{
 			// Main panel
@@ -195,9 +199,9 @@ public class dlgConfig extends JDialog {
 			getContentPane().add(panel_main, gbc_panel_main);
 			GridBagLayout gbl_panel_main = new GridBagLayout();
 			gbl_panel_main.columnWidths = new int[]{220, 220, 0};
-			gbl_panel_main.rowHeights = new int[]{94, 116, 0, 0};
-			gbl_panel_main.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-			gbl_panel_main.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+			gbl_panel_main.rowHeights = new int[]{94, 110, 50, 0};
+			gbl_panel_main.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+			gbl_panel_main.rowWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
 			panel_main.setLayout(gbl_panel_main);
 			
 			{	// Colors panel
@@ -205,7 +209,7 @@ public class dlgConfig extends JDialog {
 				panel_colors.setBorder(new TitledBorder(null, "Couleurs", TitledBorder.LEFT, TitledBorder.TOP, new Font("Tahoma", Font.BOLD, 11), null));
 				panel_colors.setLayout(null);
 				GridBagConstraints gbc_panel_colors = new GridBagConstraints();
-				gbc_panel_colors.insets = new Insets(5, 5, 0, 0);
+				gbc_panel_colors.insets = new Insets(5, 5, 5, 5);
 				gbc_panel_colors.fill = GridBagConstraints.BOTH;
 				gbc_panel_colors.gridx = 0;
 				gbc_panel_colors.gridy = 0;
@@ -290,7 +294,7 @@ public class dlgConfig extends JDialog {
 			panel_display.setBorder(new TitledBorder(null, "Affichage", TitledBorder.LEADING, TitledBorder.TOP, new Font("Tahoma", Font.BOLD, 11), null));
 			panel_display.setLayout(null);
 			GridBagConstraints gbc_panel_display = new GridBagConstraints();
-			gbc_panel_display.insets = new Insets(5, 3, 0, 2);
+			gbc_panel_display.insets = new Insets(5, 3, 5, 4);
 			gbc_panel_display.fill = GridBagConstraints.BOTH;
 			gbc_panel_display.gridx = 1;
 			gbc_panel_display.gridy = 0;
@@ -321,7 +325,7 @@ public class dlgConfig extends JDialog {
 			panel_coord.setLayout(null);
 			GridBagConstraints gbc_panel_coord = new GridBagConstraints();
 			gbc_panel_coord.gridwidth = 2;
-			gbc_panel_coord.insets = new Insets(0, 5, 0, 2);
+			gbc_panel_coord.insets = new Insets(0, 5, 5, 4);
 			gbc_panel_coord.fill = GridBagConstraints.BOTH;
 			gbc_panel_coord.gridx = 0;
 			gbc_panel_coord.gridy = 1;
@@ -396,6 +400,23 @@ public class dlgConfig extends JDialog {
 			tfLongitude.setBounds(65, 75, 202, 20);
 			tfLongitude.getDocument().putProperty("owner", "lon"); 
 			panel_coord.add(tfLongitude);
+			
+			JPanel panel_path = new JPanel();
+			panel_path.setFont(new Font("Tahoma", Font.BOLD, 11));
+			panel_path.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Emplacement des fichiers de configuration", TitledBorder.LEFT, TitledBorder.TOP, new Font("Tahoma", Font.BOLD, 11), null));
+			panel_path.setLayout(null);
+			GridBagConstraints gbc_panel_path = new GridBagConstraints();
+			gbc_panel_path.gridwidth = 2;
+			gbc_panel_path.insets = new Insets(0, 5, 3, 4);
+			gbc_panel_path.fill = GridBagConstraints.BOTH;
+			gbc_panel_path.gridx = 0;
+			gbc_panel_path.gridy = 2;
+			panel_main.add(panel_path, gbc_panel_path);
+			
+			lblpath = new JLabel("Path");
+			lblpath.setBounds(10, 20, 415, 14);
+			lblpath.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			panel_path.add(lblpath);
 		} // end main panel
 		
 		{	// Buttons pane
@@ -448,16 +469,45 @@ public class dlgConfig extends JDialog {
 				cancelButton.setMinimumSize(new Dimension(65, 23));
 				cancelButton.setMaximumSize(new Dimension(65, 23));
 				buttonPane.add(cancelButton);
+				
 				// Cancel button event processing
 				cancelButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						dispose();
 					}
-				});
+				});		
+				
+				JPanel panel_status = new JPanel();
+				panel_status.setBounds(new Rectangle(0, 0, 0, 13));
+				FlowLayout fl_panel_status = (FlowLayout) panel_status.getLayout();
+				fl_panel_status.setAlignment(FlowLayout.LEFT);
+				GridBagConstraints gbc_panel_status = new GridBagConstraints();
+				gbc_panel_status.anchor = GridBagConstraints.SOUTH;
+				gbc_panel_status.fill = GridBagConstraints.HORIZONTAL;
+				gbc_panel_status.gridx = 0;
+				gbc_panel_status.gridy = 2;
+				getContentPane().add(panel_status, gbc_panel_status);
+				
+				JLabel lblStatus = new JLabel("New label");
+				lblStatus.setPreferredSize(new Dimension(435, 12));
+				lblStatus.setBounds(new Rectangle(0, 0, 0, 15));
+				lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 11));
+				lblStatus.setHorizontalTextPosition(SwingConstants.LEFT);
+				lblStatus.setHorizontalAlignment(SwingConstants.LEFT);
+				panel_status.add(lblStatus);
+				String s = System.getProperty("os.name");
+				s += " v"+System.getProperty("os.version");
+				s += " ("+System.getProperty("os.arch")+")";
+				s += " - Java runtime v"+System.getProperty("java.version");
+				
+				lblStatus.setText(s);
+				
 			}
 		} // end button pane
 
 	} // end constructor dlgConfig
+	
+	
 
 	private void changecoord(DocumentEvent e) {
 		//if //System.out.println(e.getDocument().getProperty("owner"));	
@@ -540,7 +590,12 @@ public class dlgConfig extends JDialog {
 				else config_file= workingDirectory+"/"+config_file;
 			}
 		}
-
+		// display path
+		String wd = workingDirectory.replace('\\', '/');
+		lblpath.setText(wd);
+		// In case the text is too long, set tooltip
+		lblpath.setToolTipText(wd);
+		
 		// Read towns file and populate combo box
 		towns = new bArrayList();
 		towns.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/villes.csv" ),"cp1252");
@@ -715,5 +770,4 @@ public class dlgConfig extends JDialog {
 		e.setTextContent(svalue);
 		return  e;
 	}
-	
 }
