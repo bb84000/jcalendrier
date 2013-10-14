@@ -10,7 +10,23 @@
 	<path id="Calendrier.classpath">
 	        <pathelement location="bin"/>
 	        <pathelement location="src/libs/joda-time-2.3.jar"/>
+			<pathelement location="src/libs/aboutbox.jar"/>
 	</path>
+
+	<tstamp>
+		<format property="timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
+	</tstamp>	
+
+	<target name="increment-version-code">
+		<propertyfile file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties">
+			<entry key="build.number" type="int" default="1" operation="+" value="1" />
+		</propertyfile>
+	</target>
+	
+	<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   
+	<property name="bldnum" value="${build.number}"/>
+	<property name="spever" value="0.5.0"/>
+	<property name="spevnd" value="sdtp - bb" />
 	
 	<!-- We delete bin directory created by a previous build -->
 	<!-- to be sure it exists, we create it, easyer than testing its existence !!!-->
@@ -23,23 +39,11 @@
 		<mkdir dir="bin/libs/" />
 	</target>
 	
-	<target name="increment-version-code">
-		<propertyfile file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties">
-			<entry key="build.number" type="int" default="1" operation="+" value="1" />
-		</propertyfile>
-	</target>
-	
 	<target name="update_properties">
-		<tstamp>
-			<format property="timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
-		</tstamp>
-		
-		<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   	
-		
 		<propertyfile file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties">
-			<entry key="Specification-Version" value="0.5.0" />
-			<entry key="Specification-Vendor" value="sdtp - bb" />
-			<entry key="Implementation-Version" value="${build.number}"/>
+			<entry key="Specification-Version" value= "${spever}" />
+			<entry key="Specification-Vendor" value="${spevnd}" />
+			<entry key="Implementation-Version" value="${bldnum}"/>
 			<entry key="Build-Date" value= "${timestamp}"/>
 		</propertyfile>
 	</target>
@@ -58,6 +62,7 @@
 		</copy>
 	</target>
 	
+	
 	<target name="create_run_jar">
     	<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   	
 		<jar destfile="C:/Users/Bernard/git/calendrier/Calendrier/calendrier.jar">
@@ -65,11 +70,11 @@
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="Calendrier"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ joda-time-2.3.jar javax.json-1.0.2.jar"/>
-                <attribute name="Specification-Version" value="${Specification-Version}" />
-    		    <attribute name="Specification-Vendor" value="${Specification-Vendor}" />
-            	<attribute name="Implementation-Version" value="${Implementation-Version}"/>
-         		<attribute name="Build-Date" value="${Build-Date}"/>
+                <attribute name="Rsrc-Class-Path" value="./ joda-time-2.3.jar aboutbox.jar"/>
+                <attribute name="Specification-Version" value="${spever}" />
+    		    <attribute name="Specification-Vendor" value="${spevnd}" />
+            	<attribute name="Implementation-Version" value="${bldnum}"/>
+         		<attribute name="Build-Date" value="${timestamp}"/>
         	</manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
             <!-- We do not need a libs folder as the libraries are needed in the root of the jar file -->
@@ -79,6 +84,7 @@
             	<exclude name="**/resources/" />
             </fileset>	
 			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="joda-time-2.3.jar"/>
+			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="aboutbox.jar"/>
 			<fileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\\">
 				<exclude name="**/libs/"/>
 				<exclude name="**/*.java"/>

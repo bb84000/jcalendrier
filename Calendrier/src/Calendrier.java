@@ -1124,6 +1124,7 @@ public class Calendrier {
 		about.lblprogname.setText("Calendrier");
 		about.lblVersion.setText("Version : "+Config.version+"."+Config.build);
 		about.lblWebsite.setText("www.sdtp.com");
+		about.urlUpdate = "www.sdtp.com/versions/version.php?program=jcalendrier&version="+Config.version+"."+Config.build;  
 		about.addComponentListener(ppca);	
 		String s0;
 		try {

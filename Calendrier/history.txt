@@ -37,3 +37,13 @@ Version 0.5.0.123 - 11/10/2013
 - Corrected moon phases times from UTC to local time;
 - Added OS and Java versions in config dialog  status bar
 - Added configuration files path in the config dialog
+
+Version 0.5.0.124 - 14/10/2013
+- Added utility class
+- bug corrected launch url under OS X
+- Added check update link in about box
+- About box in aboutbox.jar library
+- changed ANT file to refect proper version and build time in manifest
+
+
+ 

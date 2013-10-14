@@ -1,26 +1,24 @@
 import java.awt.BorderLayout;
-import java.awt.Desktop;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.SwingConstants;
 import javax.swing.JLabel;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Rectangle;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.Component;
-import java.awt.Color;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+
+import java.awt.Font;
 
 
 public class aboutBox extends JDialog {
@@ -33,6 +31,8 @@ public class aboutBox extends JDialog {
 	public JLabel lblVersion;
 	public JLabel lblvendor;
 	public JLabel lblWebsite;
+	public String urlUpdate = "";
+	
 	private final JPanel contentPanel = new JPanel();
 
 	/**
@@ -53,7 +53,7 @@ public class aboutBox extends JDialog {
 	 */
 	public aboutBox(JFrame frm) {
 		setResizable(false);
-		setBounds(100, 100, 360, 230);
+		setBounds(100, 100, 360, 249);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		
 		getContentPane().setLayout(new BorderLayout());
@@ -62,7 +62,7 @@ public class aboutBox extends JDialog {
 		contentPanel.setLayout(null);
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 11, 334, 206);
+		panel.setBounds(10, 11, 334, 165);
 		contentPanel.add(panel);
 		panel.setLayout(null);
 		
@@ -73,6 +73,7 @@ public class aboutBox extends JDialog {
 		
 		// Program name 
 		lblprogname = new JLabel("text");
+		lblprogname.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblprogname.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblprogname.setHorizontalAlignment(SwingConstants.CENTER);
 		lblprogname.setBounds(0, 30, 334, 14);
@@ -81,6 +82,7 @@ public class aboutBox extends JDialog {
 		
 		// Version
 		lblVersion = new JLabel("text");
+		lblVersion.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblVersion.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblVersion.setHorizontalAlignment(SwingConstants.CENTER);
 		lblVersion.setBounds(0, 55, 334, 14);
@@ -88,6 +90,7 @@ public class aboutBox extends JDialog {
 		
 		
 		lblvendor = new JLabel("text");
+		lblvendor.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblvendor.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblvendor.setHorizontalAlignment(SwingConstants.CENTER);
 		lblvendor.setBounds(0, 80, 334, 14);
@@ -101,26 +104,42 @@ public class aboutBox extends JDialog {
 		((FlowLayout)panel_website.getLayout()).setVgap(0);
 		
 		JLabel lblsite = new JLabel("Site Web :");
+		lblsite.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblsite.setBounds(new Rectangle(0, 0, 0, 14));
 		lblsite.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblsite.setAlignmentY(0.0f);
 		panel_website.add(lblsite);
 		
-		lblWebsite = new JLabel("New label");
-		lblWebsite.setForeground(Color.BLUE);
-		lblWebsite.setAlignmentX(Component.CENTER_ALIGNMENT);
-		lblWebsite.addMouseListener(new MouseAdapter() {
+		MouseListener ml = new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent ev) {
 	            JLabel jl = (JLabel) ev.getComponent();
 				try {
-	                Desktop.getDesktop().browse(new URI(jl.getText()));
-	            } catch (IOException | URISyntaxException e) {
+					if (jl.getName().equals("lblWebsite")) bbutils.openURL(jl.getText());
+					else if (jl.getName().equals("lblChkUpdate")) bbutils.openURL(urlUpdate);
+					
+	            } catch (Exception e) {
 	                // TODO Auto-generated catch block
 	            }
 			}
-		});
+		};
+		lblWebsite = new JLabel("New label");
+		lblWebsite.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblWebsite.setName("lblWebsite");
+		lblWebsite.setForeground(Color.BLUE);
+		lblWebsite.setAlignmentX(Component.CENTER_ALIGNMENT);
+		lblWebsite.addMouseListener(ml);
 		panel_website.add(lblWebsite);
+		
+		JLabel lblChkUpdate = new JLabel("Recherche de mise \u00E0 jour");
+		lblChkUpdate.setName("lblChkUpdate");
+		lblChkUpdate.setForeground(Color.BLUE);
+		lblChkUpdate.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblChkUpdate.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblChkUpdate.setHorizontalAlignment(SwingConstants.CENTER);
+		lblChkUpdate.setBounds(0, 130, 334, 14);
+		lblChkUpdate.addMouseListener(ml);
+		panel.add(lblChkUpdate);
 
 		// Button pane
 			JPanel buttonPane = new JPanel();
