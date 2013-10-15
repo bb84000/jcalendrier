@@ -1,4 +1,7 @@
+package bb.arraylist;
+
 /**
+
  * ArrayList <String[] with CSV load and save functions 
  * 
  * boolean readCSVfile(String filename [, String csname])

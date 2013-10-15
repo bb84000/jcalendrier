@@ -31,6 +31,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
 import java.io.File;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -60,6 +61,9 @@ import javax.swing.table.JTableHeader;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import bb.aboutbox.aboutBox;
+import bb.utils.bbutils;
 
 import java.awt.Insets;
 
@@ -1232,7 +1236,26 @@ public class Calendrier {
 
 			}
 		});
-	
+		
+		// Version check if Config.nochknewverck false and 7 days after previous one
+		if (Config.chknewver) {
+			String ver = "";
+			DateTime nextupd = 	Config.lastupdchk.plusDays(7);
+			if (nextupd.isBeforeNow()) {
+				ver = chknewversion.getLastVersion("jcalendrier");
+				if (ver.length() > 0) {
+					Config.lastupdchk = new DateTime();					
+					if (chknewversion.VersionToInt(ver) > chknewversion.VersionToInt(Config.version+"."+Config.build)) {
+						// Click on YES button
+						if (JOptionPane.showConfirmDialog(null, "Une nouvelle version "+ver+" est disponible.\n Voulez-vous la télécharger ?",  "Calendrier", JOptionPane.YES_NO_OPTION)== JOptionPane.OK_OPTION) {
+							bbutils.openURL(about.urlUpdate);
+						}
+					}
+				}
+			}
+		}
+			
+		
 	} // end initialization method
 	
 	

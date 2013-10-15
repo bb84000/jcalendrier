@@ -59,6 +59,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import bb.arraylist.*;
 
 // Config dialog main class
 public class dlgConfig extends JDialog {
@@ -84,11 +85,13 @@ public class dlgConfig extends JDialog {
 	public boolean dispVacA = false;
 	public boolean dispVacB = false;
 	public boolean dispVacC = false;
+	public boolean chknewver = true;
+	public DateTime  lastupdchk = null;
 	private double ParisLat = 48.86223;	//Paris
-	private double ParisLon = 2.351074;	//Paris
 	public double Latitude = ParisLat;
-	private double nLatitude;
+	private double ParisLon = 2.351074;	//Paris
 	public double Longitude = ParisLon;
+	private double nLatitude;
 	private double nLongitude;
 	public String version = "";
 	public String build ="";
@@ -100,7 +103,7 @@ public class dlgConfig extends JDialog {
 	private int townind;
 	private int ntownind;
 	public ArrayList <String[]> manifest= null;
-	private String config_file = "config.json";
+	private String config_file = "calendrier.config.xml";
 	private ActionListener al;
 	private DocumentListener dl;
 	private static final long serialVersionUID = 1L;
@@ -127,6 +130,7 @@ public class dlgConfig extends JDialog {
 	private JButton okButton ;
 	private JCheckBox cbPos;
 	private JCheckBox cbMoon;
+	private JCheckBox cbChknewver;
 	private JCheckBox cbVacScol;
 	private JButton btnBack;
 	private JButton btnSunday;
@@ -309,14 +313,20 @@ public class dlgConfig extends JDialog {
 			cbMoon = new JCheckBox("Sauvegarde phases de la Lune");
 			cbMoon.setSelected(false);
 			cbMoon.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			cbMoon.setBounds(6, 38, 200, 23);
+			cbMoon.setBounds(6, 35, 200, 23);
 			panel_display.add(cbMoon);
 
 			cbVacScol = new JCheckBox("Sauvegarde des vacances scolaires");
 			cbVacScol.setSelected(false);
 			cbVacScol.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			cbVacScol.setBounds(6, 61, 200, 23);
+			cbVacScol.setBounds(6, 55, 200, 23);
 			panel_display.add(cbVacScol);
+			
+			cbChknewver = new JCheckBox("Recherche de mise \u00E0 jour");
+			cbChknewver.setSelected(false);
+			cbChknewver.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			cbChknewver.setBounds(6, 75, 200, 23);
+			panel_display.add(cbChknewver);
 
 			JPanel panel_coord = new JPanel();
 			panel_coord.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -446,6 +456,7 @@ public class dlgConfig extends JDialog {
 						savePos = cbPos.isSelected();
 						saveMoon = cbMoon.isSelected();
 						saveVacScol = cbVacScol.isSelected();
+						chknewver = cbChknewver.isSelected();
 						colback= ncolback;
 						colsun= ncolsun;
 						colvacA= ncolvacA;
@@ -681,6 +692,20 @@ public class dlgConfig extends JDialog {
 	            	else if (cNode.getNodeName().equals("latitude")) nLatitude = Double.parseDouble(s);	
 	            	else if (cNode.getNodeName().equals("longitude")) nLongitude = Double.parseDouble(s);	
 	            	else if (cNode.getNodeName().equals("town")) ntown = s;
+	            	else if (cNode.getNodeName().equals("chknewver")) {
+	            		chknewver= s.equalsIgnoreCase("true");
+	            		cbChknewver.setSelected(chknewver);
+	            	}
+	            	else if (cNode.getNodeName().equals("lastupdchk")) {
+	            		try {
+							DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+							lastupdchk= formatter.parseDateTime(s);
+						} catch (Exception e) {
+							// date absent or invalid
+							lastupdchk= new DateTime(2013,10,1,0,0,1);
+						}
+	            		 
+	            	}
 	            }
 	        }
 	        // Search towns list for current town
@@ -742,6 +767,8 @@ public class dlgConfig extends JDialog {
 				el.appendChild(createXMLEntry(configXML,"latitude", "double", Latitude));
 				el.appendChild(createXMLEntry(configXML,"longitude", "double", Longitude));
 				el.appendChild(createXMLEntry(configXML,"town", "string", town));
+				el.appendChild(createXMLEntry(configXML,"chknewver", "boolean", chknewver));
+				el.appendChild(createXMLEntry(configXML,"lastupdchk", "string", lastupdchk.toString("yyyy-MM-dd")));
 		        configXML.appendChild(el);
 		        // The XML document we created above is still in memory
 		        //  create DOM source, then sagve it to file

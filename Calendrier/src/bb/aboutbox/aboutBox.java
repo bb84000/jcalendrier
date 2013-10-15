@@ -1,3 +1,5 @@
+package bb.aboutbox;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -19,7 +21,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
 import java.awt.Font;
-
+import bb.utils.*;
 
 public class aboutBox extends JDialog {
 	/**
