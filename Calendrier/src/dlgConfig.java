@@ -86,7 +86,7 @@ public class dlgConfig extends JDialog {
 	public boolean dispVacB = false;
 	public boolean dispVacC = false;
 	public boolean chknewver = true;
-	public DateTime  lastupdchk = null;
+	public DateTime  lastupdchk = new DateTime(2013,10,1,0,0,1);
 	private double ParisLat = 48.86223;	//Paris
 	public double Latitude = ParisLat;
 	private double ParisLon = 2.351074;	//Paris

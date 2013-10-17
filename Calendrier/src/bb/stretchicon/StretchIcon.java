@@ -1,3 +1,4 @@
+package bb.stretchicon;
 /**
  * @(#)StretchIcon.java	1.0 03/27/12
  */

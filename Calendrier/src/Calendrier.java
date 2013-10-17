@@ -63,6 +63,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import bb.aboutbox.aboutBox;
+import bb.stretchicon.StretchIcon;
 import bb.utils.bbutils;
 
 import java.awt.Insets;
@@ -1119,26 +1120,17 @@ public class Calendrier {
 		Config.addComponentListener(ppca);
 
 
-		// About dialogimplementationVersion
+		// About dialog implementationVersion
 		about = new aboutBox(frmCalendrier);
-		about.setTitle("A propos du Calendrier");
-		about.setIconImage(MainIcon);
-		about.setName("dlgAbout");
-		about.lblicon.setIcon(new StretchIcon(MainIcon));		
-		about.lblprogname.setText("Calendrier");
-		about.lblVersion.setText("Version : "+Config.version+"."+Config.build);
-		about.lblWebsite.setText("www.sdtp.com");
-		about.urlUpdate = "www.sdtp.com/versions/version.php?program=jcalendrier&version="+Config.version+"."+Config.build;  
+		
+		about.setImage(MainIcon);
+		about.setProgram("Calendrier", "A propos du ");
+		about.setVersion("Version : "+Config.version+"."+Config.build);		
+		about.setVendor(Config.vendor, Config.builddate);
+		about.setWebsite("Site Web","www.sdtp.com" );
+		about.setURLupdate("Recherche de mise à jour", "www.sdtp.com/versions/version.php?program=jcalendrier&version="+Config.version+"."+Config.build, "Dernière mise à jour", Config.lastupdchk);
 		about.addComponentListener(ppca);	
-		String s0;
-		try {
-			s0 = " - ";
-			s0 += Config.builddate.toString("dd/MM/yyyy HH:mm:ss");
-		} catch (Exception e1) {
-			// invalid or no date
-			s0="";
-		}
-		about.lblvendor.setText(Config.vendor+s0);
+		
 
 		// About menu item
 		pMnuAbout = new JMenuItem("A propos");

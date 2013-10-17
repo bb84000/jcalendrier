@@ -1,9 +1,12 @@
 package bb.aboutbox;
 
+
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,7 +23,11 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
+import org.joda.time.DateTime;
+
 import java.awt.Font;
+
+import bb.stretchicon.StretchIcon;
 import bb.utils.*;
 
 public class aboutBox extends JDialog {
@@ -28,11 +35,13 @@ public class aboutBox extends JDialog {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public JLabel lblicon;
-	public JLabel lblprogname;
-	public JLabel lblVersion;
-	public JLabel lblvendor;
-	public JLabel lblWebsite;
+	private JLabel lblicon;
+	private JLabel lblprogname;
+	private JLabel lblVersion;
+	private JLabel lblvendor;
+	private JLabel lblsitecaption;
+	private JLabel lblWebsite;
+	private JLabel lblChkUpdate;
 	public String urlUpdate = "";
 	
 	private final JPanel contentPanel = new JPanel();
@@ -54,8 +63,9 @@ public class aboutBox extends JDialog {
 	 * Create the dialog.
 	 */
 	public aboutBox(JFrame frm) {
+		setName("dlgAbout");
 		setResizable(false);
-		setBounds(100, 100, 360, 249);
+		setBounds(100, 100, 360, 225);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		
 		getContentPane().setLayout(new BorderLayout());
@@ -78,7 +88,7 @@ public class aboutBox extends JDialog {
 		lblprogname.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblprogname.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblprogname.setHorizontalAlignment(SwingConstants.CENTER);
-		lblprogname.setBounds(0, 30, 334, 14);
+		lblprogname.setBounds(0, 11, 334, 14);
 		panel.add(lblprogname);
 		
 		
@@ -87,7 +97,7 @@ public class aboutBox extends JDialog {
 		lblVersion.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblVersion.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblVersion.setHorizontalAlignment(SwingConstants.CENTER);
-		lblVersion.setBounds(0, 55, 334, 14);
+		lblVersion.setBounds(0, 36, 334, 14);
 		panel.add(lblVersion);
 		
 		
@@ -95,34 +105,36 @@ public class aboutBox extends JDialog {
 		lblvendor.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblvendor.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblvendor.setHorizontalAlignment(SwingConstants.CENTER);
-		lblvendor.setBounds(0, 80, 334, 14);
+		lblvendor.setBounds(0, 61, 334, 14);
 		panel.add(lblvendor);
 		
 		JPanel panel_website = new JPanel();
 		panel_website.setAlignmentY(0.0f);
 		panel_website.setAlignmentX(0.0f);
-		panel_website.setBounds(0, 105, 334, 14);
+		panel_website.setBounds(0, 86, 334, 14);
 		panel.add(panel_website);
 		((FlowLayout)panel_website.getLayout()).setVgap(0);
 		
-		JLabel lblsite = new JLabel("Site Web :");
-		lblsite.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblsite.setBounds(new Rectangle(0, 0, 0, 14));
-		lblsite.setHorizontalTextPosition(SwingConstants.CENTER);
-		lblsite.setAlignmentY(0.0f);
-		panel_website.add(lblsite);
+		lblsitecaption = new JLabel("Site Web :");
+		lblsitecaption.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblsitecaption.setBounds(new Rectangle(0, 0, 0, 14));
+		lblsitecaption.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblsitecaption.setAlignmentY(0.0f);
+		panel_website.add(lblsitecaption);
 		
 		MouseListener ml = new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent ev) {
-	            JLabel jl = (JLabel) ev.getComponent();
-				try {
-					if (jl.getName().equals("lblWebsite")) bbutils.openURL(jl.getText());
-					else if (jl.getName().equals("lblChkUpdate")) bbutils.openURL(urlUpdate);
-					
-	            } catch (Exception e) {
-	                // TODO Auto-generated catch block
-	            }
+			public void mousePressed(MouseEvent ev) {
+				// double clic event !
+				if (ev.getClickCount()==2) {
+					JLabel jl = (JLabel) ev.getComponent();
+					try {
+						if (jl.getName().equals("lblWebsite")) bbutils.openURL(jl.getText());
+						else if (jl.getName().equals("lblChkUpdate")) bbutils.openURL(urlUpdate);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+					}
+				}
 			}
 		};
 		lblWebsite = new JLabel("New label");
@@ -133,13 +145,13 @@ public class aboutBox extends JDialog {
 		lblWebsite.addMouseListener(ml);
 		panel_website.add(lblWebsite);
 		
-		JLabel lblChkUpdate = new JLabel("Recherche de mise \u00E0 jour");
+		lblChkUpdate = new JLabel("Recherche de mise \u00E0 jour");
 		lblChkUpdate.setName("lblChkUpdate");
 		lblChkUpdate.setForeground(Color.BLUE);
 		lblChkUpdate.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblChkUpdate.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblChkUpdate.setHorizontalAlignment(SwingConstants.CENTER);
-		lblChkUpdate.setBounds(0, 130, 334, 14);
+		lblChkUpdate.setBounds(0, 111, 334, 14);
 		lblChkUpdate.addMouseListener(ml);
 		panel.add(lblChkUpdate);
 
@@ -161,5 +173,49 @@ public class aboutBox extends JDialog {
 				getRootPane().setDefaultButton(okButton);
 			}
 		
+	}
+	
+	public void setImage (Image img) {
+		setIconImage(img);
+		lblicon.setIcon(new StretchIcon(img));
+	}
+	public void setProgram(String name, String title) {
+		setTitle(title+name);
+		lblprogname.setText(name);
+	}
+	
+	public void setVersion (String ver) {
+		lblVersion.setText(ver);
+	}
+	
+	public void setVendor (String name, DateTime blddate) {
+		String s0;
+		try {
+			s0 = " - ";
+			s0 += blddate.toString("dd/MM/yyyy HH:mm:ss");
+		} catch (Exception e1) {
+			// invalid or no date
+			s0="";
+		}
+		lblvendor.setText(name+s0);
+	}
+	
+	public void setWebsite (String caption, String url) {
+		lblsitecaption.setText(caption);
+		lblWebsite.setText(url);
+	}
+	
+	public void setURLupdate (String caption, String url, String tooltip, DateTime lastupdate) {
+		lblChkUpdate.setText(caption);
+		String s0;
+		try {
+			s0 = " : ";
+			s0 += lastupdate.toString("dd/MM/yyyy");
+		} catch (Exception e1) {
+			// invalid or no date
+			s0="";
+		}
+		lblChkUpdate.setToolTipText(tooltip+s0);
+		urlUpdate = url;
 	}
 }

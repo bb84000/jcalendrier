@@ -67,7 +67,6 @@
 		    <fileset dir="src/bb"/>
 		</copy>
 	</target>
-	
 
 	<target name="create_run_jar">
     	<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   	
@@ -76,7 +75,7 @@
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="Calendrier"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ joda-time-2.3.jar aboutbox.jar bArrayList.jar bbutils.jar"/>
+                <attribute name="Rsrc-Class-Path" value="./ joda-time-2.3.jar aboutbox.jar bArrayList.jar bbutils.jar stretchicon.jar"/>
                 <attribute name="Specification-Version" value="${spever}" />
     		    <attribute name="Specification-Vendor" value="${spevnd}" />
             	<attribute name="Implementation-Version" value="${bldnum}"/>
@@ -94,6 +93,7 @@
 			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="aboutbox.jar"/>
 			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="bArrayList.jar"/>
 			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="bbutils.jar"/>
+			<zipfileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\libs" includes="stretchicon.jar"/>
 			<fileset dir="C:\Users\Bernard\git\calendrier\Calendrier\src\\" >
 				<exclude name="**/libs/"/>
 				<exclude name="**/*.java"/>

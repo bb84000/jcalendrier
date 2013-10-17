@@ -135,8 +135,8 @@ implements	TableCellRenderer
 		String sntfile = "saints.csv";
 
 		if (workingDirectory.length()> 0) sntfile = workingDirectory+"/saints.csv";
-		if (!saints.readCSVfile(sntfile, "cp1252")) {
-			saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv" ),"cp1252");
+		if (!saints.readCSVfile(sntfile, "Cp1252")) {
+			saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv" ),"Cp1252");
 		}
 
 
@@ -148,7 +148,7 @@ implements	TableCellRenderer
 		String ferfile = "ferie.csv";
 		if (workingDirectory.length()> 0) ferfile = workingDirectory+"/ferie.csv";
 		if (!feries.readCSVfile(ferfile)) {
-			feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"));
+			feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"), "Cp1252");
 		}
 
 		// Scolar holidays
