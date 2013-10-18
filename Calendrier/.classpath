@@ -7,5 +7,9 @@
 			<attribute name="javadoc_location" value="jar:file:/C:/Users/Bernard/workspace/sources/joda-time-2.3-sources.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="src/libs/aboutbox.jar"/>
+	<classpathentry kind="lib" path="src/libs/bArrayList.jar"/>
+	<classpathentry kind="lib" path="src/libs/bbutils.jar"/>
+	<classpathentry kind="lib" path="src/libs/stretchicon.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

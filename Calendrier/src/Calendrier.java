@@ -16,6 +16,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -24,6 +25,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -48,10 +51,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -64,16 +70,6 @@ import org.joda.time.format.DateTimeFormatter;
 
 import bb.aboutbox.aboutBox;
 import bb.stretchicon.StretchIcon;
-import bb.utils.bbutils;
-
-import java.awt.Insets;
-
-import javax.swing.border.TitledBorder;
-import javax.swing.UIManager;
-import javax.swing.ListSelectionModel;
-
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 public class Calendrier {
 
 	private JFrame frmCalendrier;	private JPanel pane_bottom;
@@ -149,7 +145,6 @@ public class Calendrier {
 	//private JButton btnPrevious;
 	private JMenuItem pMnuDelImage;
 	private JMenuItem pMnuPrefs;
-	
 	
 	
 	/**
@@ -882,7 +877,14 @@ public class Calendrier {
 						Config.setVisible(true);
 					}
 					// Show about dialog
-					if (jminame.equals("pmnuabout")) about.setVisible(true);
+					if (jminame.equals("pmnuabout")) {
+						// to know if we have searched update in aboutbox
+						about.lstUpdate= null;
+						about.setVisible(true);
+					   	if (about.lstUpdate != null) {
+					   		Config.lastupdchk= about.lstUpdate;
+					   	}
+					}
 				} catch (Exception e1) {
 					// do nothing item without name
 				}				
@@ -1128,7 +1130,7 @@ public class Calendrier {
 		about.setVersion("Version : "+Config.version+"."+Config.build);		
 		about.setVendor(Config.vendor, Config.builddate);
 		about.setWebsite("Site Web","www.sdtp.com" );
-		about.setURLupdate("Recherche de mise à jour", "www.sdtp.com/versions/version.php?program=jcalendrier&version="+Config.version+"."+Config.build, "Dernière mise à jour", Config.lastupdchk);
+		about.setURLupdate("Recherche de mise à jour", "www.sdtp.com/versions/version.php?program=jcalendrier&version="+Config.version+"."+Config.build, "Dernière recherche de mise à jour", Config.lastupdchk);
 		about.addComponentListener(ppca);	
 		
 
@@ -1229,21 +1231,16 @@ public class Calendrier {
 			}
 		});
 		
+		
+        
 		// Version check if Config.nochknewverck false and 7 days after previous one
 		if (Config.chknewver) {
 			String ver = "";
 			DateTime nextupd = 	Config.lastupdchk.plusDays(7);
 			if (nextupd.isBeforeNow()) {
-				ver = chknewversion.getLastVersion("jcalendrier");
-				if (ver.length() > 0) {
-					Config.lastupdchk = new DateTime();					
-					if (chknewversion.VersionToInt(ver) > chknewversion.VersionToInt(Config.version+"."+Config.build)) {
-						// Click on YES button
-						if (JOptionPane.showConfirmDialog(null, "Une nouvelle version "+ver+" est disponible.\n Voulez-vous la télécharger ?",  "Calendrier", JOptionPane.YES_NO_OPTION)== JOptionPane.OK_OPTION) {
-							bbutils.openURL(about.urlUpdate);
-						}
-					}
-				}
+				Config.lastupdchk = new DateTime ();
+				chknewversion.getLastVersion("jcalendrier", "http://www.sdtp.com/versions/versions.csv", Config.version+"."+Config.build, about.urlUpdate);
+				//chknewversion.getLastVersion("jcalendrier", "http://www.sdtp.com/versions/versions.csv", "0.5.0.0", about.urlUpdate);
 			}
 		}
 			

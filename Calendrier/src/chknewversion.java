@@ -1,40 +1,64 @@
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
-import bb.arraylist.*; 
+import javax.swing.JOptionPane;
+
+import bb.arraylist.bArrayList;
+import bb.utils.bbutils;
+import java.io.OutputStream;
 
 
 public class chknewversion {
-	
-	
-	public static String getLastVersion(String program) {
-		String version = "";
-		URL url;
-		try {
-			url = new URL("http://www.sdtp.com/versions/versions.csv");
-			InputStream is = url.openStream();
-			/* Now read the retrieved document from the stream. */
-			bArrayList al = new bArrayList();
-			al.setSeparator(';');
-			al.readCSVstream(is);
-			if (!al.isEmpty()) {
-				Iterator<String[]> itr = al.iterator();
-				while(itr.hasNext()) {
-					String [] element =  itr.next();
-					if (element[0].equals(program)) {
-						version= element[1];
-						break;
+	private static String version;
+		
+	public static void getLastVersion(String program, String urs, String curver, String urlupdate) {
+		final String prog = program;
+		final String cver = curver;
+		final String urlup = urlupdate;
+		
+		// Create the event notifier and pass ourself to it.
+	    FileDownload req = new FileDownload (new FileDownloadEvent() {
+	            // Define the actual handler for the event.
+	            
+				public void dataReadProgress (int done, int total, byte[] data)
+	            {
+	                //System.out.println("Progress: " + ((float)done/(float)total) * 100 + "%");
+	            }
+	            
+	            public void done (boolean error, InputStream is) 
+	            {
+	            	bArrayList al = new bArrayList();
+                	al.setSeparator(';');
+                	al.readCSVstream(is); 
+                	if (!al.isEmpty()) {
+                		Iterator<String[]> itr = al.iterator();
+                		while(itr.hasNext()) {
+                			String [] element =  itr.next();
+                			if (element[0].equals(prog)) {
+                				version= element[1];
+                				break;
+                			}
+                		} 
+                	}
+	            	try {
+						if (version.length() > 0) {
+							if (VersionToInt(version) > VersionToInt(cver)){
+								if (JOptionPane.showConfirmDialog(null, "Une nouvelle version "+version+" est disponible.\n Voulez-vous la télécharger ?",  "Calendrier", JOptionPane.YES_NO_OPTION)== JOptionPane.OK_OPTION) {
+									bbutils.openURL(urlup);
+								}
+							}
+						}
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						//e.printStackTrace();
 					}
-				}
-			}
-			is.close();
-		} catch (Exception e1) {
-			// Connection error
-			return "";
-		}
-		return version;
+	            }
+	        });
+	        req.request(urs);
+
 	}
 	
 	public static long VersionToInt (String version) {

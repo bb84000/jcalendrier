@@ -43,6 +43,7 @@ public class aboutBox extends JDialog {
 	private JLabel lblWebsite;
 	private JLabel lblChkUpdate;
 	public String urlUpdate = "";
+	public DateTime lstUpdate = null;
 	
 	private final JPanel contentPanel = new JPanel();
 
@@ -130,7 +131,10 @@ public class aboutBox extends JDialog {
 					JLabel jl = (JLabel) ev.getComponent();
 					try {
 						if (jl.getName().equals("lblWebsite")) bbutils.openURL(jl.getText());
-						else if (jl.getName().equals("lblChkUpdate")) bbutils.openURL(urlUpdate);
+						else if (jl.getName().equals("lblChkUpdate")) {
+							bbutils.openURL(urlUpdate);
+							lstUpdate = new DateTime();
+						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 					}
