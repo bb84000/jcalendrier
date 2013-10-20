@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
@@ -65,7 +67,9 @@ import bb.arraylist.*;
 public class dlgConfig extends JDialog {
 	
 	// Configuration variables
+	public String OS;
 	public String workingDirectory;
+	public String execDirectory;
 	public Dimension size = new Dimension (1200,720);
 	public Point location = new Point(0,0);
 	public Color colback= new Color(255,255,255);
@@ -86,6 +90,7 @@ public class dlgConfig extends JDialog {
 	public boolean dispVacB = false;
 	public boolean dispVacC = false;
 	public boolean chknewver = true;
+	public boolean loadstart = false;
 	public DateTime  lastupdchk = new DateTime(2013,10,1,0,0,1);
 	private double ParisLat = 48.86223;	//Paris
 	public double Latitude = ParisLat;
@@ -130,7 +135,6 @@ public class dlgConfig extends JDialog {
 	private JButton okButton ;
 	private JCheckBox cbPos;
 	private JCheckBox cbMoon;
-	private JCheckBox cbChknewver;
 	private JCheckBox cbVacScol;
 	private JButton btnBack;
 	private JButton btnSunday;
@@ -141,6 +145,8 @@ public class dlgConfig extends JDialog {
 	private JTextField tfLatitude;
 	private JTextField tfLongitude;
 	private JLabel lblpath;
+	private JCheckBox cbChknewver;
+	private JCheckBox cbStartup;
 	
 	// Config dialog constructor
 	public dlgConfig(JFrame frm) {
@@ -179,13 +185,15 @@ public class dlgConfig extends JDialog {
 					//e1.printStackTrace();
 				}
 				cbTown.addActionListener(al);
-				
+
+				cbStartup.setSelected(loadstart);
+
 			}
 		});
 		
 		// dialog initialization
 		setModalityType(ModalityType.APPLICATION_MODAL);
-		setBounds(100, 100, 450, 366);
+		setBounds(100, 100, 450, 385);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{434, 0};
 		gridBagLayout.rowHeights = new int[]{232, 33, 15, 0};
@@ -203,7 +211,7 @@ public class dlgConfig extends JDialog {
 			getContentPane().add(panel_main, gbc_panel_main);
 			GridBagLayout gbl_panel_main = new GridBagLayout();
 			gbl_panel_main.columnWidths = new int[]{220, 220, 0};
-			gbl_panel_main.rowHeights = new int[]{94, 110, 50, 0};
+			gbl_panel_main.rowHeights = new int[]{110, 110, 78, 0};
 			gbl_panel_main.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 			gbl_panel_main.rowWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
 			panel_main.setLayout(gbl_panel_main);
@@ -313,20 +321,14 @@ public class dlgConfig extends JDialog {
 			cbMoon = new JCheckBox("Sauvegarde phases de la Lune");
 			cbMoon.setSelected(false);
 			cbMoon.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			cbMoon.setBounds(6, 35, 200, 23);
+			cbMoon.setBounds(6, 40, 200, 23);
 			panel_display.add(cbMoon);
 
 			cbVacScol = new JCheckBox("Sauvegarde des vacances scolaires");
 			cbVacScol.setSelected(false);
 			cbVacScol.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			cbVacScol.setBounds(6, 55, 200, 23);
+			cbVacScol.setBounds(6, 65, 200, 23);
 			panel_display.add(cbVacScol);
-			
-			cbChknewver = new JCheckBox("Recherche de mise \u00E0 jour");
-			cbChknewver.setSelected(false);
-			cbChknewver.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			cbChknewver.setBounds(6, 75, 200, 23);
-			panel_display.add(cbChknewver);
 
 			JPanel panel_coord = new JPanel();
 			panel_coord.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -411,22 +413,40 @@ public class dlgConfig extends JDialog {
 			tfLongitude.getDocument().putProperty("owner", "lon"); 
 			panel_coord.add(tfLongitude);
 			
-			JPanel panel_path = new JPanel();
-			panel_path.setFont(new Font("Tahoma", Font.BOLD, 11));
-			panel_path.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Emplacement des fichiers de configuration", TitledBorder.LEFT, TitledBorder.TOP, new Font("Tahoma", Font.BOLD, 11), null));
-			panel_path.setLayout(null);
-			GridBagConstraints gbc_panel_path = new GridBagConstraints();
-			gbc_panel_path.gridwidth = 2;
-			gbc_panel_path.insets = new Insets(0, 5, 3, 4);
-			gbc_panel_path.fill = GridBagConstraints.BOTH;
-			gbc_panel_path.gridx = 0;
-			gbc_panel_path.gridy = 2;
-			panel_main.add(panel_path, gbc_panel_path);
+			JPanel panel_system = new JPanel();
+			panel_system.setFont(new Font("Tahoma", Font.BOLD, 11));
+			panel_system.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Syst\u00E8me", TitledBorder.LEFT, TitledBorder.TOP, new Font("Tahoma", Font.BOLD, 11), null));
+			panel_system.setLayout(null);
+			GridBagConstraints gbc_panel_system = new GridBagConstraints();
+			gbc_panel_system.gridwidth = 2;
+			gbc_panel_system.insets = new Insets(0, 5, 3, 4);
+			gbc_panel_system.fill = GridBagConstraints.BOTH;
+			gbc_panel_system.gridx = 0;
+			gbc_panel_system.gridy = 2;
+			panel_main.add(panel_system, gbc_panel_system);
 			
 			lblpath = new JLabel("Path");
-			lblpath.setBounds(10, 20, 415, 14);
+			lblpath.setBounds(118, 20, 307, 14);
 			lblpath.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			panel_path.add(lblpath);
+			panel_system.add(lblpath);
+			
+			cbChknewver = new JCheckBox("Recherche de mise \u00E0 jour");
+			cbChknewver.setSelected(false);
+			cbChknewver.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			cbChknewver.setBounds(10, 41, 200, 23);
+			panel_system.add(cbChknewver);
+			
+			JLabel lblpathcaption = new JLabel("Dossier utilisateur");
+			lblpathcaption.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			lblpathcaption.setBounds(15, 20, 93, 14);
+			panel_system.add(lblpathcaption);
+			
+
+			cbStartup = new JCheckBox("Lancer au d\u00E9marrage");
+			//cbStartup.setSelected(false);
+			cbStartup.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			cbStartup.setBounds(225, 41, 200, 23);
+			panel_system.add(cbStartup);
 		} // end main panel
 		
 		{	// Buttons pane
@@ -466,6 +486,12 @@ public class dlgConfig extends JDialog {
 						Latitude = nLatitude;
 						Longitude = nLongitude;
 						townind= ntownind;
+						// load at startup changed 
+						if (loadstart != cbStartup.isSelected()) {
+							loadstart= cbStartup.isSelected();
+							if (loadstart) processStartup(true);
+							else processStartup(false);
+						}
 						//saveConfig();
 						setVisible(false);
 					}
@@ -506,7 +532,7 @@ public class dlgConfig extends JDialog {
 				lblStatus.setHorizontalTextPosition(SwingConstants.LEFT);
 				lblStatus.setHorizontalAlignment(SwingConstants.LEFT);
 				panel_status.add(lblStatus);
-				String s = System.getProperty("os.name");
+				String s = OS;
 				s += " v"+System.getProperty("os.version");
 				s += " ("+System.getProperty("os.arch")+")";
 				s += " - Java runtime v"+System.getProperty("java.version");
@@ -519,7 +545,24 @@ public class dlgConfig extends JDialog {
 	} // end constructor dlgConfig
 	
 	
-
+	private void processStartup(boolean load){
+		if (load) {
+			// Windows. Create a shortcut in user startup
+			// Todo check if jar or exe
+			if (OS.contains("WIN")) {
+				shortcut.createWinShortcut(execDirectory,"calendrier.jar", "calendrier.lnk") ;	
+			}
+		}
+		else {
+			// Windows. Create a shortcut in 
+			if (OS.contains("WIN")) {
+				shortcut.deleteWinShortcut("calendrier.lnk");
+			}
+		}
+		
+	
+	}
+	
 	private void changecoord(DocumentEvent e) {
 		//if //System.out.println(e.getDocument().getProperty("owner"));	
 		cbTown.removeActionListener(al);
@@ -571,7 +614,7 @@ public class dlgConfig extends JDialog {
 	public void set_config_file(String s) {
 		config_file = s;
 		// Working directory
-		String OS = (System.getProperty("os.name")).toUpperCase();
+		OS = (System.getProperty("os.name")).toUpperCase();
 		if (OS.contains("WIN")) workingDirectory = System.getenv("AppData");	// Win location of the "AppData" folder
 		else if (OS.contains("MAC")) workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
 		else workingDirectory = System.getProperty("user.home"); //Otherwise, we assume Linux
@@ -606,6 +649,17 @@ public class dlgConfig extends JDialog {
 		lblpath.setText(wd);
 		// In case the text is too long, set tooltip
 		lblpath.setToolTipText(wd);
+		
+		execDirectory= ClassLoader.getSystemClassLoader().getResource(".").getPath();
+		try {
+			execDirectory = URLDecoder.decode(execDirectory, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			//
+		}
+		// remove leading "/" if exists
+		if (execDirectory.charAt(0)=='/') execDirectory= execDirectory.substring(1);
+				
+		
 		
 		// Read towns file and populate combo box
 		towns = new bArrayList();
@@ -706,6 +760,11 @@ public class dlgConfig extends JDialog {
 						}
 	            		 
 	            	}
+	            	else if (cNode.getNodeName().equals("loadstart")) {
+	            		loadstart = s.equalsIgnoreCase("true");
+	            		cbStartup.setSelected(loadstart);
+
+	            	}
 	            }
 	        }
 	        // Search towns list for current town
@@ -769,6 +828,7 @@ public class dlgConfig extends JDialog {
 				el.appendChild(createXMLEntry(configXML,"town", "string", town));
 				el.appendChild(createXMLEntry(configXML,"chknewver", "boolean", chknewver));
 				el.appendChild(createXMLEntry(configXML,"lastupdchk", "string", lastupdchk.toString("yyyy-MM-dd")));
+				el.appendChild(createXMLEntry(configXML,"loadstart", "boolean", loadstart));
 		        configXML.appendChild(el);
 		        // The XML document we created above is still in memory
 		        //  create DOM source, then sagve it to file

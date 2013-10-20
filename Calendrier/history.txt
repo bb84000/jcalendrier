@@ -57,3 +57,10 @@ Version 0.6.0.3 - 18/10/2013
  - Changed update check update with a non blocking routine
  - Ant script now generate a windows exe
  
+Version 0.6.0.4 - 20/10/2013
+ - Some changes to new version check
+ - File Download placed in a library
+ - Added option to launch jar at startup (windows only, other os later)
+ 
+
+ 

@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="src/libs/bArrayList.jar"/>
 	<classpathentry kind="lib" path="src/libs/bbutils.jar"/>
 	<classpathentry kind="lib" path="src/libs/stretchicon.jar"/>
+	<classpathentry kind="lib" path="src/libs/filedownload.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

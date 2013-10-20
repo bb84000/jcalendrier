@@ -93,11 +93,11 @@ public class bArrayList extends ArrayList<String[]>{
     
     // read stream w/o charset support
     public boolean readCSVstream(InputStream is) {
-    	InputStreamReader r = new InputStreamReader(is);
-		try {
+ 		try {
+			InputStreamReader r = new InputStreamReader(is);
 			if (is.available()>0) return readstream (r);
 			else return false;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			return false;
 		}	

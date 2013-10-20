@@ -1232,18 +1232,22 @@ public class Calendrier {
 		});
 		
 		
-        
+        		
+
 		// Version check if Config.nochknewverck false and 7 days after previous one
 		if (Config.chknewver) {
-			String ver = "";
 			DateTime nextupd = 	Config.lastupdchk.plusDays(7);
 			if (nextupd.isBeforeNow()) {
 				Config.lastupdchk = new DateTime ();
-				chknewversion.getLastVersion("jcalendrier", "http://www.sdtp.com/versions/versions.csv", Config.version+"."+Config.build, about.urlUpdate);
-				//chknewversion.getLastVersion("jcalendrier", "http://www.sdtp.com/versions/versions.csv", "0.5.0.0", about.urlUpdate);
+				chknewversion chknewver = new chknewversion(); 
+				chknewver.setProgname("Calendrier");
+				chknewver.setVersionURL("http://www.sdtp.com/versions/versions.csv");
+        		chknewver.setUpdateURL(about.urlUpdate);
+				//chknewver.getLastVersion("jcalendrier",  Config.version+"."+Config.build);
+				chknewver.getLastVersion("jcalendrier", "0.5.0.0");
 			}
 		}
-			
+		//shortcut.createWinShortcut() ;
 		
 	} // end initialization method
 	
