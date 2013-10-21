@@ -147,6 +147,7 @@ public class dlgConfig extends JDialog {
 	private JLabel lblpath;
 	private JCheckBox cbChknewver;
 	private JCheckBox cbStartup;
+	private JLabel lblStatus;
 	
 	// Config dialog constructor
 	public dlgConfig(JFrame frm) {
@@ -525,19 +526,14 @@ public class dlgConfig extends JDialog {
 				gbc_panel_status.gridy = 2;
 				getContentPane().add(panel_status, gbc_panel_status);
 				
-				JLabel lblStatus = new JLabel("New label");
+				lblStatus = new JLabel("New label");
 				lblStatus.setPreferredSize(new Dimension(435, 12));
 				lblStatus.setBounds(new Rectangle(0, 0, 0, 15));
 				lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 11));
 				lblStatus.setHorizontalTextPosition(SwingConstants.LEFT);
 				lblStatus.setHorizontalAlignment(SwingConstants.LEFT);
 				panel_status.add(lblStatus);
-				String s = OS;
-				s += " v"+System.getProperty("os.version");
-				s += " ("+System.getProperty("os.arch")+")";
-				s += " - Java runtime v"+System.getProperty("java.version");
 				
-				lblStatus.setText(s);
 				
 			}
 		} // end button pane
@@ -552,11 +548,18 @@ public class dlgConfig extends JDialog {
 			if (OS.contains("WIN")) {
 				shortcut.createWinShortcut(execDirectory,"calendrier.jar", "calendrier.lnk") ;	
 			}
+			else if (OS.contains("NUX")) {
+				shortcut.createLinuxShortcut(execDirectory, "calendrier.jar", "Calendrier.desktop");
+						
+			}
 		}
 		else {
 			// Windows. Create a shortcut in 
 			if (OS.contains("WIN")) {
 				shortcut.deleteWinShortcut("calendrier.lnk");
+			}
+			else if (OS.contains("NUX")) {
+				shortcut.deleteLinuxShortcut("Calendrier.desktop");
 			}
 		}
 		
@@ -614,7 +617,8 @@ public class dlgConfig extends JDialog {
 	public void set_config_file(String s) {
 		config_file = s;
 		// Working directory
-		OS = (System.getProperty("os.name")).toUpperCase();
+		String os = System.getProperty("os.name");
+		OS = os.toUpperCase();
 		if (OS.contains("WIN")) workingDirectory = System.getenv("AppData");	// Win location of the "AppData" folder
 		else if (OS.contains("MAC")) workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
 		else workingDirectory = System.getProperty("user.home"); //Otherwise, we assume Linux
@@ -644,8 +648,17 @@ public class dlgConfig extends JDialog {
 				else config_file= workingDirectory+"/"+config_file;
 			}
 		}
+		// SEt status text
+		String st = os;
+		st += " v"+System.getProperty("os.version");
+		st += " ("+System.getProperty("os.arch")+")";
+		st += " - Java runtime v"+System.getProperty("java.version");
+		
+		lblStatus.setText(st);
 		// display path
 		String wd = workingDirectory.replace('\\', '/');
+		
+		
 		lblpath.setText(wd);
 		// In case the text is too long, set tooltip
 		lblpath.setToolTipText(wd);

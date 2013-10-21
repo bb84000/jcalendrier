@@ -1247,7 +1247,7 @@ public class Calendrier {
 				chknewver.getLastVersion("jcalendrier", "0.5.0.0");
 			}
 		}
-		//shortcut.createWinShortcut() ;
+		
 		
 	} // end initialization method
 	

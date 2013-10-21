@@ -60,7 +60,9 @@ Version 0.6.0.3 - 18/10/2013
 Version 0.6.0.4 - 20/10/2013
  - Some changes to new version check
  - File Download placed in a library
- - Added option to launch jar at startup (windows only, other os later)
+ - Added option to launch jar at logon (windows only, other os later)
  
-
+Version 0.6.0.5 - 21/10/2013
+ - Launch jar at logon enabled for Linux (Gnome and KDE) tests are welcome
+ 
  
