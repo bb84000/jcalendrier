@@ -1,3 +1,9 @@
+/*
+ * Create shortcuts in Windows startup folder
+ * .desktop in linux autostart folder
+ * .plist file in Os X LaunchAgents folder
+ */
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -5,8 +11,10 @@ import java.io.InputStream;
 
 public class shortcut {
 	
-	// create link in startup folder;
-	public static void createWinShortcut(String appPath, String appName, String shcutname) {
+	// create link in Windows startup folder;
+	public static void createWinShortcut(String appPath, String appName, String param, String shcutname, String icon) {
+			
+		// Create vbs script to create shortcut 
 		try {
 			String tmpdir = System.getProperty("java.io.tmpdir");
 			File file = new File(tmpdir+"/creshcut.vbs");
@@ -21,9 +29,10 @@ public class shortcut {
 			String content = "Set Shell = CreateObject(\"WScript.Shell\")\r\n";
 			content += "startupDir = Shell.SpecialFolders(\"Startup\")\r\n";
 			content += "Set link= Shell.CreateShortcut(startupDir & \"\\"+shcutname+"\")\r\n";
-			content += "link.Arguments =  \"-jar \"\""+appPath+appName+"\"\"\"\r\n";
+			content += "link.Arguments = \"-jar \"\""+appPath+appName+"\"\" "+param+"\"\r\n";
+			content += "link.IconLocation = \""+icon+"\"\r\n";
 			content += "link.WindowStyle = 7  \r\n"; 
-			content += "link.TargetPath = \"java\"\r\n";
+			content += "link.TargetPath = \"javaw.exe\" \r\n";
 			content += "link.WorkingDirectory = \""+appPath+"\"\r\n";
 			content += "link.Save\r\n";
 	
@@ -55,7 +64,7 @@ public class shortcut {
 			String tmpdir = System.getProperty("java.io.tmpdir");
 			File file = new File(tmpdir+"/delshcut.vbs");
 			FileOutputStream	fop = new FileOutputStream(file);
-
+					
 			// if file doesnt exists, then create it
 			if (!file.exists()) {
 				file.createNewFile();
@@ -91,8 +100,12 @@ public class shortcut {
 	
 	// Create LInux shortcut
 	
-	public static void createLinuxShortcut(String appPath, String appName, String shcutname) {
+	public static void createLinuxShortcut(String appPath, String appName, String param, String shcutname, String icon) {
+	
+		// Create desktop file
 		try {
+			
+			
 			String home =System.getProperty("user.home")+"/";
 			File file= null;
 			// Gnome and consorts
@@ -105,14 +118,15 @@ public class shortcut {
 			else if (new File(kde4dir).exists() && new File(kde4dir).isDirectory()) file = new File(kde4dir+shcutname);
 			FileOutputStream	fop = new FileOutputStream(file);
 			
-			// if file doesnt exists, then create it
+			// if file doesn't exists, then create it
 			if (!file.exists()) {
 				file.createNewFile();
 			}
 			// Create .desktop file
 			String content = "[Desktop Entry]\r\n";
 			content += "Type=Application\r\n";
-			content += "Exec=java -jar /\""+appPath+appName+"\"\r\n";
+			content += "Exec=java -jar \""+appPath+appName+"\" "+param+"\r\n";
+			content += "Icon= "+icon+"\r\n";
 			content += "Hidden=false\r\n";
 			content += "NoDisplay=false\r\n";
 			content += "X-GNOME-Autostart-enabled=true\r\n";
@@ -146,5 +160,65 @@ public class shortcut {
 		if (new File(gnomefile).exists()) (new File(gnomefile)).delete();
 		else if (new File(kdefile).exists()) (new File(kdefile)).delete();
 		else if (new File(kde4file).exists()) (new File(kde4file+shcutname)).delete();
+	}
+	
+	public static void createOSXShortcut(String appPath, String appName, String param, String shcutname, String icon) {
+		
+		// We will write a plist file in the proper directory
+		String launchAg = System.getProperty("user.home")+"/Library/LaunchAgents";
+		String javahome = System.getProperty("java.home");
+		
+		// Create launchagent if it doesnt exists
+		File folderExisting = new File(launchAg);
+		if (!folderExisting.exists()) {
+			boolean success = (new File(launchAg).mkdirs());
+			if (!success) return;
+		}
+		try {
+			File file= new File(launchAg+"/"+shcutname+".plist");
+			FileOutputStream	fop = new FileOutputStream(file);
+			
+			// if file doesn't exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			// Create .plist file
+			String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
+			content += "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\r\n";
+			content += "<plist version=\"1.0\">\r\n";
+			content += "	<dict>\r\n";
+			content += "		<key>Label</key>\r\n";
+			content += "		<string>"+shcutname+"</string>\r\n";
+			content += "		<key>ProgramArguments</key>\r\n";
+			content += "		<array>\r\n";
+			content += "			<string>"+javahome+"/bin/java</string>\r\n";
+			content += "			<string>-jar</string>\r\n";
+			content += "			<string>"+appPath+appName+"</string>\r\n";
+			content += "			<string>"+param+"</string>\r\n";
+			content += "		</array>\r\n";
+			content += "		<key>KeepAlive</key>\r\n";
+			content += "		<true/>\r\n";
+			content += "		<key>LaunchOnlyOnce</key>\r\n";
+			content += "		<true/>\r\n";
+			content += "	</dict>\r\n";
+			content += "</plist>\r\n";
+			byte[] contentInBytes = content.getBytes();
+			
+			// Write the file
+			fop.write(contentInBytes);
+			fop.flush();
+			fop.close();
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void deleteOSXShortcut(String shcutname) {
+		String launchAg = System.getProperty("user.home")+"/Library/LaunchAgents";
+		File file= new File(launchAg+"/"+shcutname+".plist");
+		if (file.exists()) file.delete();
 	}
 }

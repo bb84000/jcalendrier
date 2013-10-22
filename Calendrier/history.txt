@@ -65,4 +65,9 @@ Version 0.6.0.4 - 20/10/2013
 Version 0.6.0.5 - 21/10/2013
  - Launch jar at logon enabled for Linux (Gnome and KDE) tests are welcome
  
+Version 0.6.0.6 - 22/10/2013
+ - Icons set in startup shortcuts (Windows and Linux)
+ - Launch jar at logon enabled for Windows, Linux and Mac OS
+ 
+ 
  

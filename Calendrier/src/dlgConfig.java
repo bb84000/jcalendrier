@@ -19,6 +19,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -63,6 +64,9 @@ import org.w3c.dom.NodeList;
 
 import bb.arraylist.*;
 
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+
 // Config dialog main class
 public class dlgConfig extends JDialog {
 	
@@ -83,6 +87,7 @@ public class dlgConfig extends JDialog {
 	public Color colvacC= new Color(0,153,0);
 	private Color ncolvacC;
 	public boolean savePos = false;
+	public int saveState= 0;
 	public boolean saveMoon = false;
 	public boolean dispMoon = false;
 	public boolean saveVacScol = false;
@@ -91,6 +96,8 @@ public class dlgConfig extends JDialog {
 	public boolean dispVacC = false;
 	public boolean chknewver = true;
 	public boolean loadstart = false;
+	public boolean startmini = false;
+	public boolean nstartmini;
 	public DateTime  lastupdchk = new DateTime(2013,10,1,0,0,1);
 	private double ParisLat = 48.86223;	//Paris
 	public double Latitude = ParisLat;
@@ -112,7 +119,7 @@ public class dlgConfig extends JDialog {
 	private ActionListener al;
 	private DocumentListener dl;
 	private static final long serialVersionUID = 1L;
-
+	private String iconFile= "";
 	/**
 	 * Launch the application.
 	 */
@@ -147,6 +154,7 @@ public class dlgConfig extends JDialog {
 	private JLabel lblpath;
 	private JCheckBox cbChknewver;
 	private JCheckBox cbStartup;
+	private JCheckBox cbStartMini; 
 	private JLabel lblStatus;
 	
 	// Config dialog constructor
@@ -186,18 +194,19 @@ public class dlgConfig extends JDialog {
 					//e1.printStackTrace();
 				}
 				cbTown.addActionListener(al);
-
 				cbStartup.setSelected(loadstart);
-
+				cbStartMini.setEnabled(loadstart);
+				cbStartMini.setSelected(startmini);
+				nstartmini= startmini;
 			}
 		});
 		
 		// dialog initialization
 		setModalityType(ModalityType.APPLICATION_MODAL);
-		setBounds(100, 100, 450, 385);
+		setBounds(100, 100, 450, 402);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{434, 0};
-		gridBagLayout.rowHeights = new int[]{232, 33, 15, 0};
+		gridBagLayout.rowHeights = new int[]{295, 33, 15, 0};
 		gridBagLayout.columnWeights = new double[]{1.0, Double.MIN_VALUE};
 		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
 		getContentPane().setLayout(gridBagLayout);
@@ -212,7 +221,7 @@ public class dlgConfig extends JDialog {
 			getContentPane().add(panel_main, gbc_panel_main);
 			GridBagLayout gbl_panel_main = new GridBagLayout();
 			gbl_panel_main.columnWidths = new int[]{220, 220, 0};
-			gbl_panel_main.rowHeights = new int[]{110, 110, 78, 0};
+			gbl_panel_main.rowHeights = new int[]{110, 110, 96, 0};
 			gbl_panel_main.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 			gbl_panel_main.rowWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
 			panel_main.setLayout(gbl_panel_main);
@@ -434,7 +443,7 @@ public class dlgConfig extends JDialog {
 			cbChknewver = new JCheckBox("Recherche de mise \u00E0 jour");
 			cbChknewver.setSelected(false);
 			cbChknewver.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			cbChknewver.setBounds(10, 41, 200, 23);
+			cbChknewver.setBounds(225, 41, 200, 23);
 			panel_system.add(cbChknewver);
 			
 			JLabel lblpathcaption = new JLabel("Dossier utilisateur");
@@ -444,10 +453,21 @@ public class dlgConfig extends JDialog {
 			
 
 			cbStartup = new JCheckBox("Lancer au d\u00E9marrage");
+			cbStartup.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					cbStartMini.setEnabled(cbStartup.isSelected());
+				}
+			});
 			//cbStartup.setSelected(false);
 			cbStartup.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			cbStartup.setBounds(225, 41, 200, 23);
+			cbStartup.setBounds(13, 41, 200, 23);
 			panel_system.add(cbStartup);
+			
+			cbStartMini = new JCheckBox("D\u00E9marrage nimimis\u00E9");
+			cbStartMini.setEnabled(false);
+			cbStartMini.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			cbStartMini.setBounds(13, 63, 200, 23);
+			panel_system.add(cbStartMini);
 		} // end main panel
 		
 		{	// Buttons pane
@@ -487,12 +507,22 @@ public class dlgConfig extends JDialog {
 						Latitude = nLatitude;
 						Longitude = nLongitude;
 						townind= ntownind;
+						nstartmini = cbStartMini.isSelected();
 						// load at startup changed 
 						if (loadstart != cbStartup.isSelected()) {
 							loadstart= cbStartup.isSelected();
+							startmini= nstartmini;
 							if (loadstart) processStartup(true);
 							else processStartup(false);
 						}
+						// load at startup not changed but startmini has changed
+						// we change startup only if it is activated
+						else if (startmini != nstartmini) {
+							startmini= nstartmini;
+							if (loadstart)  processStartup(true);
+						}
+						
+						 
 						//saveConfig();
 						setVisible(false);
 					}
@@ -543,23 +573,31 @@ public class dlgConfig extends JDialog {
 	
 	private void processStartup(boolean load){
 		if (load) {
+			String progname = "calendrier.jar";
+			String param = "";
+			if (startmini) param= "MINI" ;
 			// Windows. Create a shortcut in user startup
 			// Todo check if jar or exe
 			if (OS.contains("WIN")) {
-				shortcut.createWinShortcut(execDirectory,"calendrier.jar", "calendrier.lnk") ;	
+				shortcut.createWinShortcut(execDirectory,progname, param, "calendrier.lnk", workingDirectory+"/"+iconFile) ;	
 			}
 			else if (OS.contains("NUX")) {
-				shortcut.createLinuxShortcut(execDirectory, "calendrier.jar", "Calendrier.desktop");
-						
+				shortcut.createLinuxShortcut(execDirectory, progname, param, "Calendrier.desktop", workingDirectory+"/"+iconFile);
+			}
+			else if (OS.contains("MAC")) {
+				shortcut.createOSXShortcut(execDirectory, progname, param, "com.sdtp.calendrier", "");
 			}
 		}
 		else {
-			// Windows. Create a shortcut in 
+			
 			if (OS.contains("WIN")) {
 				shortcut.deleteWinShortcut("calendrier.lnk");
 			}
 			else if (OS.contains("NUX")) {
 				shortcut.deleteLinuxShortcut("Calendrier.desktop");
+			}
+			else if (OS.contains("MAC")) {
+				shortcut.deleteOSXShortcut("com.sdtp.calendrier");
 			}
 		}
 		
@@ -616,10 +654,24 @@ public class dlgConfig extends JDialog {
 	// Find and/or create the configuration directory
 	public void set_config_file(String s) {
 		config_file = s;
+		// Exec directory
+		execDirectory= ClassLoader.getSystemClassLoader().getResource(".").getPath();
+		try {
+			execDirectory = URLDecoder.decode(execDirectory, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			//
+		}
+		
 		// Working directory
 		String os = System.getProperty("os.name");
 		OS = os.toUpperCase();
-		if (OS.contains("WIN")) workingDirectory = System.getenv("AppData");	// Win location of the "AppData" folder
+		iconFile= "calendrier.png";
+		if (OS.contains("WIN")) {
+			workingDirectory = System.getenv("AppData");	// Win location of the "AppData" folder
+			// remove leading "/" if windows
+			if (execDirectory.charAt(0)=='/') execDirectory= execDirectory.substring(1);
+			iconFile= "calendrier.ico";
+		}
 		else if (OS.contains("MAC")) workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
 		else workingDirectory = System.getProperty("user.home"); //Otherwise, we assume Linux
 		workingDirectory += "/calendrier";	
@@ -648,6 +700,25 @@ public class dlgConfig extends JDialog {
 				else config_file= workingDirectory+"/"+config_file;
 			}
 		}
+		
+		// Get icon
+		if (!(new File(workingDirectory+"/"+iconFile).exists())) {
+			try {
+				InputStream bpng = ClassLoader.class.getResourceAsStream("/resources/"+iconFile);
+				FileOutputStream fpng = new FileOutputStream(new File(workingDirectory+"/"+iconFile));
+				int read = 0;
+				byte[] bytes = new byte[1024];
+
+				while ((read = bpng.read(bytes)) != -1) {
+					fpng.write(bytes, 0, read);
+				}
+				fpng.close();
+			
+			} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			//e1.printStackTrace();
+			}
+		}	
 		// SEt status text
 		String st = os;
 		st += " v"+System.getProperty("os.version");
@@ -657,22 +728,10 @@ public class dlgConfig extends JDialog {
 		lblStatus.setText(st);
 		// display path
 		String wd = workingDirectory.replace('\\', '/');
-		
-		
+				
 		lblpath.setText(wd);
 		// In case the text is too long, set tooltip
 		lblpath.setToolTipText(wd);
-		
-		execDirectory= ClassLoader.getSystemClassLoader().getResource(".").getPath();
-		try {
-			execDirectory = URLDecoder.decode(execDirectory, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			//
-		}
-		// remove leading "/" if exists
-		if (execDirectory.charAt(0)=='/') execDirectory= execDirectory.substring(1);
-				
-		
 		
 		// Read towns file and populate combo box
 		towns = new bArrayList();
@@ -730,6 +789,7 @@ public class dlgConfig extends JDialog {
 	            	else if (cNode.getNodeName().equals("locatY")) location.y = Integer.parseInt(s);
 	            	else if (cNode.getNodeName().equals("sizeW")) size.width = Integer.parseInt(s);
 	            	else if (cNode.getNodeName().equals("sizeW")) size.width = Integer.parseInt(s); 
+	            	else if (cNode.getNodeName().equals("saveState")) saveState = Integer.parseInt(s); 
 	            	else if (cNode.getNodeName().equals("saveMoon")) {
 	            		saveMoon = s.equalsIgnoreCase("true");
 	            		cbMoon.setSelected(saveMoon);  
@@ -776,7 +836,10 @@ public class dlgConfig extends JDialog {
 	            	else if (cNode.getNodeName().equals("loadstart")) {
 	            		loadstart = s.equalsIgnoreCase("true");
 	            		cbStartup.setSelected(loadstart);
-
+	            	}
+	            	else if (cNode.getNodeName().equals("startmini")) {
+	            		startmini = s.equalsIgnoreCase("true");
+	            		cbStartMini.setSelected(startmini);
 	            	}
 	            }
 	        }
@@ -825,6 +888,7 @@ public class dlgConfig extends JDialog {
 				el.appendChild(createXMLEntry(configXML,"locatY", "int",location.y));
 				el.appendChild(createXMLEntry(configXML,"sizeW", "int",size.width));
 				el.appendChild(createXMLEntry(configXML,"sizeH", "int",size.height));
+				el.appendChild(createXMLEntry(configXML,"saveState", "int", saveState)); 
 				el.appendChild(createXMLEntry(configXML,"saveMoon", "boolean", saveMoon));	// Moon phases save
 				el.appendChild(createXMLEntry(configXML,"dispMoon", "boolean", dispMoon));	// Moon phases display
 				el.appendChild(createXMLEntry(configXML,"saveVacScol", "boolean", saveVacScol));	// Scolar holidays save
@@ -842,7 +906,8 @@ public class dlgConfig extends JDialog {
 				el.appendChild(createXMLEntry(configXML,"chknewver", "boolean", chknewver));
 				el.appendChild(createXMLEntry(configXML,"lastupdchk", "string", lastupdchk.toString("yyyy-MM-dd")));
 				el.appendChild(createXMLEntry(configXML,"loadstart", "boolean", loadstart));
-		        configXML.appendChild(el);
+				el.appendChild(createXMLEntry(configXML,"startmini", "boolean", startmini));
+				configXML.appendChild(el);
 		        // The XML document we created above is still in memory
 		        //  create DOM source, then sagve it to file
 		        DOMSource source = new DOMSource(configXML);

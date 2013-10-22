@@ -12,6 +12,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -137,6 +138,7 @@ public class Calendrier {
 	private Point CurLoc = new Point();
 	private Dimension CurSize = new Dimension();
 	// needed to know if the date has changed since program has been launched 
+	private int CurState;
 	private int iYear;
 	private int iDay;
 	private int icounter;
@@ -145,12 +147,20 @@ public class Calendrier {
 	//private JButton btnPrevious;
 	private JMenuItem pMnuDelImage;
 	private JMenuItem pMnuPrefs;
+	private static boolean startMini = false; 
 	
 	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		try {
+			String s = args[0].toUpperCase();
+			if (s.contains("MINI")) startMini= true;
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			startMini= false;
+		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -184,7 +194,7 @@ public class Calendrier {
 		// set size and position
 		if (Config.savePos) {
 			frmCalendrier.setSize(Config.size);
-
+			frmCalendrier.setState(Config.saveState);
 			frmCalendrier.setLocation(Config.location);
 		} else frmCalendrier.setLocationRelativeTo(null);
 		
@@ -214,9 +224,10 @@ public class Calendrier {
 			cbVacC.setSelected(Config.dispVacC);
 			Quarter.ShowVacC = cbVacC.isSelected();
 		}
-		
-		
-		
+		if (startMini) {
+			frmCalendrier.setState(Frame.ICONIFIED);
+			startMini= false;
+		}
 	}
 
 	// Frame initialization 
@@ -277,6 +288,7 @@ public class Calendrier {
 			public void windowClosing(WindowEvent arg0) {
 				Config.location = frmCalendrier.getLocation();
 				Config.size = frmCalendrier.getSize();
+				Config.saveState= frmCalendrier.getState();
 				Config.saveConfigXML();
 				// Sort half images list on year field and save it
 				Quarter.imagesHalf.sort(0);
@@ -873,7 +885,8 @@ public class Calendrier {
 						// Needs to memorize current location
 						CurLoc = frmCalendrier.getLocation();
 					    CurSize = frmCalendrier.getSize();
-					    
+					    CurState= frmCalendrier.getState();
+					    frmCalendrier.setState(CurState);
 						Config.setVisible(true);
 					}
 					// Show about dialog
@@ -1096,9 +1109,12 @@ public class Calendrier {
 				// else do nothing
 				if (arg0.getComponent().getName().equals("dlgConfig")) {
 					applyConfig();
-					frmCalendrier.repaint();
+					frmCalendrier.setState(CurState);
 					frmCalendrier.setLocation(CurLoc);
 					frmCalendrier.setSize(CurSize);
+					frmCalendrier.repaint();
+
+					
 					DateTime dt =new DateTime();
 					setLabelToday(dt);
 				}
