@@ -155,6 +155,7 @@ public class Calendrier {
 	 */
 	public static void main(String[] args) {
 		try {
+			//System.setProperty("java.awt.headless", "true"); 
 			String s = args[0].toUpperCase();
 			if (s.contains("MINI")) startMini= true;
 		} catch (Exception e1) {

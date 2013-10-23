@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.swing.JButton;
@@ -66,6 +67,12 @@ import bb.arraylist.*;
 
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+
+import javax.swing.JRadioButton;
+
+import java.awt.ComponentOrientation;
+
+import javax.swing.ButtonGroup;
 
 // Config dialog main class
 public class dlgConfig extends JDialog {
@@ -156,6 +163,22 @@ public class dlgConfig extends JDialog {
 	private JCheckBox cbStartup;
 	private JCheckBox cbStartMini; 
 	private JLabel lblStatus;
+	private final ButtonGroup buttonGroup = new ButtonGroup();
+	private JRadioButton rbDec;
+	private JRadioButton rbDeg;
+	private JTextField tfLatdeg;
+	private JTextField tfLatmn;
+	private JLabel lblLatmn;
+	private JTextField tfLats;
+	private JLabel lblS;
+	private JTextField tfLatns;
+	private JTextField tfLondeg;
+	private JLabel lbllondeg;
+	private JTextField tfLonmn;
+	private JLabel lbllonmn;
+	private JTextField tfLons;
+	private JLabel lbllons;
+	private JTextField tfLoneo;
 	
 	// Config dialog constructor
 	public dlgConfig(JFrame frm) {
@@ -180,9 +203,11 @@ public class dlgConfig extends JDialog {
 				nLatitude= Latitude;
 				nLongitude= Longitude;
 				tfLatitude.getDocument().removeDocumentListener(dl);
-				tfLongitude.getDocument().removeDocumentListener(dl);		
+				tfLongitude.getDocument().removeDocumentListener(dl);
 				tfLatitude.setText(String.valueOf(Latitude));
+				filldegLat(Latitude);
 				tfLongitude.setText(String.valueOf(Longitude));
+				filldegLon(Longitude);
 				tfLatitude.getDocument().addDocumentListener(dl);
 				tfLongitude.getDocument().addDocumentListener(dl);	
 				ntownind= townind;
@@ -363,9 +388,9 @@ public class dlgConfig extends JDialog {
 			
 			cbTown = new JComboBox<String>();
 			cbTown.setFont(new Font("Tahoma", Font.PLAIN, 11));
-			cbTown.setBounds(65, 25, 202, 20);
+			cbTown.setBounds(65, 25, 175, 20);
 			cbTown.setPreferredSize(new Dimension(120, 20));
-			cbTown.setMaximumRowCount(100);
+			cbTown.setMaximumRowCount(25);
 			panel_coord.add(cbTown);			
 			al = new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
@@ -406,7 +431,7 @@ public class dlgConfig extends JDialog {
 			panel_coord.add(lblLatitude);
 
 			tfLatitude = new JTextField();
-			tfLatitude.setBounds(65, 50, 202, 20);
+			tfLatitude.setBounds(65, 50, 100, 20);
 			panel_coord.add(tfLatitude);
 			tfLatitude.setColumns(10);
 			tfLatitude.getDocument().putProperty("owner", "lat"); 
@@ -419,9 +444,112 @@ public class dlgConfig extends JDialog {
 
 			tfLongitude = new JTextField();
 			tfLongitude.setColumns(10);
-			tfLongitude.setBounds(65, 75, 202, 20);
+			tfLongitude.setBounds(65, 75, 100, 20);
 			tfLongitude.getDocument().putProperty("owner", "lon"); 
 			panel_coord.add(tfLongitude);
+			
+			rbDec = new JRadioButton("Degr\u00E9s d\u00E9c.");
+			rbDec.setVisible(false);
+			buttonGroup.add(rbDec);
+			rbDec.setSelected(true);
+			rbDec.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+			rbDec.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			rbDec.setBounds(250, 24, 83, 23);
+			panel_coord.add(rbDec);
+			
+			rbDeg = new JRadioButton("Degr\u00E9s, mn, s");
+			rbDeg.setVisible(false);
+			buttonGroup.add(rbDeg);
+			rbDeg.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+			rbDeg.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			rbDeg.setBounds(320, 24, 109, 23);
+			panel_coord.add(rbDeg);
+			
+			tfLatdeg = new JTextField();
+			tfLatdeg.setColumns(10);
+			tfLatdeg.setBounds(210, 50, 30, 20);
+			panel_coord.add(tfLatdeg);
+			tfLatdeg.getDocument().putProperty("owner", "latd"); 
+			tfLatdeg.getDocument().addDocumentListener(dl);
+			
+			JLabel lbllatdeg = new JLabel("deg.");
+			lbllatdeg.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			lbllatdeg.setBounds(243, 53, 25, 14);
+			panel_coord.add(lbllatdeg);
+			
+			tfLatmn = new JTextField();
+			tfLatmn.setColumns(10);
+			tfLatmn.setBounds(270, 50, 30, 20);
+			panel_coord.add(tfLatmn);
+			tfLatmn.getDocument().putProperty("owner", "latd"); 
+			tfLatmn.getDocument().addDocumentListener(dl);
+			
+			lblLatmn = new JLabel("mn");
+			lblLatmn.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			lblLatmn.setBounds(303, 53, 25, 14);
+			panel_coord.add(lblLatmn);
+			
+			tfLats = new JTextField();
+			tfLats.setColumns(10);
+			tfLats.setBounds(322, 50, 70, 20);
+			panel_coord.add(tfLats);
+			tfLats.getDocument().putProperty("owner", "latd");
+			tfLats.getDocument().addDocumentListener(dl);
+			
+			lblS = new JLabel("s");
+			lblS.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			lblS.setBounds(398, 53, 10, 14);
+			panel_coord.add(lblS);
+			
+			tfLatns = new JTextField();
+			tfLatns.setColumns(1);
+			tfLatns.setBounds(410, 50, 15, 20);
+			panel_coord.add(tfLatns);
+			tfLatns.getDocument().putProperty("owner", "latd");
+			tfLatns.getDocument().addDocumentListener(dl);
+			
+			lbllondeg = new JLabel("deg.");
+			lbllondeg.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			lbllondeg.setBounds(243, 78, 25, 14);
+			panel_coord.add(lbllondeg);			
+			
+			tfLondeg = new JTextField();
+			tfLondeg.setColumns(10);
+			tfLondeg.setBounds(210, 75, 30, 20);
+			panel_coord.add(tfLondeg);
+			tfLondeg.getDocument().putProperty("owner", "lond");
+			tfLondeg.getDocument().addDocumentListener(dl);
+			
+			lbllonmn = new JLabel("mn");
+			lbllonmn.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			lbllonmn.setBounds(303, 78, 25, 14);
+			panel_coord.add(lbllonmn);
+			
+			tfLonmn = new JTextField();
+			tfLonmn.setColumns(10);
+			tfLonmn.setBounds(270, 75, 30, 20);
+			panel_coord.add(tfLonmn);
+			tfLonmn.getDocument().putProperty("owner", "lond");
+			tfLonmn.getDocument().addDocumentListener(dl);
+			
+			lbllons = new JLabel("s");
+			lbllons.setFont(new Font("Tahoma", Font.PLAIN, 11));
+			lbllons.setBounds(398, 78, 10, 14);
+			panel_coord.add(lbllons);
+			
+			tfLons = new JTextField();
+			tfLons.setColumns(10);
+			tfLons.setBounds(322, 75, 70, 20);
+			panel_coord.add(tfLons);
+			tfLons.getDocument().putProperty("owner", "lond");
+			tfLons.getDocument().addDocumentListener(dl);
+			
+			tfLoneo = new JTextField();
+			tfLoneo.setColumns(1);
+			tfLoneo.setBounds(410, 75, 15, 20);
+			panel_coord.add(tfLoneo);
+			tfLoneo.getDocument().putProperty("owner", "lond");
+			tfLoneo.getDocument().addDocumentListener(dl);
 			
 			JPanel panel_system = new JPanel();
 			panel_system.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -605,11 +733,36 @@ public class dlgConfig extends JDialog {
 	}
 	
 	private void changecoord(DocumentEvent e) {
-		//if //System.out.println(e.getDocument().getProperty("owner"));	
+	
 		cbTown.removeActionListener(al);
+		tfLatitude.getDocument().removeDocumentListener(dl);
+		tfLongitude.getDocument().removeDocumentListener(dl);
 		try {
-			if (e.getDocument().getProperty("owner").equals("lat")) nLatitude= Double.parseDouble(tfLatitude.getText());
-			if (e.getDocument().getProperty("owner").equals("lon")) nLongitude= Double.parseDouble(tfLongitude.getText());
+			if (e.getDocument().getProperty("owner").equals("lat")) {
+				try {
+					nLatitude= Double.parseDouble(tfLatitude.getText());
+				} catch (Exception e1) {
+					nLatitude= 0;
+				}
+				filldegLat(nLatitude); 
+			}
+			if (e.getDocument().getProperty("owner").equals("lon")) { 
+				try {
+					nLongitude= Double.parseDouble(tfLongitude.getText());
+				} catch (Exception e1) {
+					nLongitude = 0;
+				}
+				filldegLon(nLongitude); 
+			}
+			if (e.getDocument().getProperty("owner").equals("latd")) { 
+					nLatitude = filldecLat();
+					tfLatitude.setText(String.format(Locale.ENGLISH, "%.6f", nLatitude));
+			}
+			if (e.getDocument().getProperty("owner").equals("lond")) { 
+					nLongitude = filldecLon();
+					tfLongitude.setText(String.format(Locale.ENGLISH, "%.6f", nLongitude));
+			}
+			
 			ntownind= 0;
 			cbTown.setSelectedIndex(ntownind);
 			ntown= towns.get(ntownind)[0];
@@ -617,11 +770,90 @@ public class dlgConfig extends JDialog {
 			//Invalid value do nothing
 		}
 		cbTown.addActionListener(al);
+		tfLatitude.getDocument().addDocumentListener(dl);
+		tfLongitude.getDocument().addDocumentListener(dl);
 		
+	}
+	
+	private double filldecLat () {
+		int sign = 1;
+		double result=0;
+		try {
+			result= Double.parseDouble(tfLatdeg.getText());
+		} catch (Exception e1) {
+		}
+		try {
+			result += Double.parseDouble(tfLatmn.getText())/60.0;
+		} catch (Exception e1) {
+		}
+		try {
+			result += Double.parseDouble(tfLats.getText())/3600.0;
+		} catch (Exception e1) {
+		}
+		try {
+			sign = (tfLatns.getText().toUpperCase().equals("N")) ? 1 : -1;
+		} catch (Exception e) {
+		}
+		return result*sign;
+	}
+	
+	private double filldecLon () {
+		int sign = 1;
+		double result=0;
+		try {
+			result= Double.parseDouble(tfLondeg.getText());
+		} catch (Exception e1) {
+		}
+		try {
+			result += Double.parseDouble(tfLonmn.getText())/60.0;
+		} catch (Exception e1) {
+		}
+		try {
+			result += Double.parseDouble(tfLons.getText())/3600.0;
+		} catch (Exception e1) {
+		}
+		try {
+			sign = (tfLoneo.getText().toUpperCase().equals("E")) ? 1 : -1;
+		} catch (Exception e) {
+		}
+		return result*sign;
+	}
+	
+	private void filldegLat (double lat) {
+		tfLatdeg.getDocument().removeDocumentListener(dl);
+		tfLatmn.getDocument().removeDocumentListener(dl);
+		tfLats.getDocument().removeDocumentListener(dl);
+		tfLatns.getDocument().removeDocumentListener(dl);
+		tfLatdeg.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(lat)[0]));
+		tfLatmn.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(lat)[1]));
+		tfLats.setText(String.format(Locale.ENGLISH, "%.3f", coordDecToDeg(lat)[2]));
+		tfLatns.setText((coordDecToDeg(lat)[3]	< 0) ? "S" : "N");
+		tfLatdeg.getDocument().addDocumentListener(dl);
+		tfLatmn.getDocument().addDocumentListener(dl);
+		tfLats.getDocument().addDocumentListener(dl);
+		tfLatns.getDocument().addDocumentListener(dl);
+	}
+	
+	// update deg/min/sec with new values of latitude and longitude
+	
+	private void filldegLon(double lon) {
+		tfLondeg.getDocument().removeDocumentListener(dl);
+		tfLonmn.getDocument().removeDocumentListener(dl);
+		tfLons.getDocument().removeDocumentListener(dl);
+		tfLoneo.getDocument().removeDocumentListener(dl);
+		tfLondeg.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(lon)[0]));
+		tfLonmn.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(lon)[1]));
+		tfLons.setText(String.format(Locale.ENGLISH, "%.3f", coordDecToDeg(lon)[2]));
+		tfLoneo.setText((coordDecToDeg(lon)[3]	< 0) ? "O" : "E");
+		tfLondeg.getDocument().addDocumentListener(dl);
+		tfLonmn.getDocument().addDocumentListener(dl);
+		tfLons.getDocument().addDocumentListener(dl);
+		tfLoneo.getDocument().addDocumentListener(dl);
 	}
 	
 	private void changetown () {
 		tfLatitude.getDocument().removeDocumentListener(dl);
+		//tfLatdeg.getDocument().removeDocumentListener(dl);
 		tfLongitude.getDocument().removeDocumentListener(dl);		
 		if (!towns.isEmpty()) {
 
@@ -629,11 +861,16 @@ public class dlgConfig extends JDialog {
 			ntown= towns.get(ntownind)[0];
 			if (ntownind > 0) {
 				tfLatitude.setText(towns.get(ntownind)[2]);
+	
 				tfLongitude.setText(towns.get(ntownind)[3]);
 				nLatitude = Double.parseDouble(String.valueOf(towns.get(ntownind)[2]));
+				filldegLat(nLatitude);
 				nLongitude = Double.parseDouble(String.valueOf(towns.get(ntownind)[3]));
+				filldegLon(nLongitude);
+				
 			}
 		}
+		//tfLatdeg.getDocument().addDocumentListener(dl);
 		tfLatitude.getDocument().addDocumentListener(dl);
 		tfLongitude.getDocument().addDocumentListener(dl);
 	}
@@ -669,8 +906,13 @@ public class dlgConfig extends JDialog {
 		if (OS.contains("WIN")) {
 			workingDirectory = System.getenv("AppData");	// Win location of the "AppData" folder
 			// remove leading "/" if windows
-			if (execDirectory.charAt(0)=='/') execDirectory= execDirectory.substring(1);
-			iconFile= "calendrier.ico";
+			try {
+				if (execDirectory.charAt(0)=='/') execDirectory= execDirectory.substring(1);
+				iconFile= "calendrier.ico";
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				iconFile="";
+			}
 		}
 		else if (OS.contains("MAC")) workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
 		else workingDirectory = System.getProperty("user.home"); //Otherwise, we assume Linux
@@ -935,4 +1177,21 @@ public class dlgConfig extends JDialog {
 		e.setTextContent(svalue);
 		return  e;
 	}
+	
+	private double[] coordDecToDeg (double coord) {
+		double [] result= {0,0,0,0};
+		try {
+			if (coord < 0) result[3] = -1;
+			else result[3]=1;			
+			coord = Math.abs(coord);
+			result[0] = Math.floor(coord);
+			double dmn = (coord - result[0])*60 ;
+			result[1] =  Math.floor(dmn);
+			result[2] = (dmn - result[1])*60 ;
+		} catch (Exception e) {
+		}
+		return result; 
+	}
+	
+
 }
