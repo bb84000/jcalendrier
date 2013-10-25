@@ -4,6 +4,7 @@
  */
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -16,6 +17,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -25,11 +28,13 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -39,13 +44,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.MaskFormatter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -63,16 +71,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import bb.arraylist.*;
+import bb.arraylist.bArrayList;
 
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
 
-import javax.swing.JRadioButton;
-
-import java.awt.ComponentOrientation;
-
-import javax.swing.ButtonGroup;
 
 // Config dialog main class
 public class dlgConfig extends JDialog {
@@ -124,7 +125,7 @@ public class dlgConfig extends JDialog {
 	public ArrayList <String[]> manifest= null;
 	private String config_file = "calendrier.config.xml";
 	private ActionListener al;
-	private DocumentListener dl;
+	private DocumentListener ndl;
 	private static final long serialVersionUID = 1L;
 	private String iconFile= "";
 	/**
@@ -179,6 +180,7 @@ public class dlgConfig extends JDialog {
 	private JTextField tfLons;
 	private JLabel lbllons;
 	private JTextField tfLoneo;
+
 	
 	// Config dialog constructor
 	public dlgConfig(JFrame frm) {
@@ -202,14 +204,14 @@ public class dlgConfig extends JDialog {
 				btnZoneC.setBackground(colvacC);
 				nLatitude= Latitude;
 				nLongitude= Longitude;
-				tfLatitude.getDocument().removeDocumentListener(dl);
-				tfLongitude.getDocument().removeDocumentListener(dl);
+				tfLatitude.getDocument().removeDocumentListener(ndl);
+				tfLongitude.getDocument().removeDocumentListener(ndl);
 				tfLatitude.setText(String.valueOf(Latitude));
 				filldegLat(Latitude);
 				tfLongitude.setText(String.valueOf(Longitude));
 				filldegLon(Longitude);
-				tfLatitude.getDocument().addDocumentListener(dl);
-				tfLongitude.getDocument().addDocumentListener(dl);	
+				tfLatitude.getDocument().addDocumentListener(ndl);
+				tfLongitude.getDocument().addDocumentListener(ndl);	
 				ntownind= townind;
 				cbTown.removeActionListener(al);
 				try {
@@ -392,37 +394,15 @@ public class dlgConfig extends JDialog {
 			cbTown.setPreferredSize(new Dimension(120, 20));
 			cbTown.setMaximumRowCount(25);
 			panel_coord.add(cbTown);			
+			// Event processing of towns combo box
 			al = new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					changetown();
 				}
 			};
-			// Event processing of towns combo box
-
-
-			dl = new DocumentListener() {
-				public void changedUpdate(DocumentEvent e) {
-					warn(e);
-				}
-
-				public void removeUpdate(DocumentEvent e) {
-					warn(e);
-				}
-
-				public void insertUpdate(DocumentEvent e) {
-					warn(e);
-				}
-
-				public void warn(DocumentEvent e) {
-					//System.out.println(e.getDocument().getProperty("owner"));
-						
-					changecoord(e); 
-					//String syear = YearField.getText();
-						//yearchanged(syear);
-				}
-			};
-			//YearField.getDocument().addDocumentListener(dl);
 			
+
+		
 			// Labels and text boxes for latitude and longitude
 
 			JLabel lblLatitude = new JLabel("Latitude");
@@ -430,23 +410,29 @@ public class dlgConfig extends JDialog {
 			lblLatitude.setBounds(10, 53, 50, 14);
 			panel_coord.add(lblLatitude);
 
+			
 			tfLatitude = new JTextField();
+			tfLatitude.setName("declat");
 			tfLatitude.setBounds(65, 50, 100, 20);
-			panel_coord.add(tfLatitude);
 			tfLatitude.setColumns(10);
-			tfLatitude.getDocument().putProperty("owner", "lat"); 
+			panel_coord.add(tfLatitude);
+			tfLatitude.getDocument().putProperty("owner", tfLatitude); 
+			tfLatitude.getDocument().addDocumentListener(ndl);
 			
 
 			JLabel lblLongitude = new JLabel("Longitude");
 			lblLongitude.setFont(new Font("Tahoma", Font.PLAIN, 11));
 			lblLongitude.setBounds(10, 78, 50, 14);
 			panel_coord.add(lblLongitude);
+			
 
 			tfLongitude = new JTextField();
+			tfLongitude.setName("declon");
 			tfLongitude.setColumns(10);
 			tfLongitude.setBounds(65, 75, 100, 20);
-			tfLongitude.getDocument().putProperty("owner", "lon"); 
-			panel_coord.add(tfLongitude);
+			panel_coord.add(tfLongitude);			
+			tfLongitude.getDocument().putProperty("owner", tfLongitude); 
+			tfLongitude.getDocument().addDocumentListener(ndl);
 			
 			rbDec = new JRadioButton("Degr\u00E9s d\u00E9c.");
 			rbDec.setVisible(false);
@@ -466,11 +452,13 @@ public class dlgConfig extends JDialog {
 			panel_coord.add(rbDeg);
 			
 			tfLatdeg = new JTextField();
+			tfLatdeg.setName("deglat");
 			tfLatdeg.setColumns(10);
 			tfLatdeg.setBounds(210, 50, 30, 20);
 			panel_coord.add(tfLatdeg);
-			tfLatdeg.getDocument().putProperty("owner", "latd"); 
-			tfLatdeg.getDocument().addDocumentListener(dl);
+			tfLatdeg.putClientProperty("return", Latitude);
+			tfLatdeg.getDocument().putProperty("owner", tfLatdeg); 
+			tfLatdeg.getDocument().addDocumentListener(ndl);
 			
 			JLabel lbllatdeg = new JLabel("deg.");
 			lbllatdeg.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -478,11 +466,12 @@ public class dlgConfig extends JDialog {
 			panel_coord.add(lbllatdeg);
 			
 			tfLatmn = new JTextField();
+			tfLatmn.setName("deglat");
 			tfLatmn.setColumns(10);
 			tfLatmn.setBounds(270, 50, 30, 20);
 			panel_coord.add(tfLatmn);
-			tfLatmn.getDocument().putProperty("owner", "latd"); 
-			tfLatmn.getDocument().addDocumentListener(dl);
+			tfLatmn.getDocument().putProperty("owner", tfLatmn); 
+			tfLatmn.getDocument().addDocumentListener(ndl);
 			
 			lblLatmn = new JLabel("mn");
 			lblLatmn.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -490,11 +479,12 @@ public class dlgConfig extends JDialog {
 			panel_coord.add(lblLatmn);
 			
 			tfLats = new JTextField();
+			tfLats.setName("deglat");
 			tfLats.setColumns(10);
 			tfLats.setBounds(322, 50, 70, 20);
 			panel_coord.add(tfLats);
-			tfLats.getDocument().putProperty("owner", "latd");
-			tfLats.getDocument().addDocumentListener(dl);
+			tfLats.getDocument().putProperty("owner", tfLats);
+			tfLats.getDocument().addDocumentListener(ndl);
 			
 			lblS = new JLabel("s");
 			lblS.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -502,11 +492,12 @@ public class dlgConfig extends JDialog {
 			panel_coord.add(lblS);
 			
 			tfLatns = new JTextField();
+			tfLatns.setName("deglat");
 			tfLatns.setColumns(1);
 			tfLatns.setBounds(410, 50, 15, 20);
 			panel_coord.add(tfLatns);
-			tfLatns.getDocument().putProperty("owner", "latd");
-			tfLatns.getDocument().addDocumentListener(dl);
+			tfLatns.getDocument().putProperty("owner", tfLatns);
+			tfLatns.getDocument().addDocumentListener(ndl);
 			
 			lbllondeg = new JLabel("deg.");
 			lbllondeg.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -514,11 +505,13 @@ public class dlgConfig extends JDialog {
 			panel_coord.add(lbllondeg);			
 			
 			tfLondeg = new JTextField();
+			tfLondeg.setName("deglon");
 			tfLondeg.setColumns(10);
 			tfLondeg.setBounds(210, 75, 30, 20);
 			panel_coord.add(tfLondeg);
-			tfLondeg.getDocument().putProperty("owner", "lond");
-			tfLondeg.getDocument().addDocumentListener(dl);
+			tfLondeg.putClientProperty("return", Longitude);
+			tfLondeg.getDocument().putProperty("owner", tfLondeg);
+			tfLondeg.getDocument().addDocumentListener(ndl);
 			
 			lbllonmn = new JLabel("mn");
 			lbllonmn.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -526,11 +519,12 @@ public class dlgConfig extends JDialog {
 			panel_coord.add(lbllonmn);
 			
 			tfLonmn = new JTextField();
+			tfLonmn.setName("deglon");
 			tfLonmn.setColumns(10);
 			tfLonmn.setBounds(270, 75, 30, 20);
 			panel_coord.add(tfLonmn);
-			tfLonmn.getDocument().putProperty("owner", "lond");
-			tfLonmn.getDocument().addDocumentListener(dl);
+			tfLonmn.getDocument().putProperty("owner", tfLonmn);
+			tfLonmn.getDocument().addDocumentListener(ndl);
 			
 			lbllons = new JLabel("s");
 			lbllons.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -538,18 +532,20 @@ public class dlgConfig extends JDialog {
 			panel_coord.add(lbllons);
 			
 			tfLons = new JTextField();
+			tfLons.setName("deglon");
 			tfLons.setColumns(10);
 			tfLons.setBounds(322, 75, 70, 20);
 			panel_coord.add(tfLons);
-			tfLons.getDocument().putProperty("owner", "lond");
-			tfLons.getDocument().addDocumentListener(dl);
+			tfLons.getDocument().putProperty("owner", tfLons);
+			tfLons.getDocument().addDocumentListener(ndl);
 			
 			tfLoneo = new JTextField();
+			tfLoneo.setName("deglon");
 			tfLoneo.setColumns(1);
 			tfLoneo.setBounds(410, 75, 15, 20);
 			panel_coord.add(tfLoneo);
-			tfLoneo.getDocument().putProperty("owner", "lond");
-			tfLoneo.getDocument().addDocumentListener(dl);
+			tfLoneo.getDocument().putProperty("owner", tfLoneo);
+			tfLoneo.getDocument().addDocumentListener(ndl);
 			
 			JPanel panel_system = new JPanel();
 			panel_system.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -596,6 +592,46 @@ public class dlgConfig extends JDialog {
 			cbStartMini.setFont(new Font("Tahoma", Font.PLAIN, 11));
 			cbStartMini.setBounds(13, 63, 200, 23);
 			panel_system.add(cbStartMini);
+			
+			MaskFormatter latDegMinSecFormatter = null;
+			MaskFormatter lonDegMinSecFormatter = null;
+			try
+			{
+				latDegMinSecFormatter = new MaskFormatter("##'°##''##'.####'''' U");
+				latDegMinSecFormatter.setValidCharacters("0123456789NS");
+				
+				lonDegMinSecFormatter = new MaskFormatter("##'°##''##'.####'''' U");
+				lonDegMinSecFormatter.setValidCharacters("0123456789EW");
+			}
+			catch (ParseException e)
+			{
+				//ErrorHandler.handleFatalError(e);
+			}
+			
+			
+			ndl = new DocumentListener() {
+				public void changedUpdate(DocumentEvent e) {
+					warn(e);
+				}
+
+				public void removeUpdate(DocumentEvent e) {
+					warn(e);
+				}
+
+				public void insertUpdate(DocumentEvent e) {
+					warn(e);
+				}
+
+				public void warn(DocumentEvent e) {
+					
+					changeCoord(e);
+					//String syear = YearField.getText();
+						//yearchanged(syear);
+				}
+			};
+
+			
+			
 		} // end main panel
 		
 		{	// Buttons pane
@@ -732,54 +768,62 @@ public class dlgConfig extends JDialog {
 	
 	}
 	
-	private void changecoord(DocumentEvent e) {
-	
-		cbTown.removeActionListener(al);
-		tfLatitude.getDocument().removeDocumentListener(dl);
-		tfLongitude.getDocument().removeDocumentListener(dl);
+	// user has changed some coordinate field
+	private void changeCoord(DocumentEvent e) {
+		
+		// retreive owner and get value
+		JTextField tf = (JTextField) e.getDocument().getProperty("owner");
+		String curTxt = tf.getText();
+		double value= 0;
 		try {
-			if (e.getDocument().getProperty("owner").equals("lat")) {
-				try {
-					nLatitude= Double.parseDouble(tfLatitude.getText());
-				} catch (Exception e1) {
-					nLatitude= 0;
-				}
-				filldegLat(nLatitude); 
-			}
-			if (e.getDocument().getProperty("owner").equals("lon")) { 
-				try {
-					nLongitude= Double.parseDouble(tfLongitude.getText());
-				} catch (Exception e1) {
-					nLongitude = 0;
-				}
-				filldegLon(nLongitude); 
-			}
-			if (e.getDocument().getProperty("owner").equals("latd")) { 
-					nLatitude = filldecLat();
-					tfLatitude.setText(String.format(Locale.ENGLISH, "%.6f", nLatitude));
-			}
-			if (e.getDocument().getProperty("owner").equals("lond")) { 
-					nLongitude = filldecLon();
-					tfLongitude.setText(String.format(Locale.ENGLISH, "%.6f", nLongitude));
-			}
+			value = Double.parseDouble(curTxt);
+		} catch (NumberFormatException e1) {
+		}
+		
+		double tmpLat = nLatitude;
+		double tmpLon = nLongitude;
+		String tfname= tf.getName();
+		// Decimal latitude changed
+		if (tfname.equals("declat")) {
 			
-			ntownind= 0;
+            nLatitude= filldegLat(value);
+		}
+		// Decimal longitude changed
+		if (tfname.equals("declon")) {
+			nLongitude= value;
+			filldegLon(nLongitude); 
+		}
+		// degree/min/s latitude changed
+		if (tfname.equals("deglat")) {
+			nLatitude = filldecLat();
+		}
+		// degree/min/s longitude cxhanged
+		if (tfname.equals("deglon")) {
+			nLongitude = filldecLon();
+		}
+		// If anything changed, then display no town
+		if ((nLatitude!=tmpLat) || (nLongitude != tmpLon)) { 
+		cbTown.removeActionListener(al);
+		ntownind= 0;
+		try {
 			cbTown.setSelectedIndex(ntownind);
 			ntown= towns.get(ntownind)[0];
-		} catch (NumberFormatException e1) {
-			//Invalid value do nothing
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			//e1.printStackTrace();
 		}
 		cbTown.addActionListener(al);
-		tfLatitude.getDocument().addDocumentListener(dl);
-		tfLongitude.getDocument().addDocumentListener(dl);
-		
+		}
 	}
 	
+	// recompute latitude from degrees fields
+	// and update decimal field
 	private double filldecLat () {
+		tfLatitude.getDocument().removeDocumentListener(ndl);
 		int sign = 1;
 		double result=0;
 		try {
-			result= Double.parseDouble(tfLatdeg.getText());
+			result= Math.abs(Double.parseDouble(tfLatdeg.getText()));
 		} catch (Exception e1) {
 		}
 		try {
@@ -794,10 +838,24 @@ public class dlgConfig extends JDialog {
 			sign = (tfLatns.getText().toUpperCase().equals("N")) ? 1 : -1;
 		} catch (Exception e) {
 		}
-		return result*sign;
+		result= result*sign;
+		if (Math.abs(result)>90) {
+			result= nLatitude;
+			tfLatitude.getDocument().addDocumentListener(ndl);
+			tfLatitude.setText(String.format(Locale.ENGLISH, "%.6f", result));
+		}
+		else {
+			tfLatitude.setText(String.format(Locale.ENGLISH, "%.6f", result));
+			tfLatitude.getDocument().addDocumentListener(ndl);
+		}
+		
+		return result;
 	}
 	
+	// recompute longitude fromd egree fields
+	// and update decimal field
 	private double filldecLon () {
+		tfLongitude.getDocument().removeDocumentListener(ndl);
 		int sign = 1;
 		double result=0;
 		try {
@@ -816,45 +874,95 @@ public class dlgConfig extends JDialog {
 			sign = (tfLoneo.getText().toUpperCase().equals("E")) ? 1 : -1;
 		} catch (Exception e) {
 		}
-		return result*sign;
+		result= result*sign;
+		if (Math.abs(result)>180) {
+			result= nLongitude;
+			tfLongitude.getDocument().addDocumentListener(ndl);
+			tfLongitude.setText(String.format(Locale.ENGLISH, "%.6f", result));
+		}
+		else {
+			tfLongitude.setText(String.format(Locale.ENGLISH, "%.6f", result));
+			tfLongitude.getDocument().addDocumentListener(ndl);
+		}
+		return result;
 	}
 	
-	private void filldegLat (double lat) {
-		tfLatdeg.getDocument().removeDocumentListener(dl);
-		tfLatmn.getDocument().removeDocumentListener(dl);
-		tfLats.getDocument().removeDocumentListener(dl);
-		tfLatns.getDocument().removeDocumentListener(dl);
-		tfLatdeg.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(lat)[0]));
-		tfLatmn.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(lat)[1]));
-		tfLats.setText(String.format(Locale.ENGLISH, "%.3f", coordDecToDeg(lat)[2]));
-		tfLatns.setText((coordDecToDeg(lat)[3]	< 0) ? "S" : "N");
-		tfLatdeg.getDocument().addDocumentListener(dl);
-		tfLatmn.getDocument().addDocumentListener(dl);
-		tfLats.getDocument().addDocumentListener(dl);
-		tfLatns.getDocument().addDocumentListener(dl);
+
+	// compute degree latitude and update the fields
+
+	private double filldegLat (double lat) {
+		// We use tfLatdeg client property "return"to return value as
+		// we cannot use a local variable
+
+		final double latit= lat;
+		Runnable doAssist = new Runnable() {
+			@Override
+            public void run() {
+				if (Math.abs(latit) > 90) {
+                	tfLatitude.setText(String.format(Locale.ENGLISH, "%.6f", Latitude));
+                	tfLatdeg.putClientProperty("return", Latitude);
+                } else {
+                	tfLatdeg.getDocument().removeDocumentListener(ndl);
+        			tfLatmn.getDocument().removeDocumentListener(ndl);
+        			tfLats.getDocument().removeDocumentListener(ndl);
+        			tfLatns.getDocument().removeDocumentListener(ndl);
+        			tfLatdeg.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(latit)[0]));
+        			tfLatmn.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(latit)[1]));
+        			tfLats.setText(String.format(Locale.ENGLISH, "%.3f", coordDecToDeg(latit)[2]));
+        			tfLatns.setText((coordDecToDeg(latit)[3]	< 0) ? "S" : "N");
+        			tfLatdeg.getDocument().addDocumentListener(ndl);
+        			tfLatmn.getDocument().addDocumentListener(ndl);
+        			tfLats.getDocument().addDocumentListener(ndl);
+        			tfLatns.getDocument().addDocumentListener(ndl);
+                	tfLatdeg.putClientProperty("return", latit);
+                }
+            }
+        };
+        SwingUtilities.invokeLater(doAssist); 	
+		return (double) tfLatdeg.getClientProperty("return");
 	}
 	
-	// update deg/min/sec with new values of latitude and longitude
 	
-	private void filldegLon(double lon) {
-		tfLondeg.getDocument().removeDocumentListener(dl);
-		tfLonmn.getDocument().removeDocumentListener(dl);
-		tfLons.getDocument().removeDocumentListener(dl);
-		tfLoneo.getDocument().removeDocumentListener(dl);
-		tfLondeg.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(lon)[0]));
-		tfLonmn.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(lon)[1]));
-		tfLons.setText(String.format(Locale.ENGLISH, "%.3f", coordDecToDeg(lon)[2]));
-		tfLoneo.setText((coordDecToDeg(lon)[3]	< 0) ? "O" : "E");
-		tfLondeg.getDocument().addDocumentListener(dl);
-		tfLonmn.getDocument().addDocumentListener(dl);
-		tfLons.getDocument().addDocumentListener(dl);
-		tfLoneo.getDocument().addDocumentListener(dl);
+
+	// compute degree longitude and update the fields
+	
+	private double filldegLon(double lon) {
+		// We use tfLondeg client property "return"to return value as
+		// we cannot use a local variable
+		final double longit= lon;
+		Runnable doAssist = new Runnable() {
+            @Override
+            public void run() { 
+            	if (Math.abs(longit) > 180) {
+            		tfLongitude.setText(String.format(Locale.ENGLISH, "%.6f", Longitude));
+                	tfLondeg.putClientProperty("return", Longitude);
+            	}
+            	else {
+            		tfLondeg.getDocument().removeDocumentListener(ndl);
+            		tfLonmn.getDocument().removeDocumentListener(ndl);
+            		tfLons.getDocument().removeDocumentListener(ndl);
+            		tfLoneo.getDocument().removeDocumentListener(ndl);
+            		tfLondeg.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(longit)[0]));
+            		tfLonmn.setText(String.format(Locale.ENGLISH, "%.0f", coordDecToDeg(longit)[1]));
+            		tfLons.setText(String.format(Locale.ENGLISH, "%.3f", coordDecToDeg(longit)[2]));
+            		tfLoneo.setText((coordDecToDeg(longit)[3]	< 0) ? "O" : "E");
+            		tfLondeg.getDocument().addDocumentListener(ndl);
+            		tfLonmn.getDocument().addDocumentListener(ndl);
+            		tfLons.getDocument().addDocumentListener(ndl);
+            		tfLoneo.getDocument().addDocumentListener(ndl);
+            		tfLondeg.putClientProperty("return", longit);
+            	}
+            }
+            
+        };
+		SwingUtilities.invokeLater(doAssist); 	
+		return (double) tfLondeg.getClientProperty("return");
 	}
 	
+	// town has changed
 	private void changetown () {
-		tfLatitude.getDocument().removeDocumentListener(dl);
-		//tfLatdeg.getDocument().removeDocumentListener(dl);
-		tfLongitude.getDocument().removeDocumentListener(dl);		
+		tfLatitude.getDocument().removeDocumentListener(ndl);
+		tfLongitude.getDocument().removeDocumentListener(ndl);		
 		if (!towns.isEmpty()) {
 
 			ntownind = cbTown.getSelectedIndex();
@@ -870,9 +978,8 @@ public class dlgConfig extends JDialog {
 				
 			}
 		}
-		//tfLatdeg.getDocument().addDocumentListener(dl);
-		tfLatitude.getDocument().addDocumentListener(dl);
-		tfLongitude.getDocument().addDocumentListener(dl);
+		tfLatitude.getDocument().addDocumentListener(ndl);
+		tfLongitude.getDocument().addDocumentListener(ndl);
 	}
 
 	private void choosecolor (Component c) {
@@ -1003,8 +1110,8 @@ public class dlgConfig extends JDialog {
 		}
 		//loadConfig();
 		cbTown.addActionListener(al);
-		tfLatitude.getDocument().addDocumentListener(dl);
-		tfLongitude.getDocument().addDocumentListener(dl);
+		//tfLatitude.getDocument().addDocumentListener(dl);
+		//tfLongitude.getDocument().addDocumentListener(dl);
 	}// end version info properties
 	
 		
@@ -1192,6 +1299,4 @@ public class dlgConfig extends JDialog {
 		}
 		return result; 
 	}
-	
-
 }
