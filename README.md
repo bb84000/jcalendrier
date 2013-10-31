@@ -12,5 +12,5 @@ three french scolar holidays zones, and choose the nearest prefecture to get exa
 
 (Java development from previous project in Delphi 7.)
 
-The project uses joda-time library from joda.org and javax.json library from Oracle. 
+The project uses joda-time library from joda.org. 
 
