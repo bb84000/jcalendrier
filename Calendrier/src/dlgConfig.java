@@ -221,10 +221,14 @@ public class dlgConfig extends JDialog {
 					//e1.printStackTrace();
 				}
 				cbTown.addActionListener(al);
+				cbPos.setSelected(savePos);
+				cbMoon.setSelected(saveMoon);
+				cbVacScol.setSelected(saveVacScol);
 				cbStartup.setSelected(loadstart);
 				cbStartMini.setEnabled(loadstart);
 				cbStartMini.setSelected(startmini);
 				nstartmini= startmini;
+				cbChknewver.setSelected(chknewver);
 			}
 		});
 		
@@ -743,19 +747,19 @@ public class dlgConfig extends JDialog {
 			// Windows. Create a shortcut in user startup
 			// Todo check if jar or exe
 			if (OS.contains("WIN")) {
-				shortcut.createWinShortcut(execDirectory,progname, param, "calendrier.lnk", workingDirectory+"/"+iconFile) ;	
+				shortcut.createWinShortcut(shortcut.sh_Type.U_STARTUP, execDirectory,progname, param, "calendrier.lnk", workingDirectory+"/"+iconFile) ;	
 			}
 			else if (OS.contains("NUX")) {
 				shortcut.createLinuxShortcut(execDirectory, progname, param, "Calendrier.desktop", workingDirectory+"/"+iconFile);
 			}
 			else if (OS.contains("MAC")) {
-				shortcut.createOSXShortcut(execDirectory, progname, param, "com.sdtp.calendrier", "");
+				shortcut.createOSXShortcut(execDirectory, progname, param, "com.sdtp.calendrier", workingDirectory+"/"+iconFile);
 			}
 		}
 		else {
 			
 			if (OS.contains("WIN")) {
-				shortcut.deleteWinShortcut("calendrier.lnk");
+				shortcut.deleteWinShortcut(shortcut.sh_Type.U_STARTUP, "calendrier.lnk");
 			}
 			else if (OS.contains("NUX")) {
 				shortcut.deleteLinuxShortcut("Calendrier.desktop");
@@ -1021,7 +1025,10 @@ public class dlgConfig extends JDialog {
 				iconFile="";
 			}
 		}
-		else if (OS.contains("MAC")) workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
+		else if (OS.contains("MAC")) {
+			workingDirectory = System.getProperty("user.home")+"/Library/Application Support"; // Mac, look for "Application Support"
+			iconFile= "calendrier.icns";
+		}
 		else workingDirectory = System.getProperty("user.home"); //Otherwise, we assume Linux
 		workingDirectory += "/calendrier";	
 		// check where is the config file
@@ -1050,7 +1057,7 @@ public class dlgConfig extends JDialog {
 			}
 		}
 		
-		// Get icon
+		// Write icon
 		if (!(new File(workingDirectory+"/"+iconFile).exists())) {
 			try {
 				InputStream bpng = ClassLoader.class.getResourceAsStream("/resources/"+iconFile);

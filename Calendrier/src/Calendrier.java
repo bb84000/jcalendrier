@@ -1260,8 +1260,8 @@ public class Calendrier {
 				chknewver.setProgname("Calendrier");
 				chknewver.setVersionURL("http://www.sdtp.com/versions/versions.csv");
         		chknewver.setUpdateURL(about.urlUpdate);
-				//chknewver.getLastVersion("jcalendrier",  Config.version+"."+Config.build);
-				chknewver.getLastVersion("jcalendrier", "0.5.0.0");
+				chknewver.getLastVersion("jcalendrier",  Config.version+"."+Config.build);
+				//chknewver.getLastVersion("jcalendrier", "0.5.0.0");
 			}
 		}
 		

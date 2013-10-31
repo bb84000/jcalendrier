@@ -81,7 +81,7 @@ public class aboutBox extends JDialog {
 		
 		// program icon
 		lblicon = new JLabel("");
-		lblicon.setBounds(20, 23, 32, 32);
+		lblicon.setBounds(0, 0, 64, 64);
 		panel.add(lblicon);
 		
 		// Program name 

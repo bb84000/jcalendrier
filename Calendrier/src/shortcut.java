@@ -11,9 +11,33 @@ import java.io.InputStream;
 
 public class shortcut {
 	
+	/*AllUsersDesktop     AllUsersStartMenu     AllUsersPrograms     AllUsersStartup
+    Desktop     Favorites     Fonts     MyDocuments     NetHood     PrintHood
+    Programs     Recent     SendTo     StartMenu     Startup     Templates*/
+
+	public enum sh_Type {
+	    U_STARTUP, U_DESKTOP, U_STARTMENU, U_MYDOCUMENTS
+	}
+	
 	// create link in Windows startup folder;
-	public static void createWinShortcut(String appPath, String appName, String param, String shcutname, String icon) {
-			
+	public static void createWinShortcut(sh_Type  shtype, String appPath, String appName, String param, String shcutname, String icon) {
+		
+		String strtype = "Desktop";
+		switch (shtype) {
+        	case U_STARTUP:
+            	strtype= "Startup";
+            	break;
+        	case U_DESKTOP:
+        		strtype= "Desktop";
+        		break;
+        	case U_STARTMENU:
+        		strtype= "StartMenu"; 
+        		break;
+        	default:
+        		strtype = "MyDocuments";
+        		break;
+		}
+		
 		// Create vbs script to create shortcut 
 		try {
 			String tmpdir = System.getProperty("java.io.tmpdir");
@@ -27,7 +51,7 @@ public class shortcut {
 			
 			//  To have two quotes in vbs, double the quote.
 			String content = "Set Shell = CreateObject(\"WScript.Shell\")\r\n";
-			content += "startupDir = Shell.SpecialFolders(\"Startup\")\r\n";
+			content += "startupDir = Shell.SpecialFolders(\""+strtype+"\")\r\n";
 			content += "Set link= Shell.CreateShortcut(startupDir & \"\\"+shcutname+"\")\r\n";
 			content += "link.Arguments = \"-jar \"\""+appPath+appName+"\"\" "+param+"\"\r\n";
 			content += "link.IconLocation = \""+icon+"\"\r\n";
@@ -58,9 +82,24 @@ public class shortcut {
 	    }
 	}
 	
-	// delete link in startup folder
-	public static void deleteWinShortcut(String shcutname) {
+	// delete windows shortcut
+	public static void deleteWinShortcut(sh_Type  shtype, String shcutname) {
 		try {
+			String strtype = "Desktop";
+			switch (shtype) {
+	        	case U_STARTUP:
+	            	strtype= "Startup";
+	            	break;
+	        	case U_DESKTOP:
+	        		strtype= "Desktop";
+	        		break;
+	        	case U_STARTMENU:
+	        		strtype= "StartMenu"; 
+	        		break;
+	        	default:
+	        		strtype = "MyDocuments";
+	        		break;
+			}
 			String tmpdir = System.getProperty("java.io.tmpdir");
 			File file = new File(tmpdir+"/delshcut.vbs");
 			FileOutputStream	fop = new FileOutputStream(file);
@@ -71,7 +110,7 @@ public class shortcut {
 			}
 
 			String content = "Set Shell = CreateObject(\"WScript.Shell\")\r\n";
-			content += "startupDir = Shell.SpecialFolders(\"Startup\")\r\n";
+			content += "startupDir = Shell.SpecialFolders(\""+strtype+"\")\r\n";
 			content += "Set fso =  CreateObject(\"Scripting.FileSystemObject\")\r\n";
 			content += "fso.DeleteFile startupDir & \"\\"+shcutname+"\"\r\n";
 			
@@ -101,12 +140,11 @@ public class shortcut {
 	// Create LInux shortcut
 	
 	public static void createLinuxShortcut(String appPath, String appName, String param, String shcutname, String icon) {
-	
+		// echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}
 		// Create desktop file
 		try {
-			
-			
 			String home =System.getProperty("user.home")+"/";
+			
 			File file= null;
 			// Gnome and consorts
 			String gnomedir = home+".config/autostart/";

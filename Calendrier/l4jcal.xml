@@ -11,7 +11,7 @@
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon></icon>
+  <icon>C:\Users\Bernard\git\calendrier\Calendrier\src\resources\calendrier.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
