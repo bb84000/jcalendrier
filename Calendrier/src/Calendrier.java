@@ -1,10 +1,10 @@
 /**
- * Base class for Calendrier application 
- * 
- * 
- * bb 95 - october 2013
- *  
- */
+* Base class for Calendrier application
+*
+*
+* bb - november 2013
+*
+*/
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -148,7 +148,10 @@ public class Calendrier {
 	private JMenuItem pMnuDelImage;
 	private JMenuItem pMnuPrefs;
 	private static boolean startMini = false; 
-	
+	private JPopupMenu pMnuQuarter;
+	private JMenuItem pMnuEvent;
+	private static DateTime seldate= null;
+	private dlgEvent dayEvent = new dlgEvent();
 	
 	/**
 	 * Launch the application.
@@ -416,6 +419,30 @@ public class Calendrier {
 		pane_q1.add(header_q1, BorderLayout.NORTH);
 		pane_q1.add(table_q1, BorderLayout.CENTER);
 
+		pMnuQuarter = new JPopupMenu();
+		pMnuQuarter.setName("pmnuquarter");
+		
+		addPopup(table_q1, pMnuQuarter);
+		  
+		pMnuEvent = new JMenuItem("Evenement");
+		pMnuEvent.setName("event");
+		  
+		// Processing date related menu
+		ActionListener dal = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem jmi = (JMenuItem) e.getSource();
+				String jminame = jmi.getName();
+				// show event create/modify dialog
+				if (jminame.equals("event")){
+					dayEvent.setVisible(true);
+				}
+				
+			
+			}};
+		
+		pMnuEvent.addActionListener(dal);
+		pMnuQuarter.add(pMnuEvent);
+
 		
 		// Todo user selected images
 		lblImage_1 = new JLabel("");
@@ -456,7 +483,7 @@ public class Calendrier {
 
 			public boolean isCellEditable(int row, int column) {
 				return false;
-			};
+			};  
 		};
 
 		table_q2.setMinimumSize(new Dimension(313, 612));
@@ -491,6 +518,7 @@ public class Calendrier {
 		pane_q2.setLayout(new BorderLayout());
 		pane_q2.add(header_q2, BorderLayout.NORTH);
 		pane_q2.add(table_q2, BorderLayout.CENTER);
+		addPopup(table_q2, pMnuQuarter);
 
 		// Panel Today
 		panelToday_1 = new JPanel();
@@ -676,6 +704,7 @@ public class Calendrier {
 		pane_q3.setLayout(new BorderLayout());
 		pane_q3.add(header_q3, BorderLayout.NORTH);
 		pane_q3.add(table_q3, BorderLayout.CENTER);
+		addPopup(table_q3, pMnuQuarter);
 
 		// Ajoute image
 		lblImage_2 = new JLabel("");
@@ -752,6 +781,8 @@ public class Calendrier {
 		pane_q4.setLayout(new BorderLayout());
 		pane_q4.add(header_q4, BorderLayout.NORTH);
 		pane_q4.add(table_q4, BorderLayout.CENTER);
+		addPopup(table_q4, pMnuQuarter);
+		
 		// Active le scroll sur le pane_center_h2.add(lblNewLabel1, tappane
 		scrollPane.setViewportView(tabpane);
 
@@ -893,11 +924,11 @@ public class Calendrier {
 					// Show about dialog
 					if (jminame.equals("pmnuabout")) {
 						// to know if we have searched update in aboutbox
-						about.lstUpdate= null;
+						about.setLastUpdate(Config.lastupdchk); //null;
 						about.setVisible(true);
 					   	if (about.lstUpdate != null) {
 					   		Config.lastupdchk= about.lstUpdate;
-					   	}
+					   }
 					}
 				} catch (Exception e1) {
 					// do nothing item without name
@@ -1170,7 +1201,7 @@ public class Calendrier {
 		MouseAdapter ma = new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-					setLabelSelected (e.getComponent());
+				setLabelSelected (e.getComponent());
 			}
 		};
 		
@@ -1256,12 +1287,11 @@ public class Calendrier {
 			DateTime nextupd = 	Config.lastupdchk.plusDays(7);
 			if (nextupd.isBeforeNow()) {
 				Config.lastupdchk = new DateTime ();
-				chknewversion chknewver = new chknewversion(); 
-				chknewver.setProgname("Calendrier");
-				chknewver.setVersionURL("http://www.sdtp.com/versions/versions.csv");
-        		chknewver.setUpdateURL(about.urlUpdate);
-				chknewver.getLastVersion("jcalendrier",  Config.version+"."+Config.build);
-				//chknewver.getLastVersion("jcalendrier", "0.5.0.0");
+				chknewversion.setProgname("Calendrier");
+				chknewversion.setVersionURL("http://www.sdtp.com/versions/versions.csv");
+        		chknewversion.setUpdateURL(about.urlUpdate);
+				chknewversion.getLastVersion("jcalendrier",  Config.version+"."+Config.build);
+				//chknewversion.getLastVersion("jcalendrier", "0.5.0.0");
 			}
 		}
 		
@@ -1414,29 +1444,38 @@ public class Calendrier {
 	private void setTooltipOver (Component cp, Point p) {
 		JTable jt = (JTable) cp;
         int month = jt.columnAtPoint(p)+1+(Integer.parseInt(jt.getName())-1)*3;
+		//pMnuEvent.setVisible(true);
         try {
-			DateTime dt = new DateTime(Year, month, jt.rowAtPoint(p)+1, 12,0,0);
-			String s = "<html>";
-			s += Astro.DateToString(dt)+"<br>";
-			s += setLabelDay(dt);
+			//DateTime dt = new DateTime(Year, month, jt.rowAtPoint(p)+1, 12,0,0);
+			// store current date in a variable for right click menu
+        	seldate= new DateTime(Year, month, jt.rowAtPoint(p)+1, 12,0,0);
+        	String s = "<html>";
+			s += Astro.DateToString(seldate)+"<br>";
+			s += setLabelDay(seldate);
 			jt.setToolTipText(s);
 		} catch (Exception e) {
 			// invalid day
 			jt.setToolTipText("");
+			seldate=null;
+			//pMnuEvent.setVisible(false);
 		}
   	}
 	// set selected label
 	private void setLabelSelected (Component cp) {
-		JTable jt = (JTable) cp;
-		int month = jt.getSelectedColumn()+1+(Integer.parseInt(jt.getName())-1)*3;	
+		//JTable jt = (JTable) cp;
+		//int month = jt.getSelectedColumn()+1+(Integer.parseInt(jt.getName())-1)*3;	
 		try {
-			DateTime dt = new DateTime(Year, month, jt.getSelectedRow()+1, 12,0,0);
+					//	pMnuEvent.setVisible(true);
+			//DateTime dt = new DateTime(Year, month, jt.getSelectedRow()+1, 12,0,0);
+
 			String s = "<html>"; 
-			s += Astro.DateToString(dt)+"<br>";
-			s += setLabelDay(dt);
+			s += Astro.DateToString(seldate)+"<br>";
+			s += setLabelDay(seldate);
 			lblSelected_1.setText(s);
 			lblSelected_2.setText(s);
 		} catch (Exception e1) {
+			
+			
 			// Invalid cell
 		}
 
@@ -1500,7 +1539,8 @@ public class Calendrier {
 				int curpane = tabpane.getSelectedIndex(); 
 				setHalfImage(Year, curpane);
 				setSeasons(Year);
-				Quarter.repaint();
+				//Quarter.repaint();
+				frmCalendrier.repaint();
 			}
 		}
     }
@@ -1580,6 +1620,15 @@ public class Calendrier {
 			}
 
 			private void showMenu(MouseEvent e) {
+				try {
+					// popup in quarters, cehck if date valid
+					if (popup.getName().equalsIgnoreCase("pmnuquarter")) 
+					{
+						if (seldate==null) return;
+					}
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+				}
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
 		});

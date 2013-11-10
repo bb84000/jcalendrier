@@ -1,41 +1,41 @@
 /**
- * Astro class
- * 
- * TimeDate getPaques(int year)
- * 	Get Paques date (joda format)
- * 	Based on Butcher algorithm
- * 	Wikipedia http://fr.wikipedia.org/wiki/Calcul_de_la_date_de_P%C3%A2ques
- * 
- * void GetMoonDays(String[][] MoonDays, int year)
- * 	Fill an array with moon phases dates and type (UTC)
- * 		variable passed MoonDays must have at least 56 rows and 2 columns
- * 	
- * boolean isLeapYear(int year)
- *  This test (written for C, C#, Java, and most other C-like languages) utilizes a single TRUE/FALSE expression that consists of three separate tests:
- * 	4th year test: year & 3
- * 	100th year test: year % 25
- *	400th year test: year & 15
- * 	See: http://stackoverflow.com/questions/3220163/how-to-find-leap-year-programatically-in-c/11595914#11595914
- * 
- * int trunc (double x)
- * 	returns integer part of a double
- * 
- * double frac (double x)
- * 	returns fractional par of a double
- * 
- * DateTime GetSaisonDate(int year, int num) 
- *  returns date of new season (UTC)
- *  num : spring 0, summer 1, autumn 2, winter 3
- * 
- * DateTime calcSunrise(DateTime dt, double latitude, double longitude, boolean rise)
- *  Return sunrise (rise = true) and sunset (rise = false) in UTC
- * 
- * sunrise and sunset based on parts of code from NOAA Solar Calculator
- * at http://www.srrb.noaa.gov/highlights/sunrise/sunrise.html    
- * 
- * julian / DateTime conversions
- * 
- */
+* Astro class
+*
+* TimeDate getPaques(int year)
+*         Get Paques date (joda format)
+*         Based on Butcher algorithm
+*         Wikipedia http://fr.wikipedia.org/wiki/Calcul_de_la_date_de_P%C3%A2ques
+*
+* void GetMoonDays(String[][] MoonDays, int year)
+*         Fill an array with moon phases dates and type (UTC)
+*                 variable passed MoonDays must have at least 56 rows and 2 columns
+*         
+* boolean isLeapYear(int year)
+* This test (written for C, C#, Java, and most other C-like languages) utilizes a single TRUE/FALSE expression that consists of three separate tests:
+*         4th year test: year & 3
+*         100th year test: year % 25
+*        400th year test: year & 15
+*         See: http://stackoverflow.com/questions/3220163/how-to-find-leap-year-programatically-in-c/11595914#11595914
+*
+* int trunc (double x)
+*         returns integer part of a double
+*
+* double frac (double x)
+*         returns fractional par of a double
+*
+* DateTime GetSaisonDate(int year, int num)
+* returns date of new season (UTC)
+* num : spring 0, summer 1, autumn 2, winter 3
+*
+* DateTime calcSunrise(DateTime dt, double latitude, double longitude, boolean rise)
+* Return sunrise (rise = true) and sunset (rise = false) in UTC
+*
+* sunrise and sunset based on parts of code from NOAA Solar Calculator
+* at http://www.srrb.noaa.gov/highlights/sunrise/sunrise.html
+*
+* julian / DateTime conversions
+*
+*/
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;

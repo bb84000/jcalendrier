@@ -2,6 +2,7 @@
  * Configuration dialog and processing
  * read property file containing version informations
  */
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.ComponentOrientation;

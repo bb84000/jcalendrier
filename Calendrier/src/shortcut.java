@@ -1,8 +1,8 @@
 /*
- * Create shortcuts in Windows startup folder
- * .desktop in linux autostart folder
- * .plist file in Os X LaunchAgents folder
- */
+* Create shortcuts in Windows startup folder
+* .desktop in linux autostart folder
+* .plist file in Os X LaunchAgents folder
+*/
 
 import java.io.File;
 import java.io.FileOutputStream;

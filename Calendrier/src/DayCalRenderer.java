@@ -1,8 +1,10 @@
 /*
- * Table cell renderer and functions to populate the calendar
- * Use an extended label with a custom paint method to have the mmoon icons
- * on the right of the cell.  
- */
+* Table cell renderer and functions to populate the calendar
+* Use an extended label with a custom paint method to have the mmoon icons
+* on the right of the cell.
+*/
+
+
 
 
 import java.awt.*;
@@ -32,7 +34,7 @@ implements	TableCellRenderer
 	private Color bkcolor = new Color(255,255,255);
 	// lines draw parameters
 	private ArrayList<LineDraw> Lines;
-
+	private boolean evLine = false; 
 	// dLIne structure
 	private class LineDraw {
 		public int xb;
@@ -457,6 +459,19 @@ implements	TableCellRenderer
 				}		
 			}
 			g.setColor(curCol);
+		}
+		
+		// Draw event dot
+		if (evLine) 
+		{
+			g.setColor(Color.PINK);
+			g.drawLine( 1, 5, 1, height-5);
+			g.drawLine( 2, 4, 2, height-4);
+			g.drawLine( 3, 4, 3, height-4);
+			g.drawLine( 4, 4, 4, height-4);
+			g.drawLine( 5, 4, 5, height-4);
+			g.drawLine( 6, 4, 6, height-4);
+			g.drawLine( 7, 5, 7, height-5);
 		}
 		super.paint( g );
 		// Paint icon on right side of label

@@ -1,7 +1,8 @@
 /*
- * Check if a new version is available;
- * 
- */
+* Check if a new version is available;
+*
+*/
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -16,25 +17,25 @@ import bb.utils.bbutils;
 
 
 public class chknewversion {
-	private String progname="";
-	private String versionURL="http://www.sdtp.com/versions/versions.csv";
-	private String updateURL="";
+	private static String progname="";
+	private static String versionURL="http://www.sdtp.com/versions/versions.csv";
+	private static String updateURL="";
 	
-	private String version;
+	private static String version;
 		
-	public void setProgname(String prgname){
+	public static void setProgname(String prgname){
 		progname= prgname;
 	}
 	
-	public void setVersionURL(String verURL) {
+	public static void setVersionURL(String verURL) {
 		versionURL= verURL;
 	}
 	
-	public void setUpdateURL(String updURL) {
+	public static void setUpdateURL(String updURL) {
 		updateURL= updURL;
 	}
 	
-	public void getLastVersion(String program, String curver) {
+	public static void getLastVersion(String program, String curver) {
 		final String prog = program;
 		final String cver = curver;
 		
@@ -89,7 +90,7 @@ public class chknewversion {
 
 	}
 	
-	public long VersionToInt (String version) {
+	public static long VersionToInt (String version) {
 		long result = 0;
 		try {
 			String ar [] = version.split(Pattern.quote("."));

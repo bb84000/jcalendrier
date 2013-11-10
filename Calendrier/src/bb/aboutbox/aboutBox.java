@@ -29,6 +29,8 @@ import java.awt.Font;
 
 import bb.stretchicon.StretchIcon;
 import bb.utils.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class aboutBox extends JDialog {
 	/**
@@ -42,6 +44,7 @@ public class aboutBox extends JDialog {
 	private JLabel lblsitecaption;
 	private JLabel lblWebsite;
 	private JLabel lblChkUpdate;
+	private String updToolTip;
 	public String urlUpdate = "";
 	public DateTime lstUpdate = null;
 	
@@ -64,6 +67,12 @@ public class aboutBox extends JDialog {
 	 * Create the dialog.
 	 */
 	public aboutBox(JFrame frm) {
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				
+			}
+		});
 		setName("dlgAbout");
 		setResizable(false);
 		setBounds(100, 100, 360, 225);
@@ -133,7 +142,7 @@ public class aboutBox extends JDialog {
 						if (jl.getName().equals("lblWebsite")) bbutils.openURL(jl.getText());
 						else if (jl.getName().equals("lblChkUpdate")) {
 							bbutils.openURL(urlUpdate);
-							lstUpdate = new DateTime();
+							setLastUpdate(new DateTime());
 						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -211,7 +220,14 @@ public class aboutBox extends JDialog {
 	
 	public void setURLupdate (String caption, String url, String tooltip, DateTime lastupdate) {
 		lblChkUpdate.setText(caption);
+		urlUpdate = url;
+		updToolTip = tooltip;
+		setLastUpdate(lastupdate);
+	}
+	
+	public void setLastUpdate(DateTime lastupdate) {
 		String s0;
+		lstUpdate= lastupdate;
 		try {
 			s0 = " : ";
 			s0 += lastupdate.toString("dd/MM/yyyy");
@@ -219,7 +235,7 @@ public class aboutBox extends JDialog {
 			// invalid or no date
 			s0="";
 		}
-		lblChkUpdate.setToolTipText(tooltip+s0);
-		urlUpdate = url;
+		lblChkUpdate.setToolTipText(updToolTip+s0);
+		
 	}
 }

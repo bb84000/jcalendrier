@@ -80,5 +80,10 @@ Version 0.6.0.9 - 30/10/2013
  - Corrected bug : wrong version in search update process
  - Added icon for mac
 
+Version 0.6.0.10 - 10/11/2013
+ - Changed chknewversion class to static
+ - Corrected bug : Correct display of new version check date in about box tooltip
+ - Corrected bug : calendrier not refreshed when changing year in text field
+ - Planning of diverse events (not functional)
  
- 
+  

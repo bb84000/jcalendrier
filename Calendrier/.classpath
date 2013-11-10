@@ -12,5 +12,10 @@
 	<classpathentry kind="lib" path="src/libs/bbutils.jar"/>
 	<classpathentry kind="lib" path="src/libs/stretchicon.jar"/>
 	<classpathentry kind="lib" path="src/libs/filedownload.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Bernard/workspace/jCalendar/lib/jcalendar-1.4.jar" sourcepath="C:/Users/Bernard/workspace/jCalendar/src">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/Bernard/workspace/jCalendar/doc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
