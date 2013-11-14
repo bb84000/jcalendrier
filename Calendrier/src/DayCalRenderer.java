@@ -81,6 +81,8 @@ implements	TableCellRenderer
 
 	private String[][] MoonDays; 
 	private bArrayList feries;
+	public bArrayList userEvents;
+	public String evtsfile;
 	public bArrayList imagesHalf;
 	public String imgfile;
 	private bArrayList saints;
@@ -131,7 +133,12 @@ implements	TableCellRenderer
 		if (workingDirectory.length()> 0) imgfile = workingDirectory+"/"+imgfile;
 		imagesHalf.readCSVfile(imgfile);
 
-
+		// user events list
+		userEvents = new bArrayList();
+		evtsfile= "userevents.csv";
+		if (workingDirectory.length()> 0) evtsfile = workingDirectory+"/"+evtsfile;
+		userEvents.readCSVfile(evtsfile);
+		
 		// saints arrays
 		saints = new bArrayList();
 		String sntfile = "saints.csv";

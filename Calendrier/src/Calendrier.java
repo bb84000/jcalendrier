@@ -151,8 +151,9 @@ public class Calendrier {
 	private JPopupMenu pMnuQuarter;
 	private JMenuItem pMnuEvent;
 	private static DateTime seldate= null;
-	private dlgEvent dayEvent = new dlgEvent();
-	
+	private dlgEvent dayEvent;
+	private ComponentAdapter ppca;
+	private ActionListener dal;
 	/**
 	 * Launch the application.
 	 */
@@ -240,7 +241,8 @@ public class Calendrier {
 		// Icone de l'application
 		MainIcon = Toolkit.getDefaultToolkit().getImage(
 		Calendrier.class.getResource("/resources/calendrier.png"));
-		
+		// Set dialog event
+		dayEvent = new dlgEvent();
 		// Set config file name and load config if exists
 		Config = new dlgConfig(frmCalendrier);
 		Config.setIconImage(MainIcon);
@@ -419,29 +421,7 @@ public class Calendrier {
 		pane_q1.add(header_q1, BorderLayout.NORTH);
 		pane_q1.add(table_q1, BorderLayout.CENTER);
 
-		pMnuQuarter = new JPopupMenu();
-		pMnuQuarter.setName("pmnuquarter");
 		
-		addPopup(table_q1, pMnuQuarter);
-		  
-		pMnuEvent = new JMenuItem("Evenement");
-		pMnuEvent.setName("event");
-		  
-		// Processing date related menu
-		ActionListener dal = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JMenuItem jmi = (JMenuItem) e.getSource();
-				String jminame = jmi.getName();
-				// show event create/modify dialog
-				if (jminame.equals("event")){
-					dayEvent.setVisible(true);
-				}
-				
-			
-			}};
-		
-		pMnuEvent.addActionListener(dal);
-		pMnuQuarter.add(pMnuEvent);
 
 		
 		// Todo user selected images
@@ -518,7 +498,7 @@ public class Calendrier {
 		pane_q2.setLayout(new BorderLayout());
 		pane_q2.add(header_q2, BorderLayout.NORTH);
 		pane_q2.add(table_q2, BorderLayout.CENTER);
-		addPopup(table_q2, pMnuQuarter);
+		
 
 		// Panel Today
 		panelToday_1 = new JPanel();
@@ -704,7 +684,7 @@ public class Calendrier {
 		pane_q3.setLayout(new BorderLayout());
 		pane_q3.add(header_q3, BorderLayout.NORTH);
 		pane_q3.add(table_q3, BorderLayout.CENTER);
-		addPopup(table_q3, pMnuQuarter);
+		
 
 		// Ajoute image
 		lblImage_2 = new JLabel("");
@@ -781,7 +761,65 @@ public class Calendrier {
 		pane_q4.setLayout(new BorderLayout());
 		pane_q4.add(header_q4, BorderLayout.NORTH);
 		pane_q4.add(table_q4, BorderLayout.CENTER);
+		
+		// Component listener to set the modal dialogs at the center of frame
+
+		ppca = new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				try {
+					Point p = frmCalendrier.getLocation();
+					p.x += (frmCalendrier.getWidth() / 2) - (arg0.getComponent().getWidth() / 2);
+					p.y += (frmCalendrier.getHeight() / 2) - (arg0.getComponent().getHeight() / 2);
+					arg0.getComponent().setLocation(p);
+				} catch (Exception e) {
+					//Do nothing, error !
+				}
+			}
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				// if config dialog, initialize vars and repaint;
+				// else do nothing
+				if (arg0.getComponent().getName().equals("dlgConfig")) {
+					applyConfig();
+					frmCalendrier.setState(CurState);
+					frmCalendrier.setLocation(CurLoc);
+					frmCalendrier.setSize(CurSize);
+					frmCalendrier.repaint();
+					DateTime dt =new DateTime();
+					setLabelToday(dt);
+				}
+			}
+		};
+		// User Day popup menu
+		pMnuQuarter = new JPopupMenu();
+		pMnuQuarter.setName("pmnuquarter");
+		addPopup(table_q1, pMnuQuarter);
+		addPopup(table_q2, pMnuQuarter);
+		addPopup(table_q3, pMnuQuarter);
 		addPopup(table_q4, pMnuQuarter);
+		
+		// Processing day related menu
+		dal = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem jmi = (JMenuItem) e.getSource();
+				String jminame = jmi.getName();
+				// show event create/modify dialog
+				if (jminame.equals("newevent")){
+					
+					dayEvent.setDate(seldate);
+					dayEvent.setVisible(true);
+				}
+				
+			
+			}};
+		
+		// Event submenu
+		pMnuEvent = new JMenuItem("Nouvel \u00E9venement");
+		pMnuEvent.setName("newevent");
+		dayEvent.addComponentListener(ppca); 
+		pMnuEvent.addActionListener(dal);
+		pMnuQuarter.add(pMnuEvent);
 		
 		// Active le scroll sur le pane_center_h2.add(lblNewLabel1, tappane
 		scrollPane.setViewportView(tabpane);
@@ -1121,37 +1159,7 @@ public class Calendrier {
 		setSeasons(Year);
 
 		// Config and about popup menus
-		// Component listener to set the modal dialogs at the center of frame
-
-		ComponentAdapter ppca = new ComponentAdapter() {
-			@Override
-			public void componentShown(ComponentEvent arg0) {
-				try {
-					Point p = frmCalendrier.getLocation();
-					p.x += (frmCalendrier.getWidth() / 2) - (arg0.getComponent().getWidth() / 2);
-					p.y += (frmCalendrier.getHeight() / 2) - (arg0.getComponent().getHeight() / 2);
-					arg0.getComponent().setLocation(p);
-				} catch (Exception e) {
-					//Do nothing, error !
-				}
-			}
-			@Override
-			public void componentHidden(ComponentEvent arg0) {
-				// if config dialog, initialize vars and repaint;
-				// else do nothing
-				if (arg0.getComponent().getName().equals("dlgConfig")) {
-					applyConfig();
-					frmCalendrier.setState(CurState);
-					frmCalendrier.setLocation(CurLoc);
-					frmCalendrier.setSize(CurSize);
-					frmCalendrier.repaint();
-
-					
-					DateTime dt =new DateTime();
-					setLabelToday(dt);
-				}
-			}
-		};
+		
 		
 		// Launch config popup menu;
 		pMnuGen = new JPopupMenu();
@@ -1604,7 +1612,7 @@ public class Calendrier {
 		}
 	}
 
-	// Popup menu to set configuration
+	// Popup menu routines
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
