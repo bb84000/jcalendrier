@@ -1,3 +1,5 @@
+// New event changed from -2 to -1 index if changed
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -7,35 +9,49 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerDateModel;
+import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.text.DateFormatter;
+import javax.swing.text.DefaultFormatterFactory;
 
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 import org.joda.time.MutableDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.toedter.calendar.JDateChooser;
-import javax.swing.SpinnerModel;
-import javax.swing.JTextField;
-import javax.swing.JTextArea;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
-import java.awt.SystemColor;
-import javax.swing.UIManager;
+
 
 
 public class dlgEvent extends JDialog {
@@ -43,29 +59,138 @@ public class dlgEvent extends JDialog {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public boolean recall;
-	private MutableDateTime Curdate= new MutableDateTime();
+	
+	// Event structure : index,begin date,end date,recall,recall alert,type,reference,location,comment  
+	public class Event {
+		public int index;
+		public DateTime begDate ;
+		public DateTime endDate;
+		public DateTime recDate;
+		public boolean recall;
+		public String type;
+		public String reference;
+		public String location;
+		public String comment;
+		public Event (int eindex, DateTime ebegdate, DateTime eenddate, DateTime erecdate, boolean erecall,
+				      String etype, String ereference, String elocation, String ecomment) {
+			index= eindex;
+			begDate= ebegdate;
+			endDate= eenddate;
+			recDate= erecdate;
+			recall= erecall;
+			type= etype;
+			reference= ereference;
+			location= elocation;
+			comment= ecomment;
+		}
+		
+		// create event with array values
+		public void fromArray (String [] arr) {
+			DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY/MM/dd-HH:mm");
+			try {
+				index = Integer.parseInt(arr[0]);
+			} catch (NumberFormatException e) {
+				index= 0;
+			}
+			try {
+				begDate=  formatter.parseDateTime(arr[1]);
+			} catch (Exception e) {
+				begDate=  formatter.parseDateTime("2000/01/01-00:00");
+			}
+			try {
+				endDate=  formatter.parseDateTime(arr[2]);
+			} catch (Exception e) {
+				endDate=  formatter.parseDateTime("2000/01/01-00:00");
+			}
+			try {
+				recDate=  formatter.parseDateTime(arr[3]);
+			} catch (Exception e) {
+				recDate=  formatter.parseDateTime("2000/01/01-00:00");
+			}
+			try {
+				recall = (arr[4].equals("true"));
+			} catch (Exception e) {
+				recall = false;
+			}
+			type= arr[5];
+			reference= arr[6];
+			location= arr[7];
+			comment= arr[8];
+		}
+		
+		// populate an array with event parameters
+		public String [] toArray () {
+			String [] arr = new String [9];
+			try {
+				arr [0] = String.valueOf(index);
+			} catch (Exception e) {
+				arr [0] = "0";
+			} 
+			try {
+				arr [1] = begDate.toString("YYYY/MM/dd-HH:mm");
+			} catch (Exception e) {
+				arr [1] = "2000/01/01-00:00";
+			}
+			try {
+				arr [2] = endDate.toString("YYYY/MM/dd-HH:mm");
+			} catch (Exception e) {
+				arr [2] = "2000/01/01-00:00";
+			}
+			try {
+				arr [3] = recDate.toString("YYYY/MM/dd-HH:mm");
+			} catch (Exception e) {
+				arr [3] = "2000/01/01-00:00";
+			}
+			if (recall) arr [4]= "true";
+			else arr [4]= "false";
+			arr [5] = type;
+			arr [6]= reference;
+			arr [7]= location;
+			arr [8]= comment;
+			return arr;
+		}
+	}
+
+	public ArrayList <String[]> arrEvents= new ArrayList <String[]> ();
+	public Event event = new Event(-2, null, null, null, false, "E", "Nouvel évenement", "", "");
+	public boolean changed;
+	public int [] deleted = new int [50];
+	public int nextEventIndex;
 	private final JPanel contentPanel = new JPanel();
 	private JDateChooser dtEvChooser;
 	private JSpinner tiEvBegin;
 	private ChangeListener cleb;
 	private SpinnerDateModel sdm ;
-	private JButton okButton ;
+
+	//cbDuration strings
+	private String [] cbdarr = {"30 minutes", "1 heure", "1 h 30", "2 heures", "4 heures", "8 heures", "12 heures", "Choisir heure de fin"};
+	private int [] cbdmins = {30,60,90,120,240,480,720,0}; 
 	private JComboBox<String> cbDuration;  
 	private ActionListener cbdal ;
+	private SpinnerDateModel sdm1; 
 	private JSpinner tiEvEnd;
 	private ChangeListener clee;
-	private DateTime begDate;
-	private DateTime endDate;
-	private DateTime recDate;
+	
+	//cbRecall strings
+	private String [] cbrarr = {"Aucun", "Heure de début", "5 minutes avant", "10 minutes avant", "15 minutes avant", "30 minutes avant", "1 heure avant", "Autre"};
+	private int [] cbrmins =  {0,0,5,10,15,30,60,0};
 	private JComboBox <String> cbRecall;
 	private ActionListener cbral ;
 	private PropertyChangeListener pcldc;
 	private JSpinner tiEvRec;
 	private JTextField tfReference;
 	private JTextField tfLocation;
+	private JTextArea taComment;
 	private JComboBox<String> cbType;
-	
+	private JButton delButton;
+	private JButton okButton;
+	private JButton cancelButton;
+	private ActionListener albtn;
+	private JList <String> evList;
+	private DefaultListModel<String> lm;
+	private ListSelectionListener llev; 
+	private ChangeListener cler;
+	private DocumentListener dl;
 	/**
 	 * Launch the application.
 	 */
@@ -81,63 +206,85 @@ public class dlgEvent extends JDialog {
 
 	public void setDate(DateTime dat) {
 		// initialize to the selected day at 12h00
-		Curdate= new MutableDateTime(dat);
+		MutableDateTime Curdate= new MutableDateTime(dat);
 		Curdate.setSecondOfMinute(0);
 		Curdate.setMillisOfSecond(0);
+		//for (int i=0; i<deleted.length; i+=1) deleted [i]=-1;
+		// Create new event
+		event= new Event (-2, new DateTime(Curdate), new DateTime(Curdate).plusMinutes(30), new DateTime(Curdate), false, "E", "Nouvel évenement", "", "");
+		arrEvents.clear();
+		arrEvents.add(event.toArray());
+		evList.removeListSelectionListener(llev);
+		lm.clear();
+		lm.addElement("<Nouvel évenement>");
+		evList.addListSelectionListener(llev);
+		dtEvChooser.removePropertyChangeListener(pcldc);
+		tiEvBegin.removeChangeListener(cleb);
+		tiEvEnd.removeChangeListener(cleb);
+		tiEvRec.removeChangeListener(cler);
 		dtEvChooser.setDate(Curdate.toDate());
-		begDate= new DateTime(Curdate);
-		tiEvBegin.setValue(begDate.toDate());
-		endDate= new DateTime(Curdate).plusMinutes(30);
-		tiEvEnd.setValue(endDate.toDate());
-		tiEvRec.setValue(begDate.toDate());
+		tiEvBegin.setValue(event.begDate.toDate());
+		tiEvEnd.setValue(event.endDate.toDate());
+		tiEvRec.setValue(event.recDate.toDate());	
+		tiEvBegin.addChangeListener(cleb);
+		tiEvEnd.addChangeListener(cleb);
+		tiEvRec.addChangeListener(cler);
+		dtEvChooser.addPropertyChangeListener(pcldc);
+		changeState(false);
+
+		// todo delete button only if there are existing fields
+		//delButton.setEnabled(changed);
+		// load events if any
+		
+	}
+	// populate event list with day events
+	public void setEvents (String [] arr) {
+		arrEvents.add(arr);
+		evList.removeListSelectionListener(llev);
+		lm.addElement(arr[6]); 
+		evList.addListSelectionListener(llev);
 	}
 	
 	/**
 	 * Create the dialog.
 	 */
 	public dlgEvent() {
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				evList.setSelectedIndex(0);
+				for (int i=0; i<deleted.length; i+=1) deleted [i]=-1;
+			}
+		});
+		
+		event= new Event (-2, new DateTime(), new DateTime().plusMinutes(30), new DateTime(), false, "E", "Nouvel évenement", "", "");
+		arrEvents.add(event.toArray());
+		setModalityType(ModalityType.APPLICATION_MODAL);
 		setTitle("Nouvel \u00E9v\u00E9nement");
-		setBounds(100, 100, 594, 301);
+		setBounds(100, 100, 594, 307);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new CompoundBorder());
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
 		
-		// Date and time picker
+		// Date picker
 		JLabel lblEvDate = new JLabel("Date :");
 		lblEvDate.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		lblEvDate.setBounds(230, 17, 46, 14);
 		contentPanel.add(lblEvDate);
-		
 		dtEvChooser = new JDateChooser();
-		
-		
 		dtEvChooser.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		dtEvChooser.setDateFormatString("dd/MM/yyyy");
 		dtEvChooser.setBounds(295, 14, 120, 20);
 		contentPanel.add(dtEvChooser);
-		dtEvChooser.setDate(Curdate.toDate());		
-		
-		//cbDuration strings
-		final String [] cbdarr = {"30 minutes", "1 heure", "1 h 30", "2 heures", "4 heures", "8 heures", "12 heures", "Choisir heure de fin"};
-		final int [][] cbdcalend = {{0,1,1,2,4,8,12,0}, {30,0,30,0,0,0,0,0}}; 
-		
-		//cbRecall strings
-		final String [] cbrarr = {"Aucun", "Heure de début", "5 minutes avant", "10 minutes avant", "15 minutes avant", "30 minutes avant", "1 heure avant", "Autre"};
-		final int [][] cbrcalend = {{0,0,0,0,0,0,1,0}, {0,0,5,10,15,30,0,0}};
+		dtEvChooser.setDate(new Date());		
 		
 		//cbType strings
-		
 		final String [] cbtarr = {"Evenement", "Fête", "Anniversaire"};		
 				
-		
-		
+		// begin time Spinner 
 		sdm = new SpinnerDateModel();
 		tiEvBegin = new JSpinner(sdm);
-		
-
-		
-
 		JSpinner.DateEditor de_tiEvBegin = new JSpinner.DateEditor(tiEvBegin, "HH:mm");
 		tiEvBegin.setSize(new Dimension(0, 22));
 		tiEvBegin.setPreferredSize(new Dimension(98, 24));
@@ -149,75 +296,35 @@ public class dlgEvent extends JDialog {
 		// change begin time
 		cleb = new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				JSpinner js = (JSpinner) e.getSource();
-				
-				// date in chooser
-				MutableDateTime tmpdat= new MutableDateTime(dtEvChooser.getDate());
-				// hour in spinner
-				MutableDateTime tmptim = new MutableDateTime((Date) js.getModel().getValue());
-				tmpdat.setHourOfDay(tmptim.getHourOfDay());
-				tmpdat.setMinuteOfHour(tmptim.getMinuteOfHour());
-				tmpdat.setSecondOfMinute(0);
-				tmpdat.setMillisOfSecond(0);
-				// new begin date
-				begDate= new DateTime(tmpdat);
-				// get duration in combo to change end time 
-				int i = cbDuration.getSelectedIndex();
-				if (i!=cbdarr.length-1) {
-					endDate= new DateTime(begDate);
-					endDate= endDate.plusHours(cbdcalend[0][i]);
-					endDate= endDate.plusMinutes(cbdcalend[1][i]);
-					tiEvEnd.removeChangeListener(clee);
-					tiEvEnd.setValue(endDate.toDate());
-					tiEvEnd.addChangeListener(clee);
+				if (e.getSource().equals(tiEvBegin)) {
+					event.begDate= changeBegdate();
+					event.endDate= changeEndDate(event.begDate);
+					event.recDate=changeRecDate(event.begDate);
+					changeState(true);
 				}
-				else {
-					// use preset end time
-					tmptim= new MutableDateTime((Date) tiEvEnd.getModel().getValue()); 
-					tmpdat.setHourOfDay(tmptim.getHourOfDay());
-					tmpdat.setMinuteOfHour(tmptim.getMinuteOfHour());
-					endDate= new DateTime(tmpdat);
+				else if (e.getSource().equals(tiEvEnd)) {
+					event.endDate= changeEndDate(event.begDate);
+					changeState(true);
 				}
-				// get recall data to change recall time
-				// todo
+				else if (e.getSource().equals(tiEvRec)) {
+					event.recDate= changeRecDate(event.begDate);
+					changeState(true);
+				}
+				//arrEvents.set(evList.getSelectedIndex(), event.toArray());
 			}
 		};
 		
 		tiEvBegin.addChangeListener(cleb);
-		
-		
-		
 		contentPanel.add(tiEvBegin);
+
 		// change date choosen
 		pcldc = new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent e) {
 				 if ("date".equals(e.getPropertyName())) {
-					 MutableDateTime tmpdat= new MutableDateTime((Date) e.getNewValue());
-					// hour in spinner
-					MutableDateTime tmptim = new MutableDateTime((Date) tiEvBegin.getModel().getValue());
-					tmpdat.setHourOfDay(tmptim.getHourOfDay());
-					tmpdat.setMinuteOfHour(tmptim.getMinuteOfHour());
-					tmpdat.setSecondOfMinute(0);
-					tmpdat.setMillisOfSecond(0);
-					// new begin date
-					begDate= new DateTime(tmpdat);
-					// get duration in combo
-					int i = cbDuration.getSelectedIndex();
-					if (i!=cbdarr.length-1) {
-						endDate= new DateTime(begDate);
-						endDate= endDate.plusHours(cbdcalend[0][i]);
-						endDate= endDate.plusMinutes(cbdcalend[1][i]);
-						tiEvEnd.removeChangeListener(clee);
-						tiEvEnd.setValue(endDate.toDate());
-						tiEvEnd.addChangeListener(clee);
-					}
-					else {
-						// use preset end time
-						tmptim= new MutableDateTime((Date) tiEvEnd.getModel().getValue()); 
-						tmpdat.setHourOfDay(tmptim.getHourOfDay());
-						tmpdat.setMinuteOfHour(tmptim.getMinuteOfHour());
-						endDate= new DateTime(tmpdat);
-					}
+					 event.begDate= changeBegdate();
+					 event.endDate= changeEndDate(event.begDate);
+					 event.recDate= changeRecDate(event.begDate);
+					 changeState(true);
 		         }
 			}
 		};
@@ -236,14 +343,86 @@ public class dlgEvent extends JDialog {
 		evLstScrl.setBorder(null);
 		evLstPanel.add(evLstScrl);
 		
-		JList <String> evList = new JList<String>();
+		lm = new DefaultListModel<String>();  
+		evList = new JList<String>(lm);
+		evList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 		evLstScrl.setViewportView(evList);
 		evList.setBounds(248, 92, 153, 148);
 		
 		evList.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		evList.setVisibleRowCount(5);
-		String [] lstarr = {"Evenement 1","Evenement 2","Evenement 3"};
-		evList.setListData(lstarr);
+		
+		lm.addElement("<Nouvel événement>");
+		
+		evList.setSelectedIndex(0);
+		
+		// List item selection processing 
+		llev = new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+			//retrieve event parameters
+				try {
+					// save previous array and update index
+					//arrEvents.set(curindex, event.toArray());
+					//curindex= ;
+					event.fromArray(arrEvents.get(evList.getSelectedIndex()));
+					dtEvChooser.removePropertyChangeListener(pcldc);
+					dtEvChooser.setDate(event.begDate.toDate());
+					dtEvChooser.addPropertyChangeListener(pcldc);
+					tiEvBegin.removeChangeListener(cleb);
+					tiEvEnd.removeChangeListener(cleb);
+					cbDuration.removeActionListener(cbdal);
+					cbRecall.removeActionListener(cbral);
+					tiEvRec.removeChangeListener(cler);
+					tiEvBegin.setValue(event.begDate.toDate());
+					tiEvEnd.setValue(event.endDate.toDate());
+					tiEvRec.setValue(event.recDate.toDate());
+					Minutes diff = Minutes.minutesBetween(event.begDate, event.endDate);
+					cbDuration.setSelectedIndex(cbdmins.length-1);
+					tiEvEnd.setEnabled(true);
+					for (int i=0; i < cbdmins.length; i+= 1) {
+						if (diff.getMinutes()==cbdmins[i]) {
+							cbDuration.setSelectedIndex(i);
+							tiEvEnd.setEnabled(false);
+							break;
+						}
+					}
+					
+					if (!event.recall) {
+						cbRecall.setSelectedIndex(0);
+					}
+					else {
+					diff = Minutes.minutesBetween(event.recDate, event.begDate);
+					for (int i=1; i < cbrmins.length; i+= 1) {
+						if (diff.getMinutes()==cbrmins[i]) {
+							cbRecall.setSelectedIndex(i);
+							break;
+						}
+						else {
+							
+						}
+					}}
+					tiEvBegin.addChangeListener(cleb);
+					tiEvEnd.addChangeListener(cleb);
+					tiEvRec.addChangeListener(cler);
+					cbDuration.addActionListener(cbdal);
+					cbRecall.addActionListener(cbral);
+					tfReference.getDocument().removeDocumentListener(dl);
+					tfLocation.getDocument().removeDocumentListener(dl);
+					taComment.getDocument().removeDocumentListener(dl);
+					tfReference.setText(event.reference);
+					tfLocation.setText(event.location);
+					taComment.setText(event.comment);
+					tfReference.getDocument().addDocumentListener(dl);
+					tfLocation.getDocument().addDocumentListener(dl);
+					taComment.getDocument().addDocumentListener(dl);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					//e.printStackTrace();
+				}
+			}
+		};
+		evList.addListSelectionListener(llev);
 		
 		JLabel lblEvDur = new JLabel("Dur\u00E9e :");
 		lblEvDur.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -259,25 +438,10 @@ public class dlgEvent extends JDialog {
 		contentPanel.add(cbDuration);
 		
 
-	    SpinnerDateModel sdm1 = new SpinnerDateModel();
-		sdm1.setCalendarField(0);
+	    sdm1 = new SpinnerDateModel();
+
 		tiEvEnd = new JSpinner(sdm1);
-		
-		clee = new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				JSpinner js = (JSpinner) e.getSource();
-				// date in chooser
-				MutableDateTime tmpdat= new MutableDateTime(dtEvChooser.getDate());
-				// hour in spinner
-				MutableDateTime tmptim = new MutableDateTime((Date) js.getModel().getValue());
-				tmpdat.setHourOfDay(tmptim.getHourOfDay());
-				tmpdat.setMinuteOfHour(tmptim.getMinuteOfHour());
-				tmpdat.setSecondOfMinute(0);
-				tmpdat.setMillisOfSecond(0);
-				endDate= new DateTime(tmpdat);
-			}
-		};
-		tiEvEnd.addChangeListener(clee);
+		tiEvEnd.addChangeListener(cleb);
 		tiEvEnd.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		tiEvEnd.setEnabled(false);
 		JSpinner.DateEditor de_tiEvEnd = new JSpinner.DateEditor(tiEvEnd, "HH:mm");
@@ -311,15 +475,30 @@ public class dlgEvent extends JDialog {
 		
 		// Recall hour spinner
 		SpinnerDateModel sdm2 = new SpinnerDateModel();
-		sdm2.setCalendarField(0);
+		//sdm2.setCalendarField(0);
 		tiEvRec = new JSpinner(sdm2);
+		cler = new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				event.recDate= new DateTime((Date) tiEvRec.getModel().getValue()); 
+			}
+		};
+		tiEvRec.addChangeListener(cler);
+		
 		tiEvRec.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		tiEvRec.setEnabled(false);
 		JSpinner.DateEditor de_tiEvRec = new JSpinner.DateEditor(tiEvRec, "HH:mm");
 		tiEvRec.setEnabled(false);
 		tiEvRec.setBounds(474, 74, 56, 20);
 		tiEvRec.setEditor(de_tiEvRec);
-		contentPanel.add(tiEvRec);
+	    contentPanel.add(tiEvRec);		
+		
+		
+		/*JFormattedTextField tfrec= ((JSpinner.DefaultEditor) tiEvRec.getEditor()).getTextField();
+		tfrec.setHorizontalAlignment(JTextField.LEADING);
+	    DefaultFormatterFactory dff = (DefaultFormatterFactory) tfrec.getFormatterFactory();
+	    DateFormatter formatter = (DateFormatter) dff.getDefaultFormatter();
+	    formatter.setFormat(new SimpleDateFormat("HH:mm"));*/
+
 		
 		JLabel lblHrRec = new JLabel("Heure :");
 		lblHrRec.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -332,6 +511,8 @@ public class dlgEvent extends JDialog {
 		contentPanel.add(lblRef);
 		
 		tfReference = new JTextField();
+		tfReference.setText("Nouvel \u00E9venement");
+		tfReference.getDocument().putProperty("owner", tfReference);
 		tfReference.setBorder(new LineBorder(UIManager.getColor("Button.shadow")));
 		tfReference.setBounds(295, 104, 273, 20);
 		contentPanel.add(tfReference);
@@ -343,12 +524,15 @@ public class dlgEvent extends JDialog {
 		contentPanel.add(lblLoc);
 		
 		tfLocation = new JTextField();
+		tfLocation.getDocument().putProperty("owner", tfLocation);
 		tfLocation.setBorder(new LineBorder(UIManager.getColor("Button.shadow")));
 		tfLocation.setColumns(10);
 		tfLocation.setBounds(295, 134, 273, 20);
 		contentPanel.add(tfLocation);
 		
-		JTextArea taComment = new JTextArea();
+		taComment = new JTextArea();
+		taComment.getDocument().putProperty("owner", taComment);
+		taComment.setIgnoreRepaint(true);
 		taComment.setBorder(new LineBorder(UIManager.getColor("Button.shadow")));
 		taComment.setBounds(295, 164, 273, 52);
 		contentPanel.add(taComment);
@@ -369,19 +553,15 @@ public class dlgEvent extends JDialog {
 		contentPanel.add(cbType);
 		
 		
+		
+		
 			
 		// Action on change in duration combo box
 		cbdal = new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int i = cbDuration.getSelectedIndex();
-				tiEvEnd.setEnabled(false);
-				if (i==cbdarr.length-1) tiEvEnd.setEnabled(true);
-				else {
-					endDate= new DateTime(begDate);
-					endDate= endDate.plusHours(cbdcalend[0][i]);
-					endDate= endDate.plusMinutes(cbdcalend[1][i]);
-					tiEvEnd.setValue(endDate.toDate());
-				};
+				event.endDate= changeEndDate(event.begDate);
+				//if (cbDuration.getSelectedIndex()==cbDuration.c
+				changeState(true);
 			}
 		};
 		cbDuration.addActionListener(cbdal);
@@ -389,20 +569,63 @@ public class dlgEvent extends JDialog {
 		// Action on change in recall combo box 
 		cbral = new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int i = cbRecall.getSelectedIndex();
-				tiEvRec.setEnabled(false);
-				if (i==cbdarr.length-1) tiEvRec.setEnabled(true);
-				else if (i==0)  recall= false;
-				else {
-					recall= true;
-					recDate= new DateTime(begDate);
-					recDate= recDate.minusHours(cbrcalend[0][i]);
-					recDate= recDate.minusMinutes(cbrcalend[1][i]);
-					tiEvRec.setValue(recDate.toDate());
+		
+				
+				
+				
+				event.recDate= changeRecDate(event.begDate);
+				changeState(true);
+				//arrEvents.set(evList.getSelectedIndex(), event.toArray());
+			}
+		};
+		
+		
+		cbRecall.addActionListener(cbral);
+		
+		// Reference field changed, allow OK button
+		dl = new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				
+				warn(e);
+			}
+
+			public void removeUpdate(DocumentEvent e) {
+				
+				warn(e);
+			}
+
+			public void insertUpdate(DocumentEvent e) {
+				
+				warn(e);
+			}
+
+			public void warn(DocumentEvent e) {
+				Object owner = e.getDocument().getProperty("owner");
+				if(owner != null){
+					if (owner.equals(tfReference)) {
+						changed= true;
+						okButton.setEnabled(changed);
+						event.reference= tfReference.getText();
+					}
+					else if (owner.equals(tfLocation)) {
+						changed= true;
+						okButton.setEnabled(changed);
+						event.location= tfLocation.getText();
+					}
+					else if (owner.equals(taComment)) {
+						changed= true;
+						okButton.setEnabled(changed);
+						event.comment= taComment.getText();
+					}
+					changeState(true);
+					//arrEvents.set(evList.getSelectedIndex(), event.toArray());
 				}
 			}
 		};
-		cbRecall.addActionListener(cbral);
+		tfReference.getDocument().addDocumentListener(dl);
+		tfLocation.getDocument().addDocumentListener(dl);
+		taComment.getDocument().addDocumentListener(dl);
+
 		
 		// Buttons processing
 		{
@@ -412,41 +635,172 @@ public class dlgEvent extends JDialog {
 			
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			
+			// OK Button
 			{
 				okButton = new JButton("OK");
 				okButton.setBounds(new Rectangle(0, 0, 65, 23));
 				okButton.setFont(new Font("Tahoma", Font.BOLD, 11));
-				okButton.setPreferredSize(new Dimension(65, 23));
+				okButton.setPreferredSize(new Dimension(75, 23));
 				okButton.setMinimumSize(new Dimension(65, 23));
 				okButton.setMaximumSize(new Dimension(65, 23));
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
-				okButton.addActionListener(new ActionListener() {
+				
+				albtn = new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-					   //Todo	
-						setVisible(false);	
-						//System.out.println(begDate);
-						//System.out.println(endDate);
+						if (e.getSource().equals(okButton)) {
+							setVisible(false);	
+						}
+						else if (e.getSource().equals(cancelButton)) {
+							changed= false;
+							dispose();
+						}
+						else if (e.getSource().equals(delButton)) {
+							try {
+								// Index in the jlist
+								int i= evList.getSelectedIndex();
+								// Real index in the event list 
+								int j= Integer.parseInt(arrEvents.get(i)[0]);
+								if (j == -2) {
+									// don't delete this one, it is not really set
+								}
+								else if (j==-1) {
+									// Changed but not yet created : reset to -2
+									arrEvents.get(i)[0]= "-2";
+								}
+								else {
+									deleted[0]= j; 
+									evList.removeListSelectionListener(llev);
+									lm.remove(i); 
+									arrEvents.remove(i);
+									evList.addListSelectionListener(llev);
+									changed= true;
+									okButton.setEnabled(true);
+									if (lm.size()== 0) delButton.setEnabled(false);
+									
+								}
+								
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								//e1.printStackTrace();
+							}
+						}
+						
 					}
-				});
+				};
+				okButton.addActionListener(albtn);
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 			}
 			
-			JButton cancelButton = new JButton("Annuler");
-			cancelButton.setPreferredSize(new Dimension(65, 23));
+			delButton = new JButton("Supprimer");
+			delButton.setSize(new Dimension(75, 23));
+			delButton.setBounds(new Rectangle(0, 0, 75, 23));
+			delButton.setPreferredSize(new Dimension(75, 23));
+			delButton.setMinimumSize(new Dimension(75, 23));
+			delButton.setMaximumSize(new Dimension(75, 23));
+			delButton.setMargin(new Insets(2, 5, 2, 5));
+			delButton.setFont(new Font("Tahoma", Font.BOLD, 11));
+			buttonPane.add(delButton);
+			delButton.addActionListener(albtn);
+			
+			cancelButton = new JButton("Annuler");
+			cancelButton.setPreferredSize(new Dimension(75, 23));
 			cancelButton.setMinimumSize(new Dimension(65, 23));
 			cancelButton.setMaximumSize(new Dimension(65, 23));
 			cancelButton.setMargin(new Insets(2, 5, 2, 5));
 			cancelButton.setFont(new Font("Tahoma", Font.BOLD, 11));
 			buttonPane.add(cancelButton);
 			// Cancel button event processing
-			cancelButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					dispose();
-				}
-			});		
+			cancelButton.addActionListener(albtn);		
 		}
+	}
+	
+	
+	
+	private DateTime changeBegdate() {
+		// date in chooser
+		MutableDateTime tmpdat= new MutableDateTime(dtEvChooser.getDate());
+		// hour in spinner
+		MutableDateTime tmptim = new MutableDateTime((Date) tiEvBegin.getModel().getValue());
+		tmpdat.setHourOfDay(tmptim.getHourOfDay());
+		tmpdat.setMinuteOfHour(tmptim.getMinuteOfHour());
+		tmpdat.setSecondOfMinute(0);
+		tmpdat.setMillisOfSecond(0);
+		// new begin date
+		
+		return (new DateTime(tmpdat));
+
+	}
+	
+	private DateTime changeEndDate (DateTime begdat) {
+		DateTime result;
+		// get duration in combo
+		int i = cbDuration.getSelectedIndex();
+		if (i!=cbdarr.length-1) {
+			DateTime enddat= new DateTime(begdat);
+			enddat= enddat.plusMinutes(cbdmins[i]);
+			tiEvEnd.removeChangeListener(clee);
+			tiEvEnd.setEnabled(false);
+			tiEvEnd.setValue(enddat.toDate());
+			tiEvEnd.addChangeListener(clee);
+			result= new DateTime(enddat);
+		}
+		else {
+			// use preset end time
+			tiEvEnd.setEnabled(true);
+			DateTime tmptim= new DateTime((Date) tiEvEnd.getModel().getValue()); 
+			MutableDateTime enddat= new MutableDateTime(begdat);
+			enddat.setHourOfDay(tmptim.getHourOfDay());
+			enddat.setMinuteOfHour(tmptim.getMinuteOfHour());
+			enddat.setSecondOfMinute(0);
+			enddat.setMillisOfSecond(0);
+			result= new DateTime(enddat);
+			// Cannot end before begin !!!
+			if (result.isBefore(begdat)) {
+				result= begdat;
+				tiEvEnd.setValue(begdat.toDate());
+			}
+		}
+		return result;
+	}
+	
+	private DateTime changeRecDate(DateTime begdat) {
+		DateTime result= new DateTime(begdat);
+		int i = cbRecall.getSelectedIndex();
+		tiEvRec.setEnabled(false);
+		event.recall= true;
+		if (i==0)  {
+			event.recall= false;
+		}
+		else if  (i==cbdarr.length-1)
+		{
+			tiEvRec.setEnabled(true);
+			result= new DateTime((Date) tiEvRec.getModel().getValue()); 
+		}
+		else {
+				result= result.minusMinutes(cbrmins[i]);
+				tiEvRec.setValue(result.toDate());
+		}
+				// Cannot recall after event ? Not implemented
+		//
+		return result;
+	}
+	
+	private void changeState(boolean state) {
+		int curindex = evList.getSelectedIndex();
+		// if the new event is modified index is -1 else index is -2
+		if (evList.getSelectedIndex()==0) {
+		    event.index= -1; 
+		}
+		try {
+			if (state) arrEvents.set(curindex, event.toArray());
+		} catch (Exception e) {
+			//System.out.println(curindex);
+			
+		}
+		changed= state;
+		okButton.setEnabled(state);
 	}
 }

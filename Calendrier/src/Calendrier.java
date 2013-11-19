@@ -35,6 +35,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
 import java.io.File;
+import java.util.Iterator;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -299,6 +300,9 @@ public class Calendrier {
 				// Sort half images list on year field and save it
 				Quarter.imagesHalf.sort(0);
 				Quarter.imagesHalf.writeCSVfile(Quarter.imgfile);
+				// Sort on begin time;
+				Quarter.userEvents.sort(1);
+				Quarter.userEvents.writeCSVfile(Quarter.evtfile);
 			}
 		});
 		
@@ -807,8 +811,54 @@ public class Calendrier {
 				// show event create/modify dialog
 				if (jminame.equals("newevent")){
 					
-					dayEvent.setDate(seldate);
+					dayEvent.setDate(seldate);					
+					String sseldate= seldate.toString("YYYY/MM/dd");
+					Iterator<String[]> itr = Quarter.userEvents.iterator();
+					while(itr.hasNext()) {
+						String [] element =  itr.next();
+						if (element [1].contains(sseldate)) dayEvent.setEvents(element);
+					}
 					dayEvent.setVisible(true);
+					// Changed day events, update list
+					if (dayEvent.changed) {
+						itr = dayEvent.arrEvents.iterator();
+						while (itr.hasNext()) {
+							String [] element =  itr.next();
+							int i = Integer.parseInt(element [0]);
+							// New element to add
+							if (i==-1) {
+								element[0]= String.valueOf(Quarter.nextEvIndex);
+								Quarter.userEvents.add(element);
+							}
+							else {
+								if (i >=0 ) Quarter.userEvents.set(i, element);
+							}
+							
+							
+						}
+						// deleted events
+						for (int i=0; i<dayEvent.deleted.length; i+=1) {
+							if (dayEvent.deleted [i] >= 0) {
+								for (int j=0; j < Quarter.userEvents.size(); j+=1) {
+								    int k = Integer.parseInt(Quarter.userEvents.get(j)[0]);
+									if (k==dayEvent.deleted [i]) {
+										Quarter.userEvents.remove(i);
+									}
+								}
+							}
+						}
+						// sort and reindex userevents
+						Quarter.userEvents.sort(1);
+						Quarter.nextEvIndex= Quarter.userEvents.size();
+						for (int i=0; i < Quarter.nextEvIndex; i+=1) {
+							Quarter.userEvents.get(i)[0] = String.valueOf(i);
+						}
+					}
+					//Todo process new or changed events
+					// increment event count if added or deleted event
+					// sort and renumber event list 
+					//Quarter.userEvents.add(dayEvent.event.toArray());
+					
 				}
 				
 			

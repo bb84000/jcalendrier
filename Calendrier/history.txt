@@ -90,4 +90,6 @@ Version 0.6.1.1 - 14/11/2013
  - Add GNU LGPL license
  - Events planning mockup, not yet functional
  
- 
+Version 0.7.0.3 - 19/11/2013
+ - Code optimization
+ - Events planning implemented (experimental)

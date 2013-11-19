@@ -63,37 +63,7 @@ implements	TableCellRenderer
 	public boolean ShowVacA;
 	public boolean ShowVacB; 
 	public boolean ShowVacC; 
-	// Arraylist containing all year days with their properties
-	public ArrayList<CalDay> YearDays= new ArrayList<CalDay>();
-	public String[] HalfImages = { "","" }; 
-	public String workingDirectory = "";
-
-	// cell dimensions
-	private int width = 0;
-	private int height = 0;
-
-	private int year;
-	private int quarter;
-	String days= "DLMMJVSD";
-	String iniday= "L";
-	private int month;
-	//private int dow;
-
-	private String[][] MoonDays; 
-	private bArrayList feries;
-	public bArrayList userEvents;
-	public String evtsfile;
-	public bArrayList imagesHalf;
-	public String imgfile;
-	private bArrayList saints;
-	private bArrayList vacscol;
-	private DateTime seas;
-
-
-
-	private boolean okMoon;
-
-
+	
 	// Day structure and properties
 	public class CalDay {
 		public DateTime date;
@@ -121,12 +91,47 @@ implements	TableCellRenderer
 			seasondate = dseasondate;
 		}
 	}
+	// Arraylist containing all year days with their properties
+	public ArrayList<CalDay> YearDays= new ArrayList<CalDay>();
+
+	public String[] HalfImages = { "","" }; 
+	public String workingDirectory = "";
+
+	// cell dimensions
+	private int width = 0;
+	private int height = 0;
+
+	private int year;
+	private int quarter;
+	String days= "DLMMJVSD";
+	String iniday= "L";
+	private int month;
+	//private int dow;
+
+	private String[][] MoonDays; 
+	private bArrayList feries;
+	public bArrayList userEvents;
+	public int nextEvIndex;
+	public String evtfile;
+	public bArrayList imagesHalf;
+	public String imgfile;
+	private bArrayList saints;
+	private bArrayList vacscol;
+	private DateTime seas;
+	
+
+
+
+	private boolean okMoon;
+
+
 
 
 
 	// Classes and variables initialization
 
 	public void init() {
+
 		// panel half images
 		imagesHalf = new bArrayList();
 		imgfile= "imgshalf.csv";
@@ -135,9 +140,16 @@ implements	TableCellRenderer
 
 		// user events list
 		userEvents = new bArrayList();
-		evtsfile= "userevents.csv";
-		if (workingDirectory.length()> 0) evtsfile = workingDirectory+"/"+evtsfile;
-		userEvents.readCSVfile(evtsfile);
+		evtfile= "userevents.csv";
+		if (workingDirectory.length()> 0) evtfile = workingDirectory+"/"+evtfile;
+		userEvents.readCSVfile(evtfile);
+		nextEvIndex= userEvents.size();
+		// renumber events
+		userEvents.sort(1);
+		for (int i=0; i < nextEvIndex; i+=1) {
+			userEvents.get(i)[0] = String.valueOf(i);
+		}
+		
 		
 		// saints arrays
 		saints = new bArrayList();
