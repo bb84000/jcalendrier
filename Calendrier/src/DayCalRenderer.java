@@ -57,6 +57,8 @@ implements	TableCellRenderer
 	public Color colA = new Color(255,204,0);
 	public Color colB = new Color(255,0,0);
 	public Color colC = new Color(0,153,0);
+	public Color colK = new Color(0,0,255);
+	
 	public Color colback = new Color(255,255,255);
 	public Color colsun = new Color (192,255,255);
 	public int selDay = -1;
@@ -64,6 +66,7 @@ implements	TableCellRenderer
 	public boolean ShowVacA;
 	public boolean ShowVacB; 
 	public boolean ShowVacC; 
+	public boolean ShowVacK;
 	
 	// Day structure and properties
 	public class CalDay {
@@ -441,6 +444,11 @@ implements	TableCellRenderer
 			if (s.contains("C") && ShowVacC)
 			{
 				Line= new LineDraw(width-3, 0, 2, height-1, colC, 2);
+				Lines.add(Line);
+			}
+			if (s.contains("K") && ShowVacK)
+			{
+				Line= new LineDraw(width-12, 0, 2, height-1, colK, 2);
 				Lines.add(Line);
 			}
 			

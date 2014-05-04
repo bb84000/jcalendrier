@@ -116,10 +116,13 @@ public class Calendrier {
 	private JCheckBox cbVacA = new JCheckBox("Vacances Zone A");
 	private JCheckBox cbVacB = new JCheckBox("Vacances Zone B");
 	private JCheckBox cbVacC = new JCheckBox("Vacances Zone C");
+	private JCheckBox cbVacK = new JCheckBox("Vacances Corse");
+
 	private Image MainIcon;
 	CheckBoxIcon checkedA = new CheckBoxIcon();
 	CheckBoxIcon checkedB = new CheckBoxIcon();
 	CheckBoxIcon checkedC = new CheckBoxIcon();
+	CheckBoxIcon checkedK = new CheckBoxIcon();
 	
 	private JLabel lblImage_1;
 	private JLabel lblImage_2;
@@ -215,6 +218,8 @@ public class Calendrier {
 		checkedB.colFillu = Config.colvacB;
 		Quarter.colC = Config.colvacC;
 		checkedC.colFillu = Config.colvacC;
+		Quarter.colK = Config.colvacK;
+		checkedK.colFillu = Config.colvacK;
 
 		Quarter.colback= Config.colback;
 		Quarter.colsun= Config.colsun;
@@ -233,6 +238,8 @@ public class Calendrier {
 			Quarter.ShowVacB = cbVacB.isSelected();
 			cbVacC.setSelected(Config.dispVacC);
 			Quarter.ShowVacC = cbVacC.isSelected();
+			cbVacK.setSelected(Config.dispVacK);
+			Quarter.ShowVacK = cbVacK.isSelected();
 		}
 		if (startMini) {
 			frmCalendrier.setState(Frame.ICONIFIED);
@@ -1202,7 +1209,22 @@ public class Calendrier {
 		});
 
 		pane_bottom.add(cbVacC);
-
+		
+		cbVacK.setBounds(1026, 8, 121, 23);
+		cbVacK.setIcon(unchecked);
+		checkedK.colEdgeu = new Color(122, 138, 153);
+		cbVacK.setSelectedIcon(checkedK);
+		cbVacK.setToolTipText("Corse");
+		cbVacK.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		
+		cbVacK.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				Config.dispVacK = cbVacK.isSelected();
+				Quarter.ShowVacK = cbVacK.isSelected();
+				frmCalendrier.repaint();
+			}
+		});
+		pane_bottom.add(cbVacK);
 		// Met le calendrier au semestre courant
 		int month = dt.getMonthOfYear();
 		if (month > 5) {
@@ -1210,6 +1232,8 @@ public class Calendrier {
 		}
 
 		setSeasons(Year);
+		
+		
 
 		// Config and about popup menus
 		
@@ -1331,7 +1355,11 @@ public class Calendrier {
 				// CB VacC
 				Point vcp = cbVacC.getLocation();
 				vcp.x= vbp.x + cbVacB.getWidth() + 10;
-				cbVacC.setLocation(vcp);		
+				cbVacC.setLocation(vcp);
+				
+				Point vkp = cbVacK.getLocation();
+				vkp.x= vcp.x + cbVacC.getWidth() + 10;
+				cbVacK.setLocation(vkp);
 				// cbMoon
 				Point mnp = cbMoon.getLocation();
 				mnp.x = bpp.x- cbMoon.getWidth() -10;
@@ -1697,8 +1725,4 @@ public class Calendrier {
 			}
 		});
 	}
-	
-	
-
-
 }

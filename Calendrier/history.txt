@@ -100,4 +100,5 @@ Version 0.7.0.4 - 20/11/2013
  
  Version 0.7.0.5 - 04/05/2014
   - Corrected 2014 school holidays
+  - Added Corsica school holidays
   

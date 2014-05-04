@@ -95,6 +95,8 @@ public class dlgConfig extends JDialog {
 	private Color ncolvacB;
 	public Color colvacC= new Color(0,153,0);
 	private Color ncolvacC;
+	public Color colvacK= new Color(0,0,255);
+	private Color ncolvacK;
 	public boolean savePos = false;
 	public int saveState= 0;
 	public boolean saveMoon = false;
@@ -103,6 +105,7 @@ public class dlgConfig extends JDialog {
 	public boolean dispVacA = false;
 	public boolean dispVacB = false;
 	public boolean dispVacC = false;
+	public boolean dispVacK = false;
 	public boolean chknewver = true;
 	public boolean loadstart = false;
 	public boolean startmini = false;
@@ -157,6 +160,7 @@ public class dlgConfig extends JDialog {
 	private JButton btnZoneA;
 	private JButton btnZoneB;
 	private JButton btnZoneC;
+	private JButton btnZoneK;
 	private JComboBox<String> cbTown ;
 	private JTextField tfLatitude;
 	private JTextField tfLongitude;
@@ -203,6 +207,7 @@ public class dlgConfig extends JDialog {
 				btnZoneB.setBackground(colvacB);
 				ncolvacC= colvacC;
 				btnZoneC.setBackground(colvacC);
+				ncolvacK= colvacK;
 				nLatitude= Latitude;
 				nLongitude= Longitude;
 				tfLatitude.getDocument().removeDocumentListener(ndl);
@@ -341,6 +346,22 @@ public class dlgConfig extends JDialog {
 				btnZoneC.setBackground(colvacC);
 				btnZoneC.setBounds(163, 61, 39, 20);
 				panel_colors.add(btnZoneC);
+				
+				JLabel label = new JLabel("Corse");
+				label.setFont(new Font("Tahoma", Font.PLAIN, 11));
+				label.setBounds(14, 68, 46, 14);
+				panel_colors.add(label);
+				
+				btnZoneK = new JButton("");
+				btnZoneK.setBackground(colvacK);
+				
+				btnZoneK.setName("vacK");
+				btnZoneK.addMouseListener(macolor);
+				
+				btnZoneK.setBackground(new Color(0, 0, 255));
+				btnZoneK.setBounds(62, 64, 39, 20);
+				panel_colors.add(btnZoneK);
+				
 			} // end color panel
 			
 			// Panel Display 
@@ -672,6 +693,7 @@ public class dlgConfig extends JDialog {
 						colvacA= ncolvacA;
 						colvacB= ncolvacB;
 						colvacC= ncolvacC;
+						colvacK= ncolvacK;
 						town = ntown;
 						Latitude = nLatitude;
 						Longitude = nLongitude;
@@ -997,6 +1019,7 @@ public class dlgConfig extends JDialog {
 		else if (c.getName().equals("vacA")) ncolvacA = col;
 		else if (c.getName().equals("vacB")) ncolvacB = col;
 		else if (c.getName().equals("vacC")) ncolvacC = col;
+		else if (c.getName().equals("vacK")) ncolvacK = col;
 		c.setBackground(col);
 	}
 
@@ -1158,6 +1181,7 @@ public class dlgConfig extends JDialog {
 	            	else if (cNode.getNodeName().equals("dispVacA")) dispVacA = s.equalsIgnoreCase("true");
 	            	else if (cNode.getNodeName().equals("dispVacB")) dispVacB = s.equalsIgnoreCase("true");
 	            	else if (cNode.getNodeName().equals("dispVacC")) dispVacC = s.equalsIgnoreCase("true");
+	            	else if (cNode.getNodeName().equals("dispVacK")) dispVacK = s.equalsIgnoreCase("true");
 	            	else if (cNode.getNodeName().equals("dispMoon")) dispMoon = s.equalsIgnoreCase("true");
 	            	else if (cNode.getNodeName().equals("colback")) colback = new Color(Integer.parseInt(s,16));
 	            	else if (cNode.getNodeName().equals("colsun")) colsun = new Color(Integer.parseInt(s,16));
@@ -1173,6 +1197,11 @@ public class dlgConfig extends JDialog {
 	            		colvacC = new Color(Integer.parseInt(s,16));	
 	            		btnZoneC.setBackground(colvacC);
 	            	}
+	            	else if (cNode.getNodeName().equals("colvacK")) {
+	            		colvacK = new Color(Integer.parseInt(s,16));	
+	            		btnZoneK.setBackground(colvacK);
+	            	}
+	            	
 	            	else if (cNode.getNodeName().equals("latitude")) nLatitude = Double.parseDouble(s);	
 	            	else if (cNode.getNodeName().equals("longitude")) nLongitude = Double.parseDouble(s);	
 	            	else if (cNode.getNodeName().equals("town")) ntown = s;
@@ -1252,11 +1281,13 @@ public class dlgConfig extends JDialog {
 				el.appendChild(createXMLEntry(configXML,"dispVacA", "boolean", dispVacA));	// Zone A display
 				el.appendChild(createXMLEntry(configXML,"dispVacB", "boolean", dispVacB));
 				el.appendChild(createXMLEntry(configXML,"dispVacC", "boolean", dispVacC));
+				el.appendChild(createXMLEntry(configXML,"dispVacK", "boolean", dispVacK));
 				el.appendChild(createXMLEntry(configXML,"colback", "hex", String.format("%06X", colback.getRGB()& 0xffffff)));
 				el.appendChild(createXMLEntry(configXML,"colsun", "hex", String.format("%06X", colsun.getRGB()& 0xffffff)));
 				el.appendChild(createXMLEntry(configXML,"colvacA", "hex", String.format("%06X", colvacA.getRGB()& 0xffffff)));
 				el.appendChild(createXMLEntry(configXML,"colvacB", "hex", String.format("%06X", colvacB.getRGB()& 0xffffff)));
 				el.appendChild(createXMLEntry(configXML,"colvacC", "hex", String.format("%06X", colvacC.getRGB()& 0xffffff)));
+				el.appendChild(createXMLEntry(configXML,"colvacK", "hex", String.format("%06X", colvacK.getRGB()& 0xffffff)));
 				el.appendChild(createXMLEntry(configXML,"latitude", "double", Latitude));
 				el.appendChild(createXMLEntry(configXML,"longitude", "double", Longitude));
 				el.appendChild(createXMLEntry(configXML,"town", "string", town));
