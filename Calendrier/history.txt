@@ -93,3 +93,11 @@ Version 0.6.1.1 - 14/11/2013
 Version 0.7.0.3 - 19/11/2013
  - Code optimization
  - Events planning implemented (experimental)
+
+Version 0.7.0.4 - 20/11/2013
+ - Events planning : some bugs fixed, days events marked in calendar and displayed in today and selected panes
+ - Added constants library   
+ 
+ Version 0.7.0.5 - 04/05/2014
+  - Corrected 2014 school holidays
+  

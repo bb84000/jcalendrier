@@ -1,5 +1,5 @@
 /**
-* Base class for Calendrier application
+* Base class for  Calendrier application
 *
 *
 * bb - november 2013
@@ -72,6 +72,8 @@ import org.joda.time.format.DateTimeFormatter;
 
 import bb.aboutbox.aboutBox;
 import bb.stretchicon.StretchIcon;
+import static bb.constants.constants.*;
+
 public class Calendrier {
 
 	private JFrame frmCalendrier;	private JPanel pane_bottom;
@@ -88,6 +90,7 @@ public class Calendrier {
 	private JTable table_q3;
 	private JTable table_q4;
 	private int Year;
+	private DateTime dt;
 	private Boolean Init;
 	private Timer labelTimer;
 
@@ -155,6 +158,7 @@ public class Calendrier {
 	private dlgEvent dayEvent;
 	private ComponentAdapter ppca;
 	private ActionListener dal;
+	private int mr;
 	/**
 	 * Launch the application.
 	 */
@@ -257,7 +261,7 @@ public class Calendrier {
 				//e1.printStackTrace();
 			}
 		}
-		DateTime dt = new DateTime();
+		dt = new DateTime();
 		Year = dt.getYear();
 		iYear = Year;
 		iDay = dt.getDayOfYear();
@@ -351,7 +355,7 @@ public class Calendrier {
 		tabpane.addTab("1er semestre", null, pane_h1, null);
 		GridBagLayout gbl_pane_h1 = new GridBagLayout();
 		gbl_pane_h1.columnWidths = new int[] { 313, 266, 266, 313, 0 };
-		gbl_pane_h1.rowHeights = new int[] { 400, 150, 34, 0 };
+		gbl_pane_h1.rowHeights = new int[] { 400, 160, 30, 0 };
 		gbl_pane_h1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
 				Double.MIN_VALUE };
 		gbl_pane_h1.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
@@ -508,9 +512,9 @@ public class Calendrier {
 		panelToday_1 = new JPanel();
 		panelToday_1.setBorder(new TitledBorder(null, "Aujourd'hui",
 				TitledBorder.LEFT, TitledBorder.TOP, null, null));
-		panelToday_1.setPreferredSize(new Dimension(10, 150));
+		panelToday_1.setPreferredSize(new Dimension(10, 160));
 		panelToday_1.setSize(new Dimension(0, 120));
-		panelToday_1.setMinimumSize(new Dimension(10, 127));
+		panelToday_1.setMinimumSize(new Dimension(10, 120));
 		panelToday_1.setMaximumSize(new Dimension(32767, 120));
 		panelToday_1.setLayout(null);
 		GridBagConstraints gbc_panelToday_1 = new GridBagConstraints();
@@ -601,7 +605,7 @@ public class Calendrier {
 		lblSeasons_1a.setVerticalAlignment(SwingConstants.TOP);
 		lblSeasons_1a.setPreferredSize(new Dimension(245, 35));
 		GridBagConstraints gbc_lblSeasons_1a = new GridBagConstraints();
-		gbc_lblSeasons_1a.insets = new Insets(0, 8, 0, 0);
+		gbc_lblSeasons_1a.insets = new Insets(4, 8, 0, 0);
 		gbc_lblSeasons_1a.anchor = GridBagConstraints.NORTHWEST;
 		gbc_lblSeasons_1a.gridx = 0;
 		gbc_lblSeasons_1a.gridy = 0;
@@ -617,7 +621,7 @@ public class Calendrier {
 		lblSeasons_1b.setVerticalTextPosition(SwingConstants.TOP);
 		lblSeasons_1b.setVerticalAlignment(SwingConstants.TOP);
 		GridBagConstraints gbc_lblSeasons_1b = new GridBagConstraints();
-		gbc_lblSeasons_1b.insets = new Insets(0, 8, 0, 0);
+		gbc_lblSeasons_1b.insets = new Insets(4, 8, 0, 0);
 		gbc_lblSeasons_1b.anchor = GridBagConstraints.NORTHWEST;
 		gbc_lblSeasons_1b.gridx = 1;
 		gbc_lblSeasons_1b.gridy = 0;
@@ -810,7 +814,6 @@ public class Calendrier {
 				String jminame = jmi.getName();
 				// show event create/modify dialog
 				if (jminame.equals("newevent")){
-					
 					dayEvent.setDate(seldate);					
 					String sseldate= seldate.toString("YYYY/MM/dd");
 					Iterator<String[]> itr = Quarter.userEvents.iterator();
@@ -818,51 +821,51 @@ public class Calendrier {
 						String [] element =  itr.next();
 						if (element [1].contains(sseldate)) dayEvent.setEvents(element);
 					}
-					dayEvent.setVisible(true);
-					// Changed day events, update list
-					if (dayEvent.changed) {
-						itr = dayEvent.arrEvents.iterator();
-						while (itr.hasNext()) {
-							String [] element =  itr.next();
-							int i = Integer.parseInt(element [0]);
-							// New element to add
-							if (i==-1) {
-								element[0]= String.valueOf(Quarter.nextEvIndex);
-								Quarter.userEvents.add(element);
+					//dayEvent.setVisible(true);
+					// OK button pressed
+					mr = dayEvent.open();
+					if (mr==mrOK); {
+						// Changed day events, update list
+						if (dayEvent.changed) {
+							itr = dayEvent.arrEvents.iterator();
+							while (itr.hasNext()) {
+								String [] element =  itr.next();
+								int i = Integer.parseInt(element [0]);
+								// New element to add
+								if (i==-1) {
+									element[0]= String.valueOf(Quarter.nextEvIndex);
+									Quarter.userEvents.add(element);
+								}
+								else {
+									if (i >=0 ) Quarter.userEvents.set(i, element);
+								}
 							}
-							else {
-								if (i >=0 ) Quarter.userEvents.set(i, element);
-							}
-							
-							
-						}
-						// deleted events
-						for (int i=0; i<dayEvent.deleted.length; i+=1) {
-							if (dayEvent.deleted [i] >= 0) {
-								for (int j=0; j < Quarter.userEvents.size(); j+=1) {
-								    int k = Integer.parseInt(Quarter.userEvents.get(j)[0]);
-									if (k==dayEvent.deleted [i]) {
-										Quarter.userEvents.remove(i);
+							// deleted events
+							for (int i=0; i<dayEvent.deleted.length; i+=1) {
+								if (dayEvent.deleted [i] >= 0) {
+									for (int j=0; j < Quarter.userEvents.size(); j+=1) {
+										int k = Integer.parseInt(Quarter.userEvents.get(j)[0]);
+										if (k==dayEvent.deleted [i]) {
+											Quarter.userEvents.remove(j);
+											//break;
+										}
 									}
 								}
 							}
-						}
-						// sort and reindex userevents
-						Quarter.userEvents.sort(1);
-						Quarter.nextEvIndex= Quarter.userEvents.size();
-						for (int i=0; i < Quarter.nextEvIndex; i+=1) {
-							Quarter.userEvents.get(i)[0] = String.valueOf(i);
+							// sort and reindex userevents
+							Quarter.userEvents.sort(1);
+							Quarter.nextEvIndex= Quarter.userEvents.size();
+							for (int i=0; i < Quarter.nextEvIndex; i+=1) {
+								Quarter.userEvents.get(i)[0] = String.valueOf(i);
+							}
+							Quarter.setYear(Year);
+							setLabelToday(dt);
+							frmCalendrier.repaint();
 						}
 					}
-					//Todo process new or changed events
-					// increment event count if added or deleted event
-					// sort and renumber event list 
-					//Quarter.userEvents.add(dayEvent.event.toArray());
-					
 				}
-				
-			
-			}};
+			}
+		};
 		
 		// Event submenu
 		pMnuEvent = new JMenuItem("Nouvel \u00E9venement");
@@ -876,7 +879,7 @@ public class Calendrier {
 
 		// Panel Today
 		panelToday_2 = new JPanel();
-		panelToday_2.setPreferredSize(new Dimension(10, 150));
+		panelToday_2.setPreferredSize(new Dimension(10, 160));
 		panelToday_2.setBorder(new TitledBorder(null, "Aujourd'hui",
 				TitledBorder.LEFT, TitledBorder.TOP, null, null));
 		panelToday_2.setMinimumSize(new Dimension(10, 120));
@@ -964,7 +967,7 @@ public class Calendrier {
 		lblSeasons_2a.setVerticalAlignment(SwingConstants.TOP);
 		lblSeasons_2a.setPreferredSize(new Dimension(245, 35));
 		GridBagConstraints gbc_lblSeasons_2a = new GridBagConstraints();
-		gbc_lblSeasons_2a.insets = new Insets(0, 8, 0, 0);
+		gbc_lblSeasons_2a.insets = new Insets(4, 8, 0, 0);
 		gbc_lblSeasons_2a.anchor = GridBagConstraints.NORTHWEST;
 		gbc_lblSeasons_2a.gridx = 0;
 		gbc_lblSeasons_2a.gridy = 0;
@@ -978,7 +981,7 @@ public class Calendrier {
 		lblSeasons_2b.setMaximumSize(new Dimension(40, 30));
 		lblSeasons_2b.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		GridBagConstraints gbc_lblSeasons_2b = new GridBagConstraints();
-		gbc_lblSeasons_2b.insets = new Insets(0, 8, 0, 0);
+		gbc_lblSeasons_2b.insets = new Insets(4, 8, 0, 0);
 		gbc_lblSeasons_2b.anchor = GridBagConstraints.NORTHWEST;
 		gbc_lblSeasons_2b.gridx = 1;
 		gbc_lblSeasons_2b.gridy = 0;
@@ -1584,6 +1587,9 @@ public class Calendrier {
 	    				break;
 	    }
 	    s += "Lever et coucher du soleil : "+sunrise.toString(fmt)+" - "+sunset.toString(fmt);	
+	    if (Quarter.YearDays.get(day-1).userevent > 0) {
+	    s += "<br>"+Quarter.YearDays.get(day-1).userstring;
+	    }
 	    return s;
 	}
 	

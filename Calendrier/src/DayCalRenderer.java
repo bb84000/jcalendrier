@@ -18,6 +18,7 @@ import javax.swing.table.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import bb.arraylist.*;
 
 
@@ -37,19 +38,19 @@ implements	TableCellRenderer
 	private boolean evLine = false; 
 	// dLIne structure
 	private class LineDraw {
-		public int xb;
-		public int yb;
-		public int xe;
-		public int ye;
+		public int x;
+		public int y;
+		public int w;
+		public int h;
 		public Color col;
-		public int thick; 
-		public LineDraw (int lxb, int lyb, int lxe, int lye, Color lcol, int lthick) {
-			xb= lxb;
-			yb= lyb;
-			xe= lxe;
-			ye= lye;
+		 
+		public LineDraw (int lx, int ly, int lw, int lh, Color lcol, int lthick) {
+			x= lx;
+			y= ly;
+			w= lw;
+			h= lh;
 			col= lcol;
-			thick= lthick;
+			
 		}
 	}
 
@@ -77,7 +78,10 @@ implements	TableCellRenderer
 		public String ferie;
 		public String season;
 		public DateTime seasondate;
-		public CalDay(DateTime ddate, String dsdate, String dsaint, String dlsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, String dzonevacscol, String dferie, String dseason, DateTime dseasondate ) {
+		public int userevent;
+		public String userstring;
+		public CalDay(DateTime ddate, String dsdate, String dsaint, String dlsaint, DateTime dtimelune, String dtypelune, String dtypevacscol, 
+					  String dzonevacscol, String dferie, String dseason, DateTime dseasondate, int duserevent, String duserstring) {
 			date= ddate;
 			sdate= dsdate;
 			saint= dsaint;
@@ -89,6 +93,8 @@ implements	TableCellRenderer
 			ferie = dferie;
 			season = dseason;
 			seasondate = dseasondate;
+			userevent = duserevent;
+			userstring= duserstring;
 		}
 	}
 	// Arraylist containing all year days with their properties
@@ -229,14 +235,14 @@ implements	TableCellRenderer
 				}
 
 				YearDays.add( new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), CurSaints.get(CurDay.getDayOfYear()-1)[1],
-						s, null, "","","","","",null));
+						s, null, "","","","","",null, 0, ""));
 				// increment day
 				CurDay = CurDay.plusDays(1);	
 			}
 		}
 		else {  // no saints to load, create list
 			for (int i=0; i < DaysCount; i+=1) {
-				YearDays.add(new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "","",null, "","","","","",null));
+				YearDays.add(new CalDay(CurDay, CurDay.toString("dd/MM/yyyy"), "","",null, "","","","","",null, 0, ""));
 				// increment day
 				CurDay = CurDay.plusDays(1);
 			}
@@ -341,7 +347,26 @@ implements	TableCellRenderer
 			YearDays.get(seas.getDayOfYear()-1).season = season [i];
 			YearDays.get(seas.getDayOfYear()-1).seasondate = seas;
 		}
-
+		
+		// Add user events
+		if (!userEvents.isEmpty()) {
+			DateTimeFormatter format = DateTimeFormat.forPattern("yyyy/MM/dd-HH:mm");
+			Iterator<String[]> itr = userEvents.iterator();
+			while(itr.hasNext()) { 
+				String [] element =  itr.next();
+				try {
+					DateTime datebeg = format.parseDateTime(element[1]);
+					if (datebeg.getYear()==year) {
+						int j = datebeg.getDayOfYear();
+						YearDays.get(j-1).userevent ++;
+						YearDays.get(j-1).userstring += element [6]+": "+element[1].substring(11)+"<br>";
+					}
+				} catch (Exception e) {
+					// Nothing, invalid date
+				}
+				
+			}
+		}
 	}
 
 
@@ -405,21 +430,27 @@ implements	TableCellRenderer
 			LineDraw Line;
 			if (s.contains("A") && ShowVacA)
 			{
-				Line= new LineDraw(width-9, 0, width-9, height-2, colA, 2);
+				Line= new LineDraw(width-9, 0, 2, height-1, colA, 2);
 				Lines.add(Line);
 			}
 			if (s.contains("B") && ShowVacB )
 			{
-				Line= new LineDraw(width-6, 0, width-6, height-2, colB, 2);
+				Line= new LineDraw(width-6, 0, 2, height-1, colB, 2);
 				Lines.add(Line);
 			}
 			if (s.contains("C") && ShowVacC)
 			{
-				Line= new LineDraw(width-3, 0, width-3, height-2, colC, 2);
+				Line= new LineDraw(width-3, 0, 2, height-1, colC, 2);
 				Lines.add(Line);
 			}
-
-
+			
+			// User events
+			if (YearDays.get(dy-1).userevent > 0) {
+				evLine= true;
+			}
+			else {
+				evLine= false;
+			}
 			//Bold border around the current day ;
 			DateTime now;
 			now = new DateTime();
@@ -473,9 +504,10 @@ implements	TableCellRenderer
 			Color curCol = g.getColor();
 			for (int i=0; i < Lines.size(); i+= 1) {
 				g.setColor(Lines.get(i).col);
-				for (int j= 0; j<Lines.get(i).thick ;j+=1) {
-					g.drawLine(Lines.get(i).xb+j, Lines.get(i).yb, Lines.get(i).xe+j, Lines.get(i).ye);
-				}		
+				g.fillRect(Lines.get(i).x, Lines.get(i).y, Lines.get(i).w, Lines.get(i).h);
+				//for (int j= 0; j<Lines.get(i).thick ;j+=1) {
+				//	g.drawLine(Lines.get(i).xb+j, Lines.get(i).yb, Lines.get(i).xe+j, Lines.get(i).ye);
+				//}		
 			}
 			g.setColor(curCol);
 		}
@@ -484,13 +516,14 @@ implements	TableCellRenderer
 		if (evLine) 
 		{
 			g.setColor(Color.PINK);
-			g.drawLine( 1, 5, 1, height-5);
+			g.fillRect(1, 2, 8, height-4);
+			/*g.drawLine( 1, 5, 1, height-5);
 			g.drawLine( 2, 4, 2, height-4);
 			g.drawLine( 3, 4, 3, height-4);
 			g.drawLine( 4, 4, 4, height-4);
 			g.drawLine( 5, 4, 5, height-4);
 			g.drawLine( 6, 4, 6, height-4);
-			g.drawLine( 7, 5, 7, height-5);
+			g.drawLine( 7, 5, 7, height-5);*/
 		}
 		super.paint( g );
 		// Paint icon on right side of label

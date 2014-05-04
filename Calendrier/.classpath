@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="src/libs/joda-time-2.3.jar" sourcepath="C:/Users/Bernard/workspace/sources/joda-time-2.3-sources.jar">
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/joda-time-2.3.jar" sourcepath="C:/Users/Bernard/workspace/sources/joda-time-2.3-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/C:/Users/Bernard/workspace/sources/joda-time-2.3-sources.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="src/libs/aboutbox.jar"/>
-	<classpathentry kind="lib" path="src/libs/bArrayList.jar"/>
-	<classpathentry kind="lib" path="src/libs/bbutils.jar"/>
-	<classpathentry kind="lib" path="src/libs/stretchicon.jar"/>
-	<classpathentry kind="lib" path="src/libs/filedownload.jar"/>
-	<classpathentry kind="lib" path="src/libs/jcalendar-1.4.jar" sourcepath="C:/Users/Bernard/workspace/jCalendar/src">
+	<classpathentry exported="true" kind="lib" path="src/libs/aboutbox.jar"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/bArrayList.jar"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/bbutils.jar"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/stretchicon.jar"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/filedownload.jar"/>
+	<classpathentry exported="true" kind="lib" path="src/libs/jcalendar-1.4.jar" sourcepath="C:/Users/Bernard/workspace/jCalendar/src">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/C:/Users/Bernard/workspace/jCalendar/doc/"/>
 		</attributes>
