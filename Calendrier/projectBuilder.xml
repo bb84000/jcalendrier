@@ -117,7 +117,7 @@
 		    classpath="${launch4j.dir}/launch4j.jar
 		        :${launch4j.dir}/lib/xstream.jar" />
 		
-		<launch4j configFile="l4jcal.xml" 
+		<launch4j configFile="l4jcal1.xml" 
 			outfile="calendrier.exe"
 		    fileVersion="${spever}.${bldnum}" txtFileVersion="${spever}.${bldnum} (beta)" 
 			productVersion="${spever}.${bldnum}" txtProductVersion="${spever}.${bldnum} (beta)"
