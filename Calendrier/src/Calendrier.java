@@ -35,6 +35,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import javax.swing.AbstractAction;
@@ -1606,13 +1607,24 @@ public class Calendrier {
 	    }
 	    // Scolar holidays
 	    String sh =  Quarter.YearDays.get(day-1).zonevacscol;
-	    switch (sh.length()){
-	    	case 1 :	s += "Vacances scolaires: zone "+sh+"<br>"; 
+	    // Sort to get K (Corse) last
+	    char[] chars = sh.toCharArray();
+	    Arrays.sort(chars);
+	    sh = new String(chars);
+	    int ls = sh.length();
+	    // Corse is not a Zone !
+	    sh = sh.replace("K", "Corse");
+	   
+	    switch (ls){
+	    	case 1 :	if (sh.equalsIgnoreCase("Corse")) s += "Vacances scolaires: "+sh+"<br>"; 
+	    				else s += "Vacances scolaires: zone "+sh+"<br>"; 
 	    				break;
-	    	case 2 : 	s += "Vacances scolaires: zones "+sh.substring(0,1)+ "," + sh.substring(1,2)+"<br>";
+	    	case 2 : 	s += "Vacances scolaires: zones "+sh.substring(0,1)+ "," + sh.substring(1)+"<br>";
 	    				break;
-	    	case 3 :	s += "Vacances scolaires: zones "+sh.substring(0,1)+ "," + sh.substring(1,2)+","+sh.substring(2,3)+"<br>";
+	    	case 3 :	s += "Vacances scolaires: zones "+sh.substring(0,1)+ "," + sh.substring(1,2)+","+sh.substring(2)+"<br>";
 	    				break;
+	    	case 4 :	s += "Vacances scolaires: zones "+sh.substring(0,1)+ "," + sh.substring(1,2)+","+sh.substring(2,3)+","+sh.substring(3)+"<br>";
+	    				break;		
 	    }
 	    s += "Lever et coucher du soleil : "+sunrise.toString(fmt)+" - "+sunset.toString(fmt);	
 	    if (Quarter.YearDays.get(day-1).userevent > 0) {
