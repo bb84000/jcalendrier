@@ -2,7 +2,7 @@
 <project default="create_run_jar" name="Create Runnable Jar for Project Calendrier">
     <!--ANT 1.7 is required -->
 	<property environment="env"/>
-	<property name="ECLIPSE_HOME" value="C:\Program Files (x86)\Eclipse"/>
+	<property name="ECLIPSE_HOME" value="C:\Program Files\Eclipse"/>
 	<property name="debuglevel" value="source,lines,vars"/>
 	<property name="target" value="1.7"/>
 	<property name="source" value="1.7"/>

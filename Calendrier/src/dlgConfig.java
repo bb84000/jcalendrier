@@ -1168,7 +1168,7 @@ public class dlgConfig extends JDialog {
 	            	else if (cNode.getNodeName().equals("locatX")) location.x = Integer.parseInt(s);
 	            	else if (cNode.getNodeName().equals("locatY")) location.y = Integer.parseInt(s);
 	            	else if (cNode.getNodeName().equals("sizeW")) size.width = Integer.parseInt(s);
-	            	else if (cNode.getNodeName().equals("sizeW")) size.width = Integer.parseInt(s); 
+	            	else if (cNode.getNodeName().equals("sizeH")) size.height = Integer.parseInt(s); 
 	            	else if (cNode.getNodeName().equals("saveState")) saveState = Integer.parseInt(s); 
 	            	else if (cNode.getNodeName().equals("saveMoon")) {
 	            		saveMoon = s.equalsIgnoreCase("true");
