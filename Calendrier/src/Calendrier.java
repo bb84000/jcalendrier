@@ -1169,7 +1169,7 @@ public class Calendrier {
 		cbVacA.setIcon(unchecked);
 		checkedA.colEdgeu = new Color(122, 138, 153);
 		cbVacA.setSelectedIcon(checkedA);
-		cbVacA.setToolTipText("Caen, Clermont-Ferrand, Grenoble, Lyon, Montpellier, Nancy-Metz, Nantes, Rennes, Toulouse");
+		cbVacA.setToolTipText("Besan\u00E7on, Bordeaux, Clermont-Ferrand, Dijon, Grenoble, Limoges, Lyon, Poitiers");
 		cbVacA.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		cbVacA.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
@@ -1184,7 +1184,7 @@ public class Calendrier {
 		cbVacB.setIcon(unchecked);
 		checkedB.colEdgeu = new Color(122, 138, 153);
 		cbVacB.setSelectedIcon(checkedB);
-		cbVacB.setToolTipText("Aix-Marseille, Amiens, Besan\u00E7on, Dijon, Lille, Limoges, Nice, Orl\u00E9ans-Tours, Poitiers, Reims, Rouen, Strasbourg");
+		cbVacB.setToolTipText("Aix-Marseille, Amiens, Caen, Lille, Nancy-Metz, Nantes, Nice, Orl\u00E9ans-Tours, Reims, Rennes, Rouen, Strasbourg ");
 		cbVacB.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		cbVacB.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
@@ -1199,7 +1199,7 @@ public class Calendrier {
 		cbVacC.setIcon(unchecked);
 		checkedC.colEdgeu = new Color(122, 138, 153);
 		cbVacC.setSelectedIcon(checkedC);
-		cbVacC.setToolTipText("Bordeaux, Cr\u00E9teil, Paris, Versailles");
+		cbVacC.setToolTipText("Cr\u00E9teil, Montpellier, Paris, Toulouse, Versailles ");
 		cbVacC.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		cbVacC.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {

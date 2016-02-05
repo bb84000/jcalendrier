@@ -113,6 +113,10 @@ Version 0.7.0.9 -06/03/2015
 Version 0.7.0.10 - 01/02/2016
 - Corrected bug in saving main form height
 
+Version 0.7.0.11 - 05/02/2016
+- Updated scolar holidays and zones
+
+
 
 
   
