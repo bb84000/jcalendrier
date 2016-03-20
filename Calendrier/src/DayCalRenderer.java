@@ -347,6 +347,8 @@ implements	TableCellRenderer
 		String [] season = {"Printemps","Eté","Automne","Hiver"};
 		for (int i = 0; i < 4; i+= 1) {
 			seas = Astr.GetSaisonDate(year, i);
+			seas = seas.plusMinutes(Astr.getTZOff(seas));
+			
 			YearDays.get(seas.getDayOfYear()-1).season = season [i];
 			YearDays.get(seas.getDayOfYear()-1).seasondate = seas;
 		}
