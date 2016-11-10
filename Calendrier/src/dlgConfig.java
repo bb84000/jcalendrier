@@ -122,7 +122,7 @@ public class dlgConfig extends JDialog {
 	public DateTime builddate = null;
 	public String vendor = "";
 	private bArrayList towns;
-	private String town;
+	public String town;
 	private String ntown;
 	private int townind;
 	private int ntownind;

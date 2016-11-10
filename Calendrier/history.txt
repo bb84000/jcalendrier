@@ -118,5 +118,8 @@ Version 0.7.0.11 - 05/02/2016
 
 Version 0.7.0.12 - 20/03/2016
 - Corrected bug in season display for current day : now show local time.
+
+Version 0.7.0.13 - 10/11/2016
+- Added town in labels for sunset and sunrise
   
   

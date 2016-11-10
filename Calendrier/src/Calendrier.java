@@ -94,6 +94,7 @@ public class Calendrier {
 	private DateTime dt;
 	private Boolean Init;
 	private Timer labelTimer;
+	
 
 	// Config variables are in dlgConfig class
 	private dlgConfig Config;
@@ -150,6 +151,7 @@ public class Calendrier {
 	private int iYear;
 	private int iDay;
 	private int icounter;
+	
 	private JLabel lblToday_1a;
 	private JLabel lblToday_2a;
 	//private JButton btnPrevious;
@@ -833,6 +835,7 @@ public class Calendrier {
 					// OK button pressed
 					mr = dayEvent.open();
 					if (mr==mrOK); {
+						
 						// Changed day events, update list
 						if (dayEvent.changed) {
 							itr = dayEvent.arrEvents.iterator();
@@ -868,6 +871,7 @@ public class Calendrier {
 							}
 							Quarter.setYear(Year);
 							setLabelToday(dt);
+							
 							frmCalendrier.repaint();
 						}
 					}
@@ -1019,6 +1023,7 @@ public class Calendrier {
 					    CurState= frmCalendrier.getState();
 					    frmCalendrier.setState(CurState);
 						Config.setVisible(true);
+						
 					}
 					// Show about dialog
 					if (jminame.equals("pmnuabout")) {
@@ -1479,9 +1484,11 @@ public class Calendrier {
 		if (found) setHalfImage(year, tab);
 		
 	}
+	
 	// Update today Label every sec
     private void startLabel2() {
         labelTimer = new javax.swing.Timer(1000, updateLabel2());
+        
         labelTimer.start();
         labelTimer.setRepeats(true);
     }
@@ -1490,7 +1497,7 @@ public class Calendrier {
         return new AbstractAction("Label action") {
 
             private static final long serialVersionUID = 1L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 //increment second counter
@@ -1503,7 +1510,9 @@ public class Calendrier {
             	if (icounter > 59) {
             		icounter= 0;  // reset
             		int yr = dt.getYear();
-            		int dy = dt.getDayOfYear();
+            		int dy = dt.getDayOfYear(); 
+            		
+            		
             		if (yr != iYear) {
             			iYear= yr;
             			yearchanged(String.valueOf(yr));
@@ -1515,8 +1524,11 @@ public class Calendrier {
             			iDay = dy;
             			setLabelDay(dt);
             		}
+            		
             	}
             }
+           
+                    
         };
     } // end updatelabel
 
@@ -1564,7 +1576,7 @@ public class Calendrier {
 			lblSelected_1.setText(s);
 			lblSelected_2.setText(s);
 		} catch (Exception e1) {
-			
+			 
 			
 			// Invalid cell
 		}
@@ -1626,7 +1638,7 @@ public class Calendrier {
 	    	case 4 :	s += "Vacances scolaires: zones "+sh.substring(0,1)+ "," + sh.substring(1,2)+","+sh.substring(2,3)+","+sh.substring(3)+"<br>";
 	    				break;		
 	    }
-	    s += "Lever et coucher du soleil : "+sunrise.toString(fmt)+" - "+sunset.toString(fmt);	
+	    s += "Lever et coucher du soleil à "+Config.town+": "+sunrise.toString(fmt)+" - "+sunset.toString(fmt);	
 	    if (Quarter.YearDays.get(day-1).userevent > 0) {
 	    s += "<br>"+Quarter.YearDays.get(day-1).userstring;
 	    }
