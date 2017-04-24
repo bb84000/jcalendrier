@@ -122,4 +122,6 @@ Version 0.7.0.12 - 20/03/2016
 Version 0.7.0.13 - 10/11/2016
 - Added town in labels for sunset and sunrise
   
+Version 0.7.1.1 -24/04/2017
+- Added 2018 french school holidays
   

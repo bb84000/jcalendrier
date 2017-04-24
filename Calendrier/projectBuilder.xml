@@ -31,7 +31,8 @@
 	
 	<property file="C:\Users\Bernard\git\calendrier\Calendrier\src\resources\version.properties"/>   
 	<property name="bldnum" value="${build.number}"/>
-	<property name="spever" value="0.7.0"/>
+	<!--property name="spever" value="0.7.1"/-->
+	<property name="spever" value="${Specification-Version}"/>
 	<property name="spevnd" value="sdtp - bb" />
 	
 	<!-- We delete bin directory created by a previous build -->
