@@ -1233,7 +1233,7 @@ public class Calendrier {
 		pane_bottom.add(cbVacK);
 		// Met le calendrier au semestre courant
 		int month = dt.getMonthOfYear();
-		if (month > 5) {
+		if (month > 6) {
 			tabpane.setSelectedIndex(1);
 		}
 
