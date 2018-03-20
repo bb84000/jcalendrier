@@ -281,6 +281,7 @@ public class astro {
 			DateTime dt = new DateTime(year, 5, 31,0,0,0);           // On prend la fin du mois
 			int d = dt.getDayOfWeek();
 			dt = dt.plusDays(-d); // Et on retire les jours nécessaires
+			// Si pentecôte on décale à la semaine après
 			DateTime paq = getPaques(year);
 			if (dt.getDayOfYear() == paq.getDayOfYear()+49) dt = dt.plusDays(7); 
 			return   dt  ;    

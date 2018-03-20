@@ -35,6 +35,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.Beans;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -1424,10 +1426,15 @@ public class Calendrier {
 			FileNameExtensionFilter filter = new FileNameExtensionFilter(
 			    "Fichiers images", "gif", "jpg", "jpeg", "png");
 			chooser.setFileFilter(filter);
-			chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+			if (Files.isDirectory(Paths.get(Config.lastImgDirectory))) {
+				 chooser.setCurrentDirectory(new File(Config.lastImgDirectory));
+				}
+			else {
+				chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+			}
 			int returnVal = chooser.showOpenDialog(null);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
-				
+			   Config.lastImgDirectory= chooser.getCurrentDirectory().getPath();	
 			   // update list of images
 			   String [] arr = new String [3];
 			   arr[0]=Integer.toString(year);

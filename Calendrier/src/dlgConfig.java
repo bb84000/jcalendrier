@@ -83,6 +83,7 @@ public class dlgConfig extends JDialog {
 	public String OS;
 	public String workingDirectory;
 	public String execDirectory;
+	public String lastImgDirectory;
 	public Dimension size = new Dimension (1200,720);
 	public Point location = new Point(0,0);
 	public Color colback= new Color(255,255,255);
@@ -1227,6 +1228,7 @@ public class dlgConfig extends JDialog {
 	            		startmini = s.equalsIgnoreCase("true");
 	            		cbStartMini.setSelected(startmini);
 	            	}
+	            	else if (cNode.getNodeName().equals("imgdirectory")) lastImgDirectory = s;  
 	            }
 	        }
 	        // Search towns list for current town
@@ -1295,6 +1297,8 @@ public class dlgConfig extends JDialog {
 				el.appendChild(createXMLEntry(configXML,"lastupdchk", "string", lastupdchk.toString("yyyy-MM-dd")));
 				el.appendChild(createXMLEntry(configXML,"loadstart", "boolean", loadstart));
 				el.appendChild(createXMLEntry(configXML,"startmini", "boolean", startmini));
+				el.appendChild(createXMLEntry(configXML,"imgdirectory", "string", lastImgDirectory));
+				
 				configXML.appendChild(el);
 		        // The XML document we created above is still in memory
 		        //  create DOM source, then sagve it to file
