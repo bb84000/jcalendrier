@@ -166,7 +166,8 @@ implements	TableCellRenderer
 
 		if (workingDirectory.length()> 0) sntfile = workingDirectory+"/saints.csv";
 		if (!saints.readCSVfile(sntfile, "Cp1252")) {
-			saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv" ),"Cp1252");
+			//saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv" ),"Cp1252");
+			saints.readCSVstream(Calendrier.class.getResourceAsStream("/resources/saints.csv" ),"Cp1252");
 		}
 
 
@@ -178,7 +179,8 @@ implements	TableCellRenderer
 		String ferfile = "ferie.csv";
 		if (workingDirectory.length()> 0) ferfile = workingDirectory+"/ferie.csv";
 		if (!feries.readCSVfile(ferfile)) {
-			feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"), "Cp1252");
+			//feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"), "Cp1252");
+			feries.readCSVstream(Calendrier.class.getResourceAsStream("/resources/ferie.csv"), "Cp1252");
 		}
 
 		// Scolar holidays

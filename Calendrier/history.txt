@@ -134,4 +134,5 @@ Version 0.7.1.2 - 04/09/2017
 Version 0.7.1.4 - 20/03/2018
 - last image directory saved in config file
 
-  
+Version 0.7.2.0 - 13/04/2018
+- small code change to run with java 9

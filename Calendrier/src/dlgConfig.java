@@ -1116,7 +1116,8 @@ public class dlgConfig extends JDialog {
 		
 		// Read towns file and populate combo box
 		towns = new bArrayList();
-		towns.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/villes.csv" ),"cp1252");
+		//towns.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/villes.csv" ),"cp1252");
+		towns.readCSVstream(Calendrier.class.getResourceAsStream("/resources/villes.csv" ), "cp1252");
 		towns.sort(0);
 		Iterator<String[]> it = towns.iterator();
 		while(it.hasNext()) {
