@@ -125,7 +125,7 @@ implements	TableCellRenderer
 	public bArrayList imagesHalf;
 	public String imgfile;
 	private bArrayList saints;
-	private bArrayList vacscol;
+	private bArrayList holidays;
 	private DateTime seas;
 	
 
@@ -166,7 +166,6 @@ implements	TableCellRenderer
 
 		if (workingDirectory.length()> 0) sntfile = workingDirectory+"/saints.csv";
 		if (!saints.readCSVfile(sntfile, "Cp1252")) {
-			//saints.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/saints.csv" ),"Cp1252");
 			saints.readCSVstream(Calendrier.class.getResourceAsStream("/resources/saints.csv" ),"Cp1252");
 		}
 
@@ -179,15 +178,17 @@ implements	TableCellRenderer
 		String ferfile = "ferie.csv";
 		if (workingDirectory.length()> 0) ferfile = workingDirectory+"/ferie.csv";
 		if (!feries.readCSVfile(ferfile)) {
-			//feries.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/ferie.csv"), "Cp1252");
 			feries.readCSVstream(Calendrier.class.getResourceAsStream("/resources/ferie.csv"), "Cp1252");
 		}
 
-		// Scolar holidays
-		vacscol = new bArrayList();
-		if (!vacscol.readCSVfile("vacscol.csv")) {
-			vacscol.readCSVstream(ClassLoader.class.getResourceAsStream("/resources/vacscol.csv"));
+		// New scolar holidays
+		holidays = new bArrayList();
+		String holifile = "holidays.csv"; 
+		if (workingDirectory.length()> 0) holifile = workingDirectory+"/"+holifile;  
+		if (!holidays.readCSVfile(holifile)) {
+			holidays.readCSVstream(Calendrier.class.getResourceAsStream("/resources/holidays.csv"));
 		}	
+		
 	}
 	// Set the displayed year
 	public void setYear (int y){
@@ -318,25 +319,27 @@ implements	TableCellRenderer
 		} // end feries
 
 		// Add scolar holidays to days list
-		if  (!vacscol.isEmpty()) {  
+		if  (!holidays.isEmpty()) {
 			DateTimeFormatter format = DateTimeFormat.forPattern("dd/MM/yyyy");
-			Iterator<String[]> itr = vacscol.iterator();
+			Iterator<String[]> itr = holidays.iterator();
 			while(itr.hasNext()) {
 				int yr = 0;
 				String [] element =  itr.next();
 				try {
-					yr = Integer.parseInt(element[0]);
-					if (yr==year){
-						DateTime datebeg = format.parseDateTime(element[1]);
-						DateTime dateend = format.parseDateTime(element[2]);
-						int j = datebeg.getDayOfYear();
-						while (j <= dateend.getDayOfYear()){
-							YearDays.get(j-1).typevacscol = element[3];	
-							String ss = YearDays.get(j-1).zonevacscol;
-							YearDays.get(j-1).zonevacscol = ss+ element[4];
-							j +=1;
+					    DateTime datebeg = format.parseDateTime(element[0]);
+						DateTime dateend = format.parseDateTime(element[1]);
+						// Select the proper year and take care of begin/end of year
+						if ((datebeg.getYear()== year) || (dateend.getYear() == year)) {
+						 	int j = datebeg.getYear() < year ? 1 : datebeg.getDayOfYear();
+						 	int k = dateend.getYear() > year ? (Astr.isLeapYear(year) ? 366 : 365)  : dateend.getDayOfYear();
+             				while (j <= k){
+        						YearDays.get(j-1).typevacscol = element[2];	
+							    String ss = YearDays.get(j-1).zonevacscol;
+         						YearDays.get(j-1).zonevacscol = ss+ element[3];	 
+						    	j +=1;
+							}
 						}
-					}		
+							
 				} catch (NumberFormatException e) {
 					// do nothing invalid entry
 				}

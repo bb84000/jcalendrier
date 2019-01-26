@@ -135,4 +135,8 @@ Version 0.7.1.4 - 20/03/2018
 - last image directory saved in config file
 
 Version 0.7.2.0 - 13/04/2018
-- small code change to run with java 9
+- small code change to be future compatible with Java 9
+
+Version 0.7.3.0 -26/01/2019
+- Changed code and resource/file for scolar holidays, removed year field
+  and use begin and end dates.
