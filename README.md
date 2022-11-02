@@ -14,3 +14,4 @@ three french scolar holidays zones, and choose the nearest prefecture to get exa
 
 The project uses joda-time library from joda.org. 
 
+The program is no longer developed. It is replaced by new Calendrier<br>https://github.com/bb84000/calendrier
